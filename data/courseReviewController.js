@@ -3,45 +3,6 @@ import CourseReview from "../models/courseReviews.model.js";
 import Course from "../models/courses.model.js";
 import { isValidID } from "../utils/validation.utils.js";
 
-// 🔹 Core CRUD
-// createCourseReview
-
-// getAllCourseReviews
-
-// getCourseReviewById
-
-// updateCourseReviewById
-
-// deleteCourseReviewById
-
-// 🔹 Filter by Reference
-// getCourseReviewsByCourseId
-
-// getCourseReviewsByUserId
-
-// 🔹 Filter by Rating/Difficulty
-// getCourseReviewsByRating – exact or range
-
-// getCourseReviewsByDifficultyRating – exact or range
-
-// getCourseReviewsByAverageRating – for course average (aggregate)
-
-// 🔹 Filter by Course Info
-// getCourseReviewsByCourseCode
-
-// getCourseReviewsByCourseName
-
-// 🔹 Advanced Filtering & Sorting
-// filterCourseReviews
-// (e.g., filter by rating, difficulty, course, sort by most recent, etc.)
-
-// ✅ Optional (if you expand features):
-// getTopRatedCourses
-
-// getMostReviewedCourses
-
-// getRecentCourseReviews
-
 //Create a new course review
 export const createCourseReview = async (req, res) => {
 };
