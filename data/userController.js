@@ -1,6 +1,10 @@
 import express from "express";
 import User from "../models/user.model.js";
-import { isValidEmail, isValidID } from "../utils/validation.utils.js";
+import {
+  isValidEmail,
+  isValidID,
+  isValidPassword,
+} from "../utils/validation.utils.js";
 import { isValidObjectId } from "mongoose";
 
 //jusrt create all the functions but don't implement them yet
@@ -261,13 +265,86 @@ export const generateTokens = async (userId) => {
 };
 //update user password
 //David
-export const updatePassword = async (req, res) => {};
+export const updatePassword = async (req, res) => {
+  //Assuming it works like forgot password
+  try {
+    //req.body contains the two new passwords to make sure the password contains no typos
+    //and userId
+    const { newPassword1, newPassword2, userId } = req.body;
+    //Check if the two passwords are the same
+    if (newPassword1 !== newPassword2) {
+      return res.status(400).json({ message: "Passwords don't match" });
+    }
+    //Check for > 8 chars
+    if (newPassword1.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters long" });
+    }
+    //Check for < 1024 chars
+    if (newPassword1.length > 1024) {
+      return res
+        .status(400)
+        .json({ message: "Password must be less than 1024 characters long" });
+    }
+    //Check for empty passwords
+    if (newPassword1.trim().length === 0) {
+      return res.status(400).json({ message: "Password cannot be empty" });
+    }
+    //Regex check
+    if (!isValidPassword(newPassword1)) {
+      return res.status(400).json({ message: "Invalid Password" });
+    }
+    //Update password
+    const updatePassword = await User.findOneAndUpdate(
+      { userId },
+      { password: newPassword1 },
+      { new: true }
+    );
+    //Password update successful
+    res.status(200).json({ message: "Password update successful" });
+  } catch (error) {
+    //Server Error
+    res.status(500).json({
+      message: "Internal server error while updating passwords",
+      error,
+    });
+  }
+};
 //Update user Role
 //David
-export const updateUserRole = async (req, res) => {};
+export const updateUserRole = async (req, res) => {
+  try {
+    //req.body contains role and userID
+    const { newRole, userId } = req.body;
+    //
+    const updateRole = await User.findOneAndUpdate(
+      { userId },
+      { role: newRole },
+      { new: true }
+    );
+    res.status(200).json({ message: "Role update successful" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error while updating role",
+      error,
+    });
+  }
+};
 //Get user by email
 //David
-export const getUserByEmail = async (req, res) => {};
+export const getUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.find({ email });
+    res.status(200).json({ message: "Get User email successful" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error while getting email",
+      error,
+    });
+  }
+};
 //Search user by name
 //Akbar
 export const searchUserByName = async (req, res) => {};
