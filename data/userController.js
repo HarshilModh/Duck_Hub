@@ -6,6 +6,7 @@ import {
   isValidPassword,
 } from "../utils/validation.utils.js";
 import { isValidObjectId } from "mongoose";
+import bcrypt from "bcrypt";
 
 //jusrt create all the functions but don't implement them yet
 
@@ -270,7 +271,8 @@ export const updatePassword = async (req, res) => {
   try {
     //req.body contains the two new passwords to make sure the password contains no typos
     //and userId
-    const { newPassword1, newPassword2, userId } = req.body;
+    const userId = req.params.id;
+    const { newPassword1, newPassword2 } = req.body;
     //Check if the two passwords are the same
     if (newPassword1 !== newPassword2) {
       return res.status(400).json({ message: "Passwords don't match" });
@@ -296,11 +298,15 @@ export const updatePassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid Password" });
     }
     //Update password
-    const updatePassword = await User.findOneAndUpdate(
-      { userId },
-      { password: newPassword1 },
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword1, salt);
+    const updatePassword = await User.findByIdAndUpdate(
+      userId,
+      { $set: { password: hashedPassword } },
       { new: true }
     );
+
+    await updatePassword.save();
     //Password update successful
     res.status(200).json({ message: "Password update successful" });
   } catch (error) {
@@ -316,13 +322,15 @@ export const updatePassword = async (req, res) => {
 export const updateUserRole = async (req, res) => {
   try {
     //req.body contains role and userID
-    const { newRole, userId } = req.body;
+    const userId = req.params.id;
+    const { newRole } = req.body;
     //
-    const updateRole = await User.findOneAndUpdate(
-      { userId },
-      { role: newRole },
+    const updateRole = await User.findByIdAndUpdate(
+      userId,
+      { $set: { role: newRole } },
       { new: true }
     );
+    await updateRole.save();
     res.status(200).json({ message: "Role update successful" });
   } catch (error) {
     res.status(500).json({
@@ -334,9 +342,13 @@ export const updateUserRole = async (req, res) => {
 //Get user by email
 //David
 export const getUserByEmail = async (req, res) => {
+  let email;
   try {
-    const { email } = req.body;
-    const user = await User.find({ email });
+    email = req.params.email;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Email not found" });
+    }
     res.status(200).json({ message: "Get User email successful" });
   } catch (error) {
     res.status(500).json({

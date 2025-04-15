@@ -1,49 +1,49 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
 import {
-    createUser,
-    getUsers,
-    getUserById,
-    updateUser,
-    deleteUser,
-    loginUser,
-    logoutUser,
-    generateTokens,
-    updatePassword,
-    updateUserRole,
-    getUserByEmail,
-    searchUserByName,
-    getUsersByRole
-} from '../data/userController.js';
-import {verifyToken} from '../middlewares/auth.middleware.js';
-import { checkRole } from '../middlewares/roleCheck.middleware.js';
+  createUser,
+  getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  loginUser,
+  logoutUser,
+  generateTokens,
+  updatePassword,
+  updateUserRole,
+  getUserByEmail,
+  searchUserByName,
+  getUsersByRole,
+} from "../data/userController.js";
+import { verifyToken } from "../middlewares/auth.middleware.js";
+import { checkRole } from "../middlewares/roleCheck.middleware.js";
 
 // Create a new user
-router.post('/', createUser);
+router.post("/", createUser);
 // Get all users
-router.get('/', getUsers);
+router.get("/", getUsers);
 // Get a user by ID
-router.get('/:id', getUserById);
+router.get("/:id", getUserById);
 // Update a user by ID
-router.put('/:id', updateUser);
+router.put("/:id", updateUser);
 // Delete a user by ID
-router.delete('/:id', deleteUser);
+router.delete("/:id", deleteUser);
 // Login a user
-router.post('/login', loginUser);
+router.post("/login", loginUser);
 // Logout a user
-router.post('/logout', logoutUser);
+router.post("/logout", logoutUser);
 // Refresh token
-router.post('/refresh', generateTokens);
+router.post("/refresh", generateTokens);
 // Update user password
-router.put('/password', updatePassword);
+router.put("/password/:id", updatePassword);
 // Update user role
-router.put('/role', updateUserRole);
+router.put("/role/:id", updateUserRole);
 // Get user by email
-router.get('/email/:email', getUserByEmail);
+router.get("/email/:email", getUserByEmail);
 // Search user by name
-router.get('/search/:name', searchUserByName);
+router.get("/search/:name", searchUserByName);
 // Get all users by role
-router.get('/role/:role', getUsersByRole);
+router.get("/role/:role", getUsersByRole);
 // Export the router
 
 export default router;
