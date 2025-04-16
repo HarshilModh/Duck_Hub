@@ -7,6 +7,7 @@ import {
 } from "../utils/validation.utils.js";
 import { isValidObjectId } from "mongoose";
 import bcrypt from "bcrypt";
+import { use } from "passport";
 
 //jusrt create all the functions but don't implement them yet
 
@@ -266,96 +267,64 @@ export const generateTokens = async (userId) => {
 };
 //update user password
 //David
-export const updatePassword = async (req, res) => {
+export const updatePassword = async (userId, newPassword1, newPassword2) => {
   //Assuming it works like forgot password
-  try {
-    //req.body contains the two new passwords to make sure the password contains no typos
-    //and userId
-    const userId = req.params.id;
-    const { newPassword1, newPassword2 } = req.body;
-    //Check if the two passwords are the same
-    if (newPassword1 !== newPassword2) {
-      return res.status(400).json({ message: "Passwords don't match" });
-    }
-    //Check for > 8 chars
-    if (newPassword1.length < 8) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 8 characters long" });
-    }
-    //Check for < 1024 chars
-    if (newPassword1.length > 1024) {
-      return res
-        .status(400)
-        .json({ message: "Password must be less than 1024 characters long" });
-    }
-    //Check for empty passwords
-    if (newPassword1.trim().length === 0) {
-      return res.status(400).json({ message: "Password cannot be empty" });
-    }
-    //Regex check
-    if (!isValidPassword(newPassword1)) {
-      return res.status(400).json({ message: "Invalid Password" });
-    }
-    //Update password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword1, salt);
-    const updatePassword = await User.findByIdAndUpdate(
-      userId,
-      { $set: { password: hashedPassword } },
-      { new: true }
-    );
-
-    await updatePassword.save();
-    //Password update successful
-    res.status(200).json({ message: "Password update successful" });
-  } catch (error) {
-    //Server Error
-    res.status(500).json({
-      message: "Internal server error while updating passwords",
-      error,
-    });
+  if (newPassword1 !== newPassword2) {
+    throw new Error("Passwords don't match");
   }
+  //Check for > 8 chars
+  if (newPassword1.length < 8) {
+    throw new Error("Password must be at least 8 characters long");
+  }
+  //Check for < 1024 chars
+  if (newPassword1.length > 1024) {
+    throw new Error("Password must be less than 1024 characters long");
+  }
+  //Check for empty passwords
+  if (newPassword1.trim().length === 0) {
+    throw new Error("Password cannot be empty");
+  }
+  //Regex check
+  if (!isValidPassword(newPassword1)) {
+    throw new Error("Invalid Password");
+  }
+  //Update password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword1, salt);
+  const updatePassword = await User.findByIdAndUpdate(
+    userId,
+    { $set: { password: hashedPassword } },
+    { new: true }
+  );
+  if (!updatePassword) {
+    throw new Error("Update password failed");
+  }
+  await updatePassword.save();
+  //Password update successful
+  return updatePassword;
 };
 //Update user Role
 //David
-export const updateUserRole = async (req, res) => {
-  try {
-    //req.body contains role and userID
-    const userId = req.params.id;
-    const { newRole } = req.body;
-    //
-    const updateRole = await User.findByIdAndUpdate(
-      userId,
-      { $set: { role: newRole } },
-      { new: true }
-    );
-    await updateRole.save();
-    res.status(200).json({ message: "Role update successful" });
-  } catch (error) {
-    res.status(500).json({
-      message: "Internal server error while updating role",
-      error,
-    });
+export const updateUserRole = async (userId, newRole) => {
+  const updateRole = await User.findByIdAndUpdate(
+    userId,
+    { $set: { role: newRole } },
+    { new: true }
+  );
+  if (!updateRole) {
+    throw new Error("Update role failed");
   }
+  await updateRole.save();
+  return updateRole;
 };
 //Get user by email
 //David
-export const getUserByEmail = async (req, res) => {
-  let email;
-  try {
-    email = req.params.email;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "Email not found" });
-    }
-    res.status(200).json({ message: "Get User email successful" });
-  } catch (error) {
-    res.status(500).json({
-      message: "Internal server error while getting email",
-      error,
-    });
+export const getUserByEmail = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("Get user by email failed");
   }
+  return user;
 };
 //Search user by name
 //Akbar

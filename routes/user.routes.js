@@ -35,11 +35,41 @@ router.post("/logout", logoutUser);
 // Refresh token
 router.post("/refresh", generateTokens);
 // Update user password
-router.put("/password/:id", updatePassword);
+router.route("/password/:id").put(async (req, res) => {
+  const userId = req.params.id;
+  const { newPassword1, newPassword2 } = req.body;
+  try {
+    const updatedPassword = await updatePassword(
+      userId,
+      newPassword1,
+      newPassword2
+    );
+    return res.status(201).json(updatedPassword);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+});
 // Update user role
-router.put("/role/:id", updateUserRole);
+router.route("/role/:id").put(async (req, res) => {
+  const userId = req.params.id;
+  const { newRole } = req.body;
+  try {
+    const updatedRole = await updateUserRole(userId, newRole);
+    return res.status(201).json(updatedRole);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+});
 // Get user by email
-router.get("/email/:email", getUserByEmail);
+router.route("/email/:email").get(async (req, res) => {
+  const email = req.params.email;
+  try {
+    const findUser = await getUserByEmail(email);
+    return res.status(201).json(findUser);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+});
 // Search user by name
 router.get("/search/:name", searchUserByName);
 // Get all users by role
