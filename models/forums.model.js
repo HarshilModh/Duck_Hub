@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import User from "./user.model.js";
 // import User from "./user.model";
 dotenv.config();
 const forumSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: User.modelName,
       required: true,
       trim: true,
       maxLength: 50,
@@ -53,8 +54,7 @@ const forumSchema = new mongoose.Schema(
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Tags", // TODO :
-        required: true,
+        ref: "Tags",
       },
     ],
     reportedBy: [
