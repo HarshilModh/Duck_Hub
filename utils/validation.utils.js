@@ -27,3 +27,43 @@ export const isValidID = (id, varName) => {
   }
   return id;
 };
+
+export const isValidString = (strVal, varName) => {
+  if (!strVal) {
+    throw new Error(`Error: You must supply a ${varName}!`);
+  }
+  if (typeof strVal !== "string") {
+    throw new Error(`Error: ${varName} must be a string!`);
+  }
+  strVal = strVal.trim();
+  if (strVal.length === 0) {
+    throw new Error(
+      `Error: ${varName} cannot be an empty string or string with just spaces`
+    );
+  }
+  if (!isNaN(strVal)) {
+    throw new Error(
+      `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`
+    );
+  }
+  return strVal;
+};
+
+export const isValidArray = async (arr, varName) => {
+  if (arr.length === 0) {
+    throw new Error(`${varName} cannot be an empty array`);
+  }
+  if (!arr || !Array.isArray(arr)) {
+    throw new Error(`You must provide an array of ${varName}`);
+  }
+  for (let i in arr) {
+    if (typeof arr[i] !== "string" || arr[i].trim().length === 0) {
+      throw new Error(
+        `One or more elements in ${varName} array is not a string or is an empty string`
+      );
+    }
+    arr[i] = arr[i].trim();
+  }
+
+  return arr;
+};
