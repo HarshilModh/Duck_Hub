@@ -66,7 +66,7 @@ export const createUser = async (req, res) => {
     return res.status(400).json({ message: "Password cannot be empty" });
   }
   const isUserAlreadyExists = await User.findOne({
-    $or: [{ email }, { firstName }, { lastName }],
+    $or: [{ email }],
   });
   if (isUserAlreadyExists) {
     return res.status(400).json({ message: "User already exists" });
