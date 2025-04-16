@@ -359,7 +359,47 @@ export const getUserByEmail = async (req, res) => {
 };
 //Search user by name
 //Akbar
-export const searchUserByName = async (req, res) => {};
+export const searchUserByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ message: "Search term cannot be empty" });
+    }
+    // Create a case-insensitive search pattern
+    const searchPattern = new RegExp(name, 'i');
+    // Search for users whose first or last name matches the search pattern
+    const users = await User.find({
+      $or: [
+        { firstName: searchPattern },
+        { lastName: searchPattern }
+      ]
+    }).select("-password -refreshToken");
+    
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found matching the search criteria" });
+    }
+    return res.status(200).json(users);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error while searching for users", error });
+  }
+};
 //Get all users by role
 //Akbar
-export const getUsersByRole = async (req, res) => {};
+export const getUsersByRole = async (req, res) => {
+  try {
+    const { role } = req.params;
+    // Validate that the role is either 'user' or 'admin'
+    if (!role || (role !== 'user' && role !== 'admin')) {
+      return res.status(400).json({ message: "Invalid role. Role must be 'user' or 'admin'" });
+    }
+    // Find all users with the specified role
+    const users = await User.find({ role }).select("-password -refreshToken");
+    
+    if (users.length === 0) {
+      return res.status(404).json({ message: `No users found with role: ${role}` });
+    }
+    return res.status(200).json(users);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error while fetching users by role", error });
+  }
+};
