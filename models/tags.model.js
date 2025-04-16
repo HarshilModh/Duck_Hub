@@ -14,12 +14,14 @@ const tagsSchema = new mongoose.Schema(
       lowercase: true,
       required: true,
     },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       trim: true,
     },
+    /*
     createdAt: {
       type: Date,
       default: Date.now,
@@ -28,6 +30,7 @@ const tagsSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    */
   },
   { timestamps: true }
 );

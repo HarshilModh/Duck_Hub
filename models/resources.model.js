@@ -31,6 +31,7 @@ const resourcesSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    /*
     createdAt: {
       type: Date,
       default: Date.now,
@@ -39,6 +40,7 @@ const resourcesSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    */
     tags: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Tags",
