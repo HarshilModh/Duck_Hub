@@ -27,16 +27,16 @@ export const createForumPost = async (
   userId = isValidID(userId, "userId");
   //TODO: Discuss with harshil to change the code structure. Giving errors.
   // Check if user exists with that ID.
-  //   const user = await getUserById(userId);
-  //   if (!user) {
-  //     throw new Error("No User Found With Given ID");
-  //   }
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error("No User Found With Given ID");
+  }
   if (imageURLs) {
     imageURLs = await isValidArray(imageURLs);
     imageURLs = imageURLs.map((url) => isValidString(url, "Image URL"));
   }
-  if (tags) {
-    tags = await isValidArray(tags);
+  if (tags && tags.length !== 0) {
+    tags = await isValidArray(tags, "Tags");
     tags = tags.map((tag) => isValidID(tag, "TagID"));
   }
   //TODO: Implement code to check if a tag actually exists with the given ID. If not, simply remove the ID and proceed.
@@ -85,7 +85,44 @@ export const getForumPostById = async (id) => {
 };
 
 // Update a forum post by ID
-export const updateForumPostById = async (req, res) => {};
+export const updateForumPostById = async (forumId, updatedPost) => {
+  try {
+    forumId = isValidID(forumId);
+    const existingForum = await Forum.findById(forumId);
+    if (!existingForum) {
+      throw new Error("Could not find the post with the given ID");
+    }
+
+    if (updatedPost.title) {
+      existingForum.title = isValidString(updatedPost.title, "Post Title");
+    }
+
+    if (updatedPost.content) {
+      existingForum.content = isValidString(
+        updatedPost.content,
+        "Post Content"
+      );
+    }
+
+    if (updatedPost.imageURLs && updatedPost.imageURLs.length !== 0) {
+      existingForum.imageURLs = await isValidArray(
+        updatedPost.imageURLs,
+        "Image URLs"
+      );
+    }
+
+    if (updatedPost.tags && updatedPost.tags.length !== 0) {
+      updatedPost.tags = await isValidArray(updatedPost.tags, "Tags");
+      existingForum.tags = updatedPost.tags.map((tag) =>
+        isValidID(tag, "TagID")
+      );
+    }
+    const newPost = await existingForum.save();
+    return newPost;
+  } catch (error) {
+    throw new Error("Error Updating the post:" + error.message);
+  }
+};
 
 // Delete a forum post by ID
 export const deleteForumPostById = async (id) => {
@@ -99,7 +136,7 @@ export const deleteForumPostById = async (id) => {
 
     return { message: "Forum post deleted successfully", deletedPost };
   } catch (error) {
-    return `Error deleting forum post: ${error.message}`;
+    throw new Error(`Error deleting forum post: ${error.message}`);
   }
 };
 

@@ -4,7 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 dotenv.config();
 
 cloudinary.config({
-  cloud_name: process.env.cloud_name,
+  cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
@@ -27,9 +27,12 @@ const url = async (public_Id) => {
 };
 
 export const userImage = async (imagePath) => {
-  const results = await cloudinary.uploader.upload(imagePath);
+  const results = await cloudinary.uploader.upload(imagePath, {
+    folder: "forum_posts", // created a folder in cloudinary.
+  });
   const finalURL = await url(results.public_id);
   console.log(finalURL);
+  return finalURL;
 };
 
-userImage();
+// userImage();
