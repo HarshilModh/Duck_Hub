@@ -8,6 +8,8 @@ import {
 import { isValidObjectId } from "mongoose";
 import bcrypt from "bcrypt";
 import { use } from "passport";
+// import { use } from "passport"; Commented since it was throwing an error
+//SyntaxError: Named export 'use' not found. The requested module 'passport' is a CommonJS module, which may not support all module.exports as named exports.
 
 //jusrt create all the functions but don't implement them yet
 
@@ -102,26 +104,22 @@ export const getUsers = async (req, res) => {
   }
 };
 // Get a user by ID
-//Vamshi
-export const getUserById = async (req, res) => {
-  let userId;
+// Vamshi
+export const getUserById = async (userId) => {
   try {
-    userId = isValidID(req.params.id, "userId");
-  } catch (e) {
-    return res.status(400).json({ error: e.message });
-  }
-  try {
+    userId = isValidID(userId, "userId");
+
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      throw new Error("User not found");
     }
-    return res.status(200).json(user);
+    return user;
   } catch (e) {
-    return res.status(500).json({ error: "Server error: " + e.message });
+    throw new Error(e.message);
   }
 };
 // Update a user by ID
-//Vamshi
+// Vamshi
 // TODO: Maybe create a seperate API for password updation.
 export const updateUser = async (req, res) => {
   let userId;
@@ -146,7 +144,7 @@ export const updateUser = async (req, res) => {
   }
 };
 // Delete a user by ID
-//Vamshi
+// Vamshi
 export const deleteUser = async (req, res) => {
   let userId;
   try {
@@ -328,47 +326,7 @@ export const getUserByEmail = async (email) => {
 };
 //Search user by name
 //Akbar
-export const searchUserByName = async (req, res) => {
-  try {
-    const { name } = req.query;
-    if (!name || name.trim().length === 0) {
-      return res.status(400).json({ message: "Search term cannot be empty" });
-    }
-    // Create a case-insensitive search pattern
-    const searchPattern = new RegExp(name, 'i');
-    // Search for users whose first or last name matches the search pattern
-    const users = await User.find({
-      $or: [
-        { firstName: searchPattern },
-        { lastName: searchPattern }
-      ]
-    }).select("-password -refreshToken");
-    
-    if (users.length === 0) {
-      return res.status(404).json({ message: "No users found matching the search criteria" });
-    }
-    return res.status(200).json(users);
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error while searching for users", error });
-  }
-};
+export const searchUserByName = async (req, res) => {};
 //Get all users by role
 //Akbar
-export const getUsersByRole = async (req, res) => {
-  try {
-    const { role } = req.params;
-    // Validate that the role is either 'user' or 'admin'
-    if (!role || (role !== 'user' && role !== 'admin')) {
-      return res.status(400).json({ message: "Invalid role. Role must be 'user' or 'admin'" });
-    }
-    // Find all users with the specified role
-    const users = await User.find({ role }).select("-password -refreshToken");
-    
-    if (users.length === 0) {
-      return res.status(404).json({ message: `No users found with role: ${role}` });
-    }
-    return res.status(200).json(users);
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error while fetching users by role", error });
-  }
-};
+export const getUsersByRole = async (req, res) => {};
