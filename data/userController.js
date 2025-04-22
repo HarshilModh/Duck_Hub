@@ -7,7 +7,7 @@ import {
 } from "../utils/validation.utils.js";
 import { isValidObjectId } from "mongoose";
 import bcrypt from "bcrypt";
-import { use } from "passport";
+// import { use } from "passport";
 // import { use } from "passport"; Commented since it was throwing an error
 //SyntaxError: Named export 'use' not found. The requested module 'passport' is a CommonJS module, which may not support all module.exports as named exports.
 
@@ -15,67 +15,43 @@ import { use } from "passport";
 
 // Create a new user
 //Harshil
-export const createUser = async (req, res) => {
-  const firstName = req.body.firstName;
-  const lastName = req.body.lastName;
-  const email = req.body.email;
-  const password = req.body.password;
-  // console.log(req.body);
-
+export const createUser = async (firstName, lastName, email, password) => {
   if (!firstName || !lastName || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Please provide all required fields" });
+    throw new Error("Please provide all required fields");
   }
   if (password.length < 8) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 8 characters long" });
+    throw new Error("Password must be at least 8 characters long");
   }
   if (password.length > 1024) {
-    return res
-      .status(400)
-      .json({ message: "Password must be less than 1024 characters long" });
+    throw new Error("Password must be less than 1024 characters long");
   }
   if (firstName.length < 2) {
-    return res
-      .status(400)
-      .json({ message: "First name must be at least 2 characters long" });
+    throw new Error("First name must be at least 2 characters long");
   }
   if (firstName.length > 50) {
-    return res
-      .status(400)
-      .json({ message: "First name must be less than 50 characters long" });
+    throw new Error("First name must be less than 50 characters long");
   }
   if (lastName.length < 2) {
-    return res
-      .status(400)
-      .json({ message: "Last name must be at least 2 characters long" });
+    throw new Error("Last name must be at least 2 characters long");
   }
   if (lastName.length > 50) {
-    return res
-      .status(400)
-      .json({ message: "Last name must be less than 50 characters long" });
+    throw new Error("Last name must be less than 50 characters long");
   }
   if (firstName.trim().length === 0 || lastName.trim().length === 0) {
-    return res
-      .status(400)
-      .json({ message: "First name and last name cannot be empty" });
+    throw new Error("First name and last name cannot be empty");
   }
   if (email.trim().length === 0) {
-    return res.status(400).json({ message: "Email cannot be empty" });
+    throw new Error("Email cannot be empty");
   }
   if (password.trim().length === 0) {
-    return res.status(400).json({ message: "Password cannot be empty" });
+    throw new Error("Password cannot be empty");
   }
-  const isUserAlreadyExists = await User.findOne({
-    $or: [{ email }],
-  });
+  const isUserAlreadyExists = await User.findOne({ email });
   if (isUserAlreadyExists) {
-    return res.status(400).json({ message: "User already exists" });
+    throw new Error("User already exists");
   }
   if (!isValidEmail(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
+    throw new Error("Invalid email format");
   }
 
   try {
@@ -85,22 +61,25 @@ export const createUser = async (req, res) => {
       email,
       password,
     });
-    res.status(201).json({ message: "User created successfully", user });
+    return user;
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ message: "Email already exists" });
+      throw new Error("Email already exists");
     }
-    res.status(500).json({ message: "Internal server error", error });
+    throw new Error("Internal server error" + error);
   }
 };
 // Get all users
 //Harshil
-export const getUsers = async (req, res) => {
+export const getUsers = async () => {
   try {
     const users = await User.find().select("-password -refreshToken");
-    res.status(200).json(users);
+    if (!users || users.length === 0) {
+      throw new Error("No users found");
+    }
+    return users;
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    throw new Error("Internal server error");
   }
 };
 // Get a user by ID
@@ -145,25 +124,22 @@ export const updateUser = async (req, res) => {
 };
 // Delete a user by ID
 // Vamshi
-export const deleteUser = async (req, res) => {
-  let userId;
+export const deleteUser = async (userId) => {
   try {
-    userId = isValidID(req.params.id, "userId");
+    userId = isValidID(userId, "userId");
   } catch (e) {
-    return res.status(400).json({ error: e.message });
+    throw new Error(e.message);
   }
   try {
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-      return res.status(404).json({ error: "User not found" });
+      throw new Error("User not found");
     }
 
     // TODO: Need to discuss about self deletion of account. Need to do something with tokens?
-
-    return res.status(200).json({ message: "User deleted successfully" });
   } catch (e) {
-    return res.status(500).json({ error: "Server error: " + e.message });
+    throw new Error(e.message);
   }
 };
 // Login a user

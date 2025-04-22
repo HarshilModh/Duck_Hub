@@ -25,8 +25,6 @@ export const createForumPost = async (
   content = isValidString(content, "Post Content");
   // Validate userID
   userId = isValidID(userId, "userId");
-  //TODO: Discuss with harshil to change the code structure. Giving errors.
-  // Check if user exists with that ID.
   const user = await getUserById(userId);
   if (!user) {
     throw new Error("No User Found With Given ID");
@@ -141,7 +139,22 @@ export const deleteForumPostById = async (id) => {
 };
 
 // Filter forum posts by keyword in title or content
-export const filterForumPosts = async (req, res) => {};
+export const filterForumPosts = async (keyword) => {
+  try {
+    keyword = isValidString(keyword, "keyword");
+    const posts = await Forum.find({
+      $or: [
+        { title: { $regex: keyword, $options: "i" } },
+        { content: { $regex: keyword, $options: "i" } },
+      ],
+    });
+    if (!posts || posts.length === 0) {
+      throw new Error("No posts found matching the keyword.");
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 // Get forum posts by user ID
 export const getForumPostsByUserId = async (userId) => {
@@ -234,7 +247,19 @@ export const reportForumPost = async (req, res) => {};
 export const unreportForumPost = async (req, res) => {};
 
 // Get reported forum posts
-export const getReportedForumPosts = async (req, res) => {};
+export const getReportedForumPosts = async () => {
+  try {
+    const reportedPosts = await Forum.find({
+      reportedBy: { $exists: true, $not: { $size: 0 } },
+    });
+    if (!reportedPosts || reportedPosts.length === 0) {
+      throw new Error("No Forum Posts were Reported");
+    }
+    return reportedPosts;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 // Change forum post status
 export const changeForumPostStatus = async (req, res) => {};
@@ -243,5 +268,6 @@ export const changeForumPostStatus = async (req, res) => {};
 // Can use the getForumPostsByTagId API
 // export const getForumPostsByMultipleTags = async (req, res) => {};
 
+// Probably not necessary
 // Delete a forum post image
-export const deleteForumPostImage = async (req, res) => {};
+// export const deleteForumPostImage = async (req, res) => {};
