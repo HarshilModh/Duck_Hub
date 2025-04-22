@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import Department from "./department.model";
-import Review from "./courseReviews.model";
+import Department from "./department.model.js";
+import Review from "./courseReviews.model.js";
 
 const courseSchema = new mongoose.Schema(
   {
@@ -30,12 +30,14 @@ const courseSchema = new mongoose.Schema(
       type: Number,
       min: 1,
       max: 3,
+      default: 0,
       required: true,
     },
     averageRating: {
       type: Number,
       min: 0,
       max: 5,
+      default: 0,
       required: true,
     },
     reviews: [

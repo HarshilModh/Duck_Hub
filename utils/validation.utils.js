@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { getCourseById } from "../data/courseController.js";
 
 export const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,4 +67,56 @@ export const isValidArray = async (arr, varName) => {
   }
 
   return arr;
+};
+
+export const isValidNumber = async (value, varName) => {
+  if (value === undefined || value === null) {
+    throw new Error(`${varName} is required.`);
+  }
+
+  if (typeof value !== "number" || isNaN(value)) {
+    throw new Error(`${varName} must be a valid number.`);
+  }
+
+  return value;
+};
+
+export const calculateOverallRatings = async (
+  courseId,
+  newDifficulty,
+  newOverall,
+  isDeleted,
+  totalRatings
+) => {
+  courseId = isValidID(courseId, "Course ID");
+  let course;
+  try {
+    course = await getCourseById(courseId);
+    if (!course) {
+      throw new Error("No course found with the given ID");
+    }
+    const existingDifficulty = course.difficultyRating;
+    const existingAverage = course.averageRating;
+
+    let updatedDifficulty = 0;
+    let updatedOverall = 0;
+    if (isDeleted) {
+      updatedDifficulty =
+        (existingDifficulty * (totalRatings + 1) - newDifficulty) /
+        totalRatings;
+      updatedOverall =
+        (existingAverage * (totalRatings + 1) - newOverall) / totalRatings;
+    } else {
+      updatedDifficulty =
+        (existingDifficulty * (totalRatings - 1) + newDifficulty) /
+        totalRatings;
+      updatedOverall =
+        (existingAverage * (totalRatings - 1) + newOverall) / totalRatings;
+    }
+
+    const returnObject = { updatedDifficulty, updatedOverall };
+    return returnObject;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };

@@ -15,6 +15,8 @@ import {
   upvoteForumPost,
   deleteForumPostById,
   updateForumPostById,
+  filterForumPosts,
+  getReportedForumPosts,
 } from "../data/forumsController.js";
 import {
   isValidString,
@@ -145,6 +147,25 @@ router.route("/:id").put(upload.array("images", 5), async (req, res) => {
     return res
       .status(500)
       .json({ error: "Failed to update forum post: " + err.message });
+  }
+});
+
+router.route("/search").get(async (req, res) => {
+  const { keyword } = req.query;
+  try {
+    const filteredPosts = await filterForumPosts(keyword);
+    return res.status(200).json(filteredPosts);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+router.route("/reported").get(async (req, res) => {
+  try {
+    const reportedPosts = await getReportedForumPosts();
+    return res.status(200).json(reportedPosts);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
