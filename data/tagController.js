@@ -1,10 +1,6 @@
 import Tag from "../models/tags.model.js";
 import { getUserById } from "./userController.js";
-import {
-  isValidID,
-  isValidArray,
-  isValidString,
-} from "../utils/validation.utils.js";
+import { isValidID, isValidString } from "../utils/validation.utils.js";
 
 export const createTag = async (userId, name) => {
   name = name.trim();
