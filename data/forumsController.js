@@ -60,7 +60,7 @@ export const createForumPost = async (
 export const getAllForumPosts = async () => {
   try {
     //TODO: Populate the tag names after tags collection is created.
-    const allPosts = await Forum.find().select("-reportedBy"); //.populate("tags", "name -_id");
+    const allPosts = await Forum.find().populate("userId", "firstName lastName").select("-reportedBy").lean(); //.populate("tags", "name -_id");
     if (!allPosts) {
       throw new Error(
         "Sorry, no discussion forums available right now to be displayed"

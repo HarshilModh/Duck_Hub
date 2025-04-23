@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import forumCommentsModel from "../models/forumsComments.model.js";
-import { isValidString } from "../utils/validation.utils";
-import { isValidID } from "../utils/validation.utils";
+import { isValidString } from "../utils/validation.utils.js";
+import { isValidID } from "../utils/validation.utils.js";
 
 export const createForumComment = async (forumId,userId,content,imageURLs)=> {
 
