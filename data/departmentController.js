@@ -16,8 +16,8 @@ export const createDepartment = async (req, res) => {
 // Get all departments
 export const getAllDepartments = async (req, res) => {
     try {
-        const departments = await Department.find();
-        res.status(200).json(departments);
+        const departments = await Department.find().lean();
+        return departments
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

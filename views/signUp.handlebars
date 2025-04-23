@@ -1,96 +1,82 @@
-<div class="min-h-screen flex items-center justify-center bg-muted px-4">
-  <form action="/users/signup" method="POST"
-        class="w-full max-w-md bg-white rounded-2xl shadow p-6 space-y-4">
-    <!-- First Name -->
-    <div>
-      <label for="firstName" class="block text-gray-700 font-medium mb-1">
-        First Name
-      </label>
-      <input
-        type="text"
-        id="firstName"
-        name="firstName"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-      />
+<div class="min-h-screen flex items-center justify-center bg-stevensBg px-4 py-12">
+  <form
+    action="/users/signUp"
+    method="POST"
+    class="w-full max-w-lg bg-stevensWhite rounded-2xl shadow p-8 space-y-6"
+  >
+    <h2 class="text-2xl font-heading text-stevensMaroon text-center">
+      Create Your Account
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="firstName" class="block text-stevensGray mb-1">First Name</label>
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          required
+          class="w-full px-4 py-2 border border-stevensGray rounded-lg focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
+      <div>
+        <label for="lastName" class="block text-stevensGray mb-1">Last Name</label>
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          required
+          class="w-full px-4 py-2 border border-stevensGray rounded-lg focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
     </div>
 
-    <!-- Last Name -->
     <div>
-      <label for="lastName" class="block text-gray-700 font-medium mb-1">
-        Last Name
-      </label>
-      <input
-        type="text"
-        id="lastName"
-        name="lastName"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-      />
-    </div>
-
-    <!-- Email -->
-    <div>
-      <label for="email" class="block text-gray-700 font-medium mb-1">
-        Email
-      </label>
+      <label for="email" class="block text-stevensGray mb-1">Email Address</label>
       <input
         type="email"
         id="email"
         name="email"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        required
+        class="w-full px-4 py-2 border border-stevensGray rounded-lg focus:ring-2 focus:ring-stevensMaroon"
       />
     </div>
 
-    <!-- Password -->
-    <div>
-      <label for="password" class="block text-gray-700 font-medium mb-1">
-        Password
-      </label>
-      <input
-        type="password"
-        id="password"
-        name="password"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-      />
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="password" class="block text-stevensGray mb-1">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          class="w-full px-4 py-2 border border-stevensGray rounded-lg focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
+      <div>
+        <label for="confirmPassword" class="block text-stevensGray mb-1">Confirm Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          required
+          class="w-full px-4 py-2 border border-stevensGray rounded-lg focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
     </div>
 
-    <!-- Confirm Password -->
-    <div>
-      <label for="confirmPassword" class="block text-gray-700 font-medium mb-1">
-        Confirm Password
-      </label>
-      <input
-        type="password"
-        id="confirmPassword"
-        name="confirmPassword"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-      />
-    </div>
+    <button
+      type="submit"
+      class="w-full bg-stevensMaroon text-stevensWhite py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+    >
+      Sign Up
+    </button>
 
-    <!-- Submit Button -->
-    <div>
-      <button
-        type="submit"
-        class="w-full inline-flex justify-center items-center rounded-lg bg-primary px-4 py-2 text-white font-medium hover:bg-primary/90 transition"
-      >
-        Sign Up
-      </button>
-    </div>
-
-    <!-- Login Link -->
-    <div class="text-center">
-      <a
-        href="/users/login"
-        class="text-sm text-gray-600 hover:text-primary transition"
-      >
-        Already have an account? Log in
+    <p class="text-center text-sm text-stevensGray">
+      Already have an account?
+      <a href="/users/login" class="text-stevensMaroon hover:underline">
+        Log in
       </a>
-    </div>
-
-    <!-- Error Message -->
-    {{#if error}}
-      <p class="text-sm text-red-600 text-center mt-2">
-        {{error}}
-      </p>
-    {{/if}}
+    </p>
   </form>
 </div>

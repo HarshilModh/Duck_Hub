@@ -1,0 +1,36 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="font-heading text-3xl text-stevensMaroon mb-6">
+    Departments
+  </h1>
+
+  {{#if departments.length}}
+    <div class="space-y-4">
+      {{#each departments}}
+        <div class="flex items-center justify-between bg-stevensWhite rounded-2xl shadow p-4">
+          <span class="text-stevensMaroon font-heading">
+            {{this.departmentName}}
+          </span>
+          <div class="flex space-x-2">
+            <a
+              href="/departments/{{this._id}}/edit"
+              class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+            >
+              Edit
+            </a>
+            <form action="/departments/{{this._id}}?_method=DELETE" method="POST">
+              <button
+                type="submit"
+                class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                onclick="return confirm('Delete “{{this.departmentName}}”?');"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p class="text-center italic text-stevensGray">No departments found.</p>
+  {{/if}}
+</div>
