@@ -38,7 +38,7 @@ router.route("/:id").get(async (req, res) => {
 router.route("/:userId").get(async (req, res) => {
   const userId = req.params.id;
   try {
-    const userTag = await getTagsById(userId);
+    const userTag = await getTagsByUser(userId);
     return res.status(201).json(userTag);
   } catch (e) {
     return res.status(500).json({ error: e });
