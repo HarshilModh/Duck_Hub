@@ -168,3 +168,100 @@ export const updateCampusResourceById = async (
     throw new Error("Error updating campus resource: " + error.message);
   }
 };
+
+// Delete a campus resource by ID
+export const deleteCampusResourceById = async (id) => {
+  // validate id
+  id = isValidID(id, "Resource ID");
+  
+  try {
+    const deletedResource = await CampusResource.findByIdAndDelete(id);
+    
+    // check if resource exists
+    if (!deletedResource) {
+      throw new Error("Campus resource not found");
+    }
+    
+    return { message: "Campus resource deleted successfully", deletedResource };
+  } catch (error) {
+    throw new Error("Error deleting campus resource: " + error.message);
+  }
+};
+
+// Get campus resources by status
+export const getCampusResourcesByStatus = async (status) => {
+  // validate status
+  status = isValidString(status, "Status");
+  
+  // Make sure status is valid
+  if (status !== "active" && status !== "inactive") {
+    throw new Error("Status must be either 'active' or 'inactive'");
+  }
+  
+  try {
+    const resources = await CampusResource.find({ status: status });
+    
+    // check if there are resources with this status
+    if (!resources || resources.length === 0) {
+      throw new Error(`No campus resources found with status: ${status}`);
+    }
+    
+    return resources;
+  } catch (error) {
+    throw new Error("Error fetching campus resources: " + error.message);
+  }
+};
+
+// Get campus resources by type
+export const getCampusResourcesByType = async (type) => {
+  // validate type
+  type = isValidString(type, "Resource Type");
+  
+  try {
+    // this will find resources that have the specified type in their resourceType array
+    const resources = await CampusResource.find({ resourceType: type });
+    
+    // count the resources found
+    let count = 0;
+    for (let i = 0; i < resources.length; i++) {
+      count = count + 1;
+    }
+    
+    // check if there are resources with this type
+    if (count === 0) {
+      throw new Error(`No campus resources found with type: ${type}`);
+    }
+    
+    return resources;
+  } catch (error) {
+    throw new Error("Error fetching campus resources: " + error.message);
+  }
+};
+
+// Search campus resources by name or location
+export const searchCampusResources = async (searchTerm) => {
+  // validate search term
+  searchTerm = isValidString(searchTerm, "Search Term");
+  
+  try {
+    // create a regex pattern for case-insensitive search
+    const searchPattern = new RegExp(searchTerm, 'i');
+    
+    // find resources matching the search term in name or location
+    const resources = await CampusResource.find({
+      $or: [
+        { resourceName: searchPattern },
+        { location: searchPattern }
+      ]
+    });
+    
+    // check if there are matching resources
+    if (!resources || resources.length === 0) {
+      throw new Error(`No campus resources found matching: ${searchTerm}`);
+    }
+    
+    return resources;
+  } catch (error) {
+    throw new Error("Error searching campus resources: " + error.message);
+  }
+};
