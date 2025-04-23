@@ -18,12 +18,14 @@ import {
   filterForumPosts,
   getReportedForumPosts,
 } from "../data/forumsController.js";
+
 import {
   isValidString,
   isValidArray,
   isValidID,
 } from "../utils/validation.utils.js";
-getForumPostById;
+
+import { createForumComment, getCommentsByForumId } from "../data/forumsCommentsController.js";
 
 const uploadDir = "uploads";
 if (!fs.existsSync(uploadDir)) {
@@ -63,8 +65,10 @@ router.route("/").post(upload.array("images", 5), async (req, res) => {
 });
 
 router.route("/").get(async (req, res) => {
-  const posts = await getAllForumPosts(req, res);
-  return res.status(200).json(posts);
+  const forumPosts = await getAllForumPosts(req, res);
+  res.render('forumLanding', {
+    forumPosts
+  });
 });
 
 // GET /forums/:id — Get a forum post by ID
@@ -164,6 +168,27 @@ router.route("/reported").get(async (req, res) => {
   try {
     const reportedPosts = await getReportedForumPosts();
     return res.status(200).json(reportedPosts);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+router.route('/comments/:forumId').get(async (req, res) => {
+  try {
+    const forumId = req.params.forumId;
+    const comments = await getCommentsByForumId(forumId);
+    return res.status(200).json(comments);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+router.route('/comments').post(async (req, res) => {
+  try {
+    const { forumId, userId, content, imageURLs } = req.body;
+
+    const newComment = await createForumComment(forumId, userId, content, imageURLs);
+    return res.status(201).json(newComment);
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

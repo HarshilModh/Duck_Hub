@@ -28,8 +28,8 @@ const commentsSchema = new mongoose.Schema(
     },
     // saw the note that this should be a string not array
     imageURLs: {
-      type: String, 
-      default: "",  // empty string as default
+      type: [String], 
+      default: [],  // empty string as default
     },
     upVotes: {
       type: Number,

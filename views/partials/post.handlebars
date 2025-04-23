@@ -1,0 +1,50 @@
+<div class="forum-post-card bg-white rounded-xl shadow p-6 mb-6">
+  <h2 class="post-title text-xl font-semibold text-stevensMaroon mb-2">
+    {{title}}
+  </h2>
+
+  <p class="post-user text-sm text-stevensGray mb-1">
+    Posted by: {{userId.firstName}}_{{userId.lastName}}
+  </p>
+
+  <p class="post-content text-base text-gray-800 mb-4">
+    {{content}}
+  </p>
+
+  {{#if imageURLs.length}}
+    <div class="post-images flex space-x-2 overflow-x-auto pb-2 max-w-full">
+      {{#each imageURLs}}
+        <img
+          src="{{this}}"
+          alt="Post Image"
+          class="post-img h-40 w-auto rounded-md border shadow-sm flex-shrink-0"
+        />
+      {{/each}}
+    </div>
+  {{/if}}
+
+  <div class="post-votes flex items-center space-x-4 mt-4 text-sm text-gray-600">
+    <button
+      class="upvote-btn flex items-center space-x-1 hover:text-green-600 transition"
+      data-id="{{_id}}"
+    >
+      <span>👍</span>
+      <span>{{upVotes}}</span>
+    </button>
+
+    <button
+      class="downvote-btn flex items-center space-x-1 hover:text-red-600 transition"
+      data-id="{{_id}}"
+    >
+      <span>👎</span>
+      <span>{{downVotes}}</span>
+    </button>
+
+    <button
+      class="comment-btn text-stevensGray hover:text-stevensMaroon font-medium transition"
+      data-id="{{_id}}"
+    >
+      💬 Comment
+    </button>
+  </div>
+</div>

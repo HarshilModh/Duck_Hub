@@ -1,0 +1,12 @@
+<h1>Forum Posts</h1>
+
+{{#if forumPosts.length}}
+  <div id="forum-posts-container">
+    {{#each forumPosts}}
+      {{> post this}}
+    {{/each}}
+  </div>
+{{else}}
+  <p>No Forum Posts to show</p>
+  <a href="/forum/create" id="create-new-post-btn">Create New Post</a>
+{{/if}}
