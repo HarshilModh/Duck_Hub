@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const resourcesSchema = new mongoose.Schema(
+const academicResourcesSchema = new mongoose.Schema(
   {
     _id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -69,5 +69,5 @@ const resourcesSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const Resources = mongoose.model("Resources", resourcesSchema);
-export default Resources;
+const academicResources = mongoose.model("Resources", academicResourcesSchema);
+export default academicResources;
