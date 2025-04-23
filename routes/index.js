@@ -2,6 +2,7 @@ import express from "express";
 import userRoutes from "./user.routes.js";
 import forumRoutes from "./forum.routes.js";
 import reviewRoutes from "./review.routes.js";
+import departmentRoutes from "./department.routes.js";
 
 const router = express.Router();
 
@@ -11,5 +12,6 @@ const router = express.Router();
 router.use("/users", userRoutes);
 router.use("/forums", forumRoutes);
 router.use("/reviews", reviewRoutes);
+router.use("/departments", departmentRoutes);
 
 export default router;
