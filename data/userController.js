@@ -7,18 +7,19 @@ import {
 } from "../utils/validation.utils.js";
 import { isValidObjectId } from "mongoose";
 import bcrypt from "bcrypt";
-// import { use } from "passport";
-// import { use } from "passport"; Commented since it was throwing an error
-//SyntaxError: Named export 'use' not found. The requested module 'passport' is a CommonJS module, which may not support all module.exports as named exports.
-
-//jusrt create all the functions but don't implement them yet
+import session from "express-session";
 
 // Create a new user
 //Harshil
-export const createUser = async (firstName, lastName, email, password) => {
-  if (!firstName || !lastName || !email || !password) {
+export const createUser = async (firstName, lastName, email, password,confirmPassword) => {
+  if (!firstName || !lastName || !email || !password || !confirmPassword) {
     throw new Error("Please provide all required fields");
   }
+  firstName = firstName.trim();
+  lastName = lastName.trim();
+  email = email.trim();
+  password = password.trim();
+  confirmPassword = confirmPassword.trim();
   if (password.length < 8) {
     throw new Error("Password must be at least 8 characters long");
   }
@@ -46,6 +47,14 @@ export const createUser = async (firstName, lastName, email, password) => {
   if (password.trim().length === 0) {
     throw new Error("Password cannot be empty");
   }
+  if (confirmPassword.trim().length === 0) {
+    throw new Error("Confirm password cannot be empty");
+  }
+  if (password !== confirmPassword) {
+    throw new Error("Passwords do not match");
+  }
+
+
   const isUserAlreadyExists = await User.findOne({ email });
   if (isUserAlreadyExists) {
     throw new Error("User already exists");
@@ -53,7 +62,7 @@ export const createUser = async (firstName, lastName, email, password) => {
   if (!isValidEmail(email)) {
     throw new Error("Invalid email format");
   }
-
+  
   try {
     const user = await User.create({
       firstName,
@@ -68,6 +77,7 @@ export const createUser = async (firstName, lastName, email, password) => {
     }
     throw new Error("Internal server error" + error);
   }
+
 };
 // Get all users
 //Harshil
@@ -144,51 +154,44 @@ export const deleteUser = async (userId) => {
 };
 // Login a user
 //Harshil
-export const loginUser = async (req, res) => {
-  let { email, password } = req.body;
+export const loginUser = async (email, password) => {
+
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Please provide all required fields" });
+    throw new Error("Please provide all required fields");
   }
   if (email.trim().length === 0) {
-    return res.status(400).json({ message: "Email cannot be empty" });
+    throw new Error("Email cannot be empty");
   }
   if (password.trim().length === 0) {
-    return res.status(400).json({ message: "Password cannot be empty" });
+    throw new Error("Password cannot be empty");
   }
   if (!isValidEmail(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
+    throw new Error("Invalid email format");
   }
   if (password.length < 8) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 8 characters long" });
+    throw new Error("Password must be at least 8 characters long");
   }
   if (password.length > 1024) {
-    return res
-      .status(400)
-      .json({ message: "Password must be less than 1024 characters long" });
+    throw new Error("Password must be less than 1024 characters long");
   }
   if (password.trim().length === 0) {
-    return res.status(400).json({ message: "Password cannot be empty" });
+    throw new Error("Password cannot be empty");
   }
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ message: "User not found" });
+    throw new Error("User not found");
   }
   const isPasswordCorrect = await user.isPasswordCorrect(password);
   if (!isPasswordCorrect) {
-    return res.status(400).json({ message: "Invalid password" });
+    throw new Error("Incorrect password or email");
   }
   const accessToken = user.generateAccessToken();
   const refreshToken = user.generateRefreshToken();
   user.refreshToken = refreshToken;
   await user.save({ validateBeforeSave: true });
-  res.status(200).json({
-    message: "Login successful",
+  return {
     user: {
-      id: user._id,
+      _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -196,31 +199,14 @@ export const loginUser = async (req, res) => {
     },
     accessToken,
     refreshToken,
-  });
+  };
 };
-// Logout a user
-//Harshil
-export const logoutUser = async (req, res) => {
-  try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
-      return res.status(400).json({ message: "Please provide refresh token" });
-    }
-    if (refreshToken.trim().length === 0) {
-      return res.status(400).json({ message: "Refresh token cannot be empty" });
-    }
-    await User.findOneAndUpdate(
-      { refreshToken },
-      { refreshToken: null },
-      { new: true }
-    );
-    res.status(200).json({ message: "Logout successful" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal server error while logging out", error });
-  }
-};
+// // Logout a user
+// //Harshil
+// export const logoutUser = async () => {
+//  session.destroy();
+//  return true;
+// };
 // Refresh token
 //Harshil
 export const generateTokens = async (userId) => {
