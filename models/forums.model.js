@@ -60,7 +60,7 @@ const forumSchema = new mongoose.Schema(
     reportedBy: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User,
+        ref: User.modelName,
       },
     ],
   },

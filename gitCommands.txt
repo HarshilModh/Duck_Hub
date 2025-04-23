@@ -1,3 +1,12 @@
 git clone [url] - To clone a project into your local system.
 git branch - Gives a list of all the branches available.
 git log - Shows the commit history for the current branch 
+
+
+git add . - This adds all the files to the staging area
+git commit -m "commit message" - Commits your staged code changes with a message
+git push origin master - Pushes your code to the master branch
+
+The above three commands have to be followed in the same manner.
+
+git pull origin branchName -> Fetches code from the branch specified in "branchName"

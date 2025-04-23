@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+import User from "./user.model.js";
 
 const reviewSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: User.modelName,
       required: true,
       trim: true,
     },

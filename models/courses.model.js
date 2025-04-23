@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import Department from "./department.model.js";
+import Review from "./courseReviews.model.js";
 
 const courseSchema = new mongoose.Schema(
   {
@@ -21,25 +23,27 @@ const courseSchema = new mongoose.Schema(
     },
     departmentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "--FILL THIS--", // TODO: Add department schema name here. // TASK FOR: Akbar
+      ref: Department.modelName,
       required: true,
     },
     difficultyRating: {
       type: Number,
       min: 1,
       max: 3,
+      default: 0,
       required: true,
     },
     averageRating: {
       type: Number,
       min: 0,
       max: 5,
+      default: 0,
       required: true,
     },
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Review", // TODO
+        ref: Review.modelName,
       },
     ],
   },
