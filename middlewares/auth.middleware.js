@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-
+import session from "express-session";
 export const verifyToken = async(req, res, next) => {
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
@@ -30,3 +30,25 @@ export const verifyToken = async(req, res, next) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+export const isLoggedIn = (req, res, next) => {
+    //check if session exists
+    if (req.session.user) {
+         next();
+    } else {
+        // If session doesn't exist, redirect to login page
+        req.session.toast = {
+            type: "error",
+            message: "Please log in to access this page.",
+        };
+        return res.redirect("/users/login");
+    }
+}
+export const isNotLoggedIn = (req, res, next) => {
+    //check if session exists
+    if (req.session && req.session.user) {
+        // If session exists, redirect to user profile page
+        return res.redirect("/users/userProfile");
+    } else {
+         next();
+    }
+}

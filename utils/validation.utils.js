@@ -11,6 +11,8 @@ export const isValidPassword = (password) => {
 };
 
 export const isValidID = (id, varName) => {
+  console.log("ID", id);
+  
   if (!id) {
     throw new Error(`Error: You must provide a ${varName}`);
   }
