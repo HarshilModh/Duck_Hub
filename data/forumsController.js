@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Forum from "../models/forums.model.js";
+import ForumVotes from "../models/forumVotes.model.js";
 import { getUserById } from "./userController.js";
 import {
   isValidID,
@@ -60,7 +61,10 @@ export const createForumPost = async (
 export const getAllForumPosts = async () => {
   try {
     //TODO: Populate the tag names after tags collection is created.
-    const allPosts = await Forum.find().populate("userId", "firstName lastName").select("-reportedBy").lean(); //.populate("tags", "name -_id");
+    const allPosts = await Forum.find()
+      .populate("userId", "firstName lastName")
+      .select("-reportedBy")
+      .lean(); //.populate("tags", "name -_id");
     if (!allPosts) {
       throw new Error(
         "Sorry, no discussion forums available right now to be displayed"
@@ -205,9 +209,18 @@ export const getForumPostsByStatus = async (status) => {
 export const getTrendingForumPosts = async (req, res) => {};
 
 // Upvote a forum post
-export const upvoteForumPost = async (forumId) => {
+export const upvoteForumPost = async (forumId, userId) => {
   forumId = isValidID(forumId, "ForumID");
-  try {
+  userId = isValidID(userId, "UserID");
+
+  // Checking if the user voted previously
+  let existingVote = await ForumVotes.findOne({
+    forumId: forumId,
+    voterId: userId,
+  });
+
+  // If not, create a new vote and also update the upVote count by 1
+  if (!existingVote) {
     let forum = await Forum.findByIdAndUpdate(
       forumId,
       { $inc: { upVotes: 1 } },
@@ -216,16 +229,61 @@ export const upvoteForumPost = async (forumId) => {
     if (!forum) {
       throw new Error("Forum post not found.");
     }
+
+    const newVote = new ForumVotes({
+      voterId: userId,
+      forumId: forumId,
+      voteType: "UP",
+    });
+
+    const savedVote = await newVote.save();
+    if (!savedVote || !savedVote._id) {
+      throw new Error("Could not create a document for new Vote");
+    }
     return forum;
-  } catch (error) {
-    throw new Error("Error While UpVoting the Post" + error.message);
+  }
+
+  // If there was a upVote, throw error
+  if (existingVote && existingVote.voteType === "UP") {
+    throw new Error("You can't vote for a forum more than once !");
+  }
+
+  // If there was a downVote, remove it and create a new upVote
+  if (existingVote && existingVote.voteType === "DOWN") {
+    let forum = await Forum.findByIdAndUpdate(
+      forumId,
+      { $inc: { upVotes: 1, downVotes: -1 } },
+      { new: true }
+    );
+    if (!forum) {
+      throw new Error("Forum post not found.");
+    }
+
+    let updatedVote = await ForumVotes.findByIdAndUpdate(
+      existingVote._id,
+      { $set: { voteType: "UP" } },
+      { new: true }
+    );
+    if (!updatedVote) {
+      throw new Error("Could not upvote the previous downVote");
+    }
+    return forum;
   }
 };
 
 // Downvote a forum post
-export const downvoteForumPost = async (forumId) => {
+export const downvoteForumPost = async (forumId, userId) => {
   forumId = isValidID(forumId, "ForumID");
-  try {
+  userId = isValidID(userId, "UserID");
+
+  // Checking if the user voted previously
+  let existingVote = await ForumVotes.findOne({
+    forumId: forumId,
+    voterId: userId,
+  });
+
+  // If not, create a new vote and also update the downVote count by 1
+  if (!existingVote) {
     let forum = await Forum.findByIdAndUpdate(
       forumId,
       { $inc: { downVotes: 1 } },
@@ -234,9 +292,45 @@ export const downvoteForumPost = async (forumId) => {
     if (!forum) {
       throw new Error("Forum post not found.");
     }
+
+    const newVote = new ForumVotes({
+      voterId: userId,
+      forumId: forumId,
+      voteType: "DOWN",
+    });
+
+    const savedVote = await newVote.save();
+    if (!savedVote || !savedVote._id) {
+      throw new Error("Could not create a document for new Vote");
+    }
     return forum;
-  } catch (error) {
-    throw new Error("Error While DownVoting the Post" + error.message);
+  }
+
+  // If there was a downVote, throw error
+  if (existingVote && existingVote.voteType === "DOWN") {
+    throw new Error("You can't vote for a forum more than once !");
+  }
+
+  // If there was a upVote, remove it and create a new downVote
+  if (existingVote && existingVote.voteType === "UP") {
+    let forum = await Forum.findByIdAndUpdate(
+      forumId,
+      { $inc: { upVotes: -1, downVotes: 1 } },
+      { new: true }
+    );
+    if (!forum) {
+      throw new Error("Forum post not found.");
+    }
+
+    let updatedVote = await ForumVotes.findByIdAndUpdate(
+      existingVote._id,
+      { $set: { voteType: "DOWN" } },
+      { new: true }
+    );
+    if (!updatedVote) {
+      throw new Error("Could not downVote the previous upVote");
+    }
+    return forum;
   }
 };
 

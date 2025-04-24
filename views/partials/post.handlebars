@@ -4,7 +4,8 @@
   </h2>
 
   <p class="post-user text-sm text-stevensGray mb-1">
-    Posted by: {{userId.firstName}}_{{userId.lastName}}
+    Posted by:
+    {{userId.firstName}}_{{userId.lastName}}
   </p>
 
   <p class="post-content text-base text-gray-800 mb-4">
@@ -23,7 +24,9 @@
     </div>
   {{/if}}
 
-  <div class="post-votes flex items-center space-x-4 mt-4 text-sm text-gray-600">
+  <div
+    class="post-votes flex items-center space-x-4 mt-4 text-sm text-gray-600"
+  >
     <button
       class="upvote-btn flex items-center space-x-1 hover:text-green-600 transition"
       data-id="{{_id}}"
