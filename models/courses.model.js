@@ -30,15 +30,13 @@ const courseSchema = new mongoose.Schema(
       type: Number,
       min: 1,
       max: 3,
-      default: 0,
-      required: true,
+      default: null,
     },
     averageRating: {
       type: Number,
       min: 0,
       max: 5,
-      default: 0,
-      required: true,
+      default: null,
     },
     reviews: [
       {

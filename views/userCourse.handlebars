@@ -1,0 +1,37 @@
+{{!-- views/courses.handlebars --}}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="font-heading text-3xl text-stevensMaroon mb-6">
+    Courses
+  </h1>
+
+  {{#if courses.length}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {{#each courses}}
+    {{!-- on hover change mouse pointer and click to go to course details page--}}
+    <a href="/userSideCourses/course/{{this._id}}" class="block">
+        {{!-- Course Card --}}
+        <div class="bg-stevensWhite rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 cursor-pointer">
+          <div class="p-6 flex flex-col h-full">
+            <!-- Header -->
+            <p class="font-heading text-stevensMaroon text-lg mb-2">
+              {{this.courseCode}}
+            </p>
+            <!-- Title -->
+            <h2 class="font-semibold text-gray-800 text-xl mb-3 capitalize">
+              {{this.courseName}}
+            </h2>
+            <!-- Description -->
+            <p class="text-stevensGray text-sm flex-1 mb-4 line-clamp-4">
+              {{this.courseDescription}}
+            </p>
+            
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p class="text-center italic text-stevensGray">
+      No courses found.
+    </p>
+  {{/if}}
+</div>

@@ -1,0 +1,53 @@
+{{!-- views/courses.handlebars --}}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="font-heading text-3xl text-stevensMaroon mb-6">
+    Courses
+  </h1>
+
+  {{#if courses.length}}
+    <div class="space-y-4">
+      {{#each courses}}
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-stevensWhite rounded-2xl shadow p-4">
+          
+          <!-- Course Info -->
+          <div class="flex-1">
+            <p class="font-heading text-stevensMaroon">
+              {{this.courseCode}} –
+              <span class="font-medium text-gray-800 capitalize">
+                {{this.courseName}}
+              </span>
+            </p>
+            <p class="text-stevensGray text-sm mt-1">
+              {{this.courseDescription}}
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-4 sm:mt-0 flex space-x-2">
+            <a
+              href="/courses/{{this._id}}"
+              class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+            >
+              Edit
+            </a>
+            <form action="/courses/{{this._id}}" method="POST">
+                <input type="hidden" name="_method" value="DELETE" />
+              <button
+                type="submit"
+                class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                onclick="return confirm('Delete {{this.courseCode}} – {{this.courseName}}?');"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p class="text-center italic text-stevensGray">
+      No courses found.
+    </p>
+  {{/if}}
+</div>
