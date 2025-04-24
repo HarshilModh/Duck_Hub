@@ -73,6 +73,7 @@ router.route("/").get(async (req, res) => {
   const forumPosts = await getAllForumPosts(req, res);
   res.render("forumLanding", {
     forumPosts,
+    layout: "dashboard",
   });
 });
 
