@@ -1,0 +1,66 @@
+<div class="max-w-xl mx-auto px-4 py-8">
+  <!-- Page Title -->
+  <h1 class="text-2xl font-heading text-stevensMaroon mb-6">
+    Course Details
+  </h1>
+
+  <!-- Card Container -->
+  <div class="bg-stevensWhite border border-gray-200 rounded-xl p-6 shadow-sm">
+    <!-- Course Title in red colour -->
+    <h2 class="text-3xl font-semibold text-stevensMaroon mb-4">
+      {{course.courseName}}
+    </h2>
+    <!-- Course Code -->
+    <div class="mb-4">
+      <p class="text-sm text-gray-500 uppercase">Course Code</p>
+      <p class="text-lg font-medium text-gray-800">{{course.courseCode}}</p>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-6">
+      <p class="text-sm text-gray-500 uppercase">Description</p>
+      <p class="text-gray-700">{{course.courseDescription}}</p>
+    </div>
+
+    {{#if course.reviews.length}}
+      <!-- Ratings Grid -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+          <p class="text-sm text-gray-500">Avg. Rating</p>
+          <p class="font-medium text-gray-800">{{course.averageRating}}/5</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Difficulty</p>
+          <p class="font-medium text-gray-800">{{course.difficultyRating}}/3</p>
+        </div>
+      </div>
+
+      <!-- Reviews List -->
+      <div class="mb-6">
+        <p class="text-sm text-gray-500 uppercase mb-2">Reviews</p>
+        <ul class="space-y-4">
+          {{#each course.reviews}}
+            <li class="space-y-1">
+              <p class="text-sm font-medium text-gray-800">
+                {{this.userName}} 
+                <span class="text-gray-500">({{this.overallRating}}/5)</span>
+              </p>
+              <p class="text-gray-700">{{this.review}}</p>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    {{else}}
+      <p class="italic text-gray-600 mb-6">No reviews yet.</p>
+    {{/if}}
+
+    <!-- Call to Action -->
+    <a
+    {{!-- /course/:id/addReview --}}
+      href="/userSideCourses/course/{{course._id}}/addReview"
+      class="block text-center bg-stevensMaroon text-stevensWhite py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+    >
+      Add Review
+    </a>
+  </div>
+</div>

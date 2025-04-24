@@ -1,0 +1,315 @@
+import express from 'express';
+import { createCourse, deleteCourseById, getAllCourses, getCourseById, updateCourseById } from '../data/courseController.js';
+import { getAllDepartments } from "../data/departmentController.js"
+import session from 'express-session';
+import { isLoggedIn } from '../middlewares/auth.middleware.js';
+import { checkRole } from '../middlewares/roleCheck.middleware.js';
+import Department from '../models/department.model.js';
+import { courseValidation } from '../utils/validation.utils.js';
+import { isCourseCodeExists, isCourseNameExists } from '../data/courseController.js';
+
+import { isValidID, isValidString } from '../utils/validation.utils.js';
+
+const router = express.Router();
+// Render course page and print all courses
+router.use(isLoggedIn);
+
+//load add course page
+router.route('/addCourse').get(async (req, res) => {
+    const departments = await getAllDepartments();
+    res.render('addCourse', { title: 'Add Course', departments });
+}).post(async (req, res) => {
+    console.log('Creating course');
+    
+    console.log(req.body);
+    
+    let courseName = req.body.courseName;
+    let courseCode = req.body.courseCode;
+    let courseDescription = req.body.courseDescription;
+    let courseDepartment = req.body.departmentId;
+    if (!courseName || !courseCode || !courseDescription || !courseDepartment) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Please fill all the fields',
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    if (courseCode.trim().length === 0 || courseName.trim().length === 0 || courseDescription.trim().length === 0 || courseDepartment.trim().length === 0) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Please fill all the fields',
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    if (typeof courseCode !== "string" || typeof courseName !== "string" || typeof courseDescription !== "string" || typeof courseDepartment !== "string") {
+        req.session.toast = {
+            type: 'error',
+            message: 'Course code, name, description and department ID must be strings',
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    courseCode = courseCode.trim()
+    courseName = courseName.trim()
+    courseDescription = courseDescription.trim();
+    courseDepartment = courseDepartment.trim();
+    // Validate course data
+    try {
+        await courseValidation(courseCode, courseName, courseDescription, courseDepartment);
+    } catch (error) {
+        req.session.toast = {
+            type: 'error',
+            message: error.message,
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    // Check if course already exists with the same code
+    try {
+        const existingCourse = await isCourseCodeExists(courseCode);
+        if (existingCourse) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Course already exists with the same code',
+            };
+            return res.redirect('/courses/addCourse');
+        }
+    } catch (error) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to check course code'+error.message,
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    
+    // Check if department exists
+    const existingDepartment = await Department.findById(courseDepartment);
+    if (!existingDepartment) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Department does not exist',
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    // Check if course already exists with the same name
+    
+
+    try {
+        const newCourse = await createCourse(courseCode, courseName, courseDescription, courseDepartment);
+        console.log(newCourse);
+        if (!newCourse) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Failed to create course',
+            };
+            return res.redirect('/courses/addCourse');
+        }
+        req.session.toast = {
+            type: 'success',
+            message: `Course created successfully named ${newCourse.courseName} with code ${newCourse.courseCode}`,
+        };
+        return res.redirect('/courses');
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to create course',
+        };
+        return res.redirect('/courses/addCourse');
+    }
+});
+//load course page
+router.route('/').get(async (req, res) => {
+    console.log('Fetching all courses');
+    try {
+        const courses = await getAllCourses();
+        console.log(courses);
+        if (!courses) {
+            req.session.toast = {
+                type: 'error',
+                message: 'No courses found',
+            };
+            return res.redirect('/users/userProfile');
+        }
+        console.log("rendering course page");
+
+        res.render('course', { title: 'Course', courses });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch courses',
+        };
+    }
+
+});
+router.route('/:id').get(async (req, res) => {
+    console.log('Fetching course by ID');
+    let courseId = req.params.id;
+    courseId = courseId.trim();
+    if (courseId.length === 0) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Please provide a course ID',
+        };
+        return res.redirect('/courses');
+    }
+    if (typeof courseId !== "string") {
+        req.session.toast = {
+            type: 'error',
+            message: 'Course ID must be a string',
+        };
+        return res.redirect('/courses');
+    }
+    // Validate course ID
+    try {
+        const isIDValid=isValidID(courseId, "Course ID");
+        if (!isIDValid) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid course ID',
+            };
+            return res.redirect('/courses');
+        }
+    } catch (error) {
+        req.session.toast = {
+            type: 'error',
+            message: error.message,
+        };
+        return res.redirect('/courses');
+    }
+    try {
+        const course = await getCourseById(courseId);
+        const departments= await getAllDepartments();
+        if (!course) {
+            req.session.toast = {
+                type: 'error',
+                message: 'No course found with the given ID',
+            };
+            return res.redirect('/courses');
+        }
+        console.log("rendering course details page", course);
+
+        
+        res.render('editCourse', { 
+            title: 'Course Details', 
+            courseName: course.courseName, 
+            courseCode: course.courseCode, 
+            courseDescription: course.courseDescription, 
+            departments: departments,
+            courseId: courseId 
+        });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch course details',
+        };
+        return res.redirect('/courses');
+    }
+}).put(async(req,res)=>{
+    console.log('Updating course by ID');
+    const courseId = req.body.id|| req.params.id;
+    console.log(courseId);
+    console.log(req.body);
+    let courseName = req.body.courseName;
+    let courseCode = req.body.courseCode;
+    let courseDescription = req.body.courseDescription;
+    let courseDepartment = req.body.departmentId;
+    if (!courseName || !courseCode || !courseDescription || !courseDepartment) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Please fill all the fields',
+        };
+        return res.redirect('/courses');
+    }
+    if (courseCode.trim().length === 0 || courseName.trim().length === 0 || courseDescription.trim().length === 0 || courseDepartment.trim().length === 0) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Please fill all the fields',
+        };
+        return res.redirect('/courses/addCourse');
+    }
+    if (typeof courseCode !== "string" || typeof courseName !== "string" || typeof courseDescription !== "string" || typeof courseDepartment !== "string") {
+        req.session.toast = {
+            type: 'error',
+            message: 'Course code, name, description and department ID must be strings',
+        };
+        return res.redirect('/courses');
+    }
+    courseCode = courseCode.trim()
+    courseName = courseName.trim()
+    courseDescription = courseDescription.trim();
+    courseDepartment = courseDepartment.trim();
+    
+    // Validate course data
+    try {
+        await courseValidation(courseCode, courseName, courseDescription, courseDepartment);
+    } catch (error) {
+        req.session.toast = {
+            type: 'error',
+            message: error.message,
+        };
+        return res.redirect('/courses');
+    }
+    
+    // Check if department exists
+    const existingDepartment = await Department.findById(courseDepartment);
+    if (!existingDepartment) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Department does not exist',
+        };
+        return res.redirect('/courses');
+    }
+    
+
+    // Update course
+    try {
+        const updatedCourse = await updateCourseById(courseId, courseCode, courseName, courseDescription, courseDepartment);
+        if (!updatedCourse) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Failed to update course',
+            };
+            return res.redirect('/courses');
+        }
+        req.session.toast = {
+            type: 'success',
+            message: `Course updated successfully`,
+        };
+        return res.redirect('/courses');
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to update course',
+        };
+        return res.redirect('/courses');
+    }
+}).delete(async (req, res) => {
+    console.log('Deleting course by ID');
+    const courseId = req.params.id;
+    try {
+        const deletedCourse = await deleteCourseById(courseId);
+        if (!deletedCourse) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Failed to delete course',
+            };
+            return res.redirect('/courses');
+        }
+        req.session.toast = {
+            type: 'success',
+            message: `Course deleted successfully`,
+        };
+        return res.redirect('/courses');
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to delete course',
+        };
+        return res.redirect('/courses');
+    }
+})
+
+export default router;

@@ -3,18 +3,11 @@ import Course from "../models/courses.model.js";
 import { isValidEmail } from "../utils/validation.utils.js";
 import { isValidID } from "../utils/validation.utils.js";
 import Department from "../models/department.model.js";
-// import { courseValidation } from "../utils/validation.utils.js";
+import { courseValidation } from "../utils/validation.utils.js";
 //Create a new course
-export const createCourse = async (req, res) => {
-  const courseCode = req.body.courseCode;
-  const courseName = req.body.courseName;
-  const courseDescription = req.body.courseDescription;
-  const departmentId = req.body.departmentId;
-
-  //    const isCourseCodeValid = courseValidation(courseCode,courseName,courseDescription,departmentId);
-  //    if (!isCourseCodeValid) {
-  //         return res.status(400).json({ message: "Invalid course code" });
-  //     }
+export const createCourse = async (courseCode,courseName,courseDescription,departmentId) => {
+   
+     
   // Create a new course
   const newCourse = new Course({
     courseCode,
@@ -23,49 +16,50 @@ export const createCourse = async (req, res) => {
     departmentId,
   });
   try {
-    await newCourse.save();
-    res.status(201).json(newCourse);
+    let createdCourse=await newCourse.save();
+    if (!createdCourse) {
+      throw new Error("Failed to create course");
+    }
+    return createdCourse;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Get all courses
 export const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find();
-    res.status(200).json(courses);
+    const courses = await Course.find().lean();
+    return courses;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Get a course by ID
-export const getCourseById = async (req, res) => {
-  const courseId = req.params.id;
+export const getCourseById = async (courseId) => {
+
   // Validate course ID
   if (!courseId || !isValidID(courseId)) {
-    return res.status(400).json({ message: "Invalid course ID" });
+    throw new Error("Invalid course ID");
   }
   try {
-    const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId).lean();
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+        throw new Error("Course not found");
     }
-    res.status(200).json(course);
+    return course;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Update a course by ID
-export const updateCourseById = async (req, res) => {
-  const courseId = req.params.id;
+export const updateCourseById = async (courseId,courseCode,courseName,courseDescription,departmentId) => {
+
+  
   // Validate course ID
   if (!courseId || !isValidID(courseId)) {
-    return res.status(400).json({ message: "Invalid course ID" });
+    throw new Error("Invalid course ID");
   }
-  const courseCode = req.body.courseCode;
-  const courseName = req.body.courseName;
-  const courseDescription = req.body.courseDescription;
-  const departmentId = req.body.departmentId;
+  
   // Validate course code
   const isCourseCodeValid = courseValidation(
     courseCode,
@@ -74,7 +68,7 @@ export const updateCourseById = async (req, res) => {
     departmentId
   );
   if (!isCourseCodeValid) {
-    return res.status(400).json({ message: "Invalid course code" });
+    throw new Error("Invalid course code");
   }
   try {
     const updatedCourse = await Course.findByIdAndUpdate(
@@ -88,62 +82,61 @@ export const updateCourseById = async (req, res) => {
       { new: true }
     );
     if (!updatedCourse) {
-      return res.status(404).json({ message: "Course not found" });
+      throw new Error("Course not found");
     }
-    res.status(200).json(updatedCourse);
+    return updatedCourse;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Delete a course by ID
-export const deleteCourseById = async (req, res) => {
-  const courseId = req.params.id;
+export const deleteCourseById = async (courseId) => {
+
   // Validate course ID
   if (!courseId || !isValidID(courseId)) {
-    return res.status(400).json({ message: "Invalid course ID" });
+    throw new Error("Invalid course ID");
   }
   try {
     const course = await Course.findByIdAndDelete(courseId);
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+      throw new Error("Course not found");
     }
-    res.status(200).json({ message: "Course deleted successfully" });
+    return course;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Get courses by course code
-export const getCourseByCourseCode = async (req, res) => {
-  const courseCode = req.params.courseCode;
+export const getCourseByCourseCode = async (courseCode) => {
+  
   // Validate course code
   if (!courseCode || typeof courseCode !== "string") {
-    return res.status(400).json({ message: "Invalid course code" });
+    throw new Error("Invalid course code");
   }
   try {
     const courses = await Course.find({ courseCode });
     if (courses.length === 0) {
-      return res.status(404).json({ message: "Course not found" });
+      throw new Error("Course not found");
     }
-    res.status(200).json(courses);
+    return courses;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Get courses by course name
-export const getCourseByCourseName = async (req, res) => {
-  const courseName = req.params.courseName;
+export const getCourseByCourseName = async (courseName) => {
   // Validate course name
   if (!courseName || typeof courseName !== "string") {
-    return res.status(400).json({ message: "Invalid course name" });
+    throw new Error("Invalid course name");
   }
   try {
     const courses = await Course.find({ courseName });
     if (courses.length === 0) {
-      return res.status(404).json({ message: "Course not found" });
+      throw new Error("Course not found");
     }
-    res.status(200).json(courses);
+    return courses;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };
 //Get courses by department
@@ -332,3 +325,37 @@ export const searchCoursesByDepartmentNameRegex = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+//is course code already exists 
+export const isCourseCodeExists = async (courseCode) => {
+  // Validate course code
+  if (!courseCode || typeof courseCode !== "string") {
+    throw new Error("Invalid course code");
+  }
+  try {
+    const course = await Course.findOne({ courseCode });
+    if (course) {
+      return true;
+    }
+    return false;
+  }
+  catch (error) {
+    throw new Error(error.message);
+  }
+}
+//is course name already exists
+export const isCourseNameExists = async (courseName) => {
+  // Validate course name
+  if (!courseName || typeof courseName !== "string") {
+    throw new Error("Invalid course name");
+  }
+  try {
+    const course = await Course.findOne({ courseName });
+    if (course) {
+      return true;
+    }
+    return false;
+  }
+  catch (error) {
+    throw new Error(error.message);
+  }
+}

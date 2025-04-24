@@ -8,6 +8,7 @@ const reviewSchema = new mongoose.Schema(
       ref: User.modelName,
       required: true,
       trim: true,
+      unique: true,
     },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
