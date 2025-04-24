@@ -25,7 +25,12 @@ import {
   isValidID,
 } from "../utils/validation.utils.js";
 
-import { createForumComment, getCommentsByForumId } from "../data/forumsCommentsController.js";
+import {
+  createForumComment,
+  getCommentsByForumId,
+  upvoteComment,
+  downvoteComment,
+} from "../data/forumsCommentsController.js";
 
 const uploadDir = "uploads";
 if (!fs.existsSync(uploadDir)) {
@@ -66,8 +71,8 @@ router.route("/").post(upload.array("images", 5), async (req, res) => {
 
 router.route("/").get(async (req, res) => {
   const forumPosts = await getAllForumPosts(req, res);
-  res.render('forumLanding', {
-    forumPosts
+  res.render("forumLanding", {
+    forumPosts,
   });
 });
 
@@ -92,13 +97,15 @@ router.route("/status/:status").get(async (req, res) => {
   return res.json(posts);
 });
 
-router.route("/upvote/:id").patch(async (req, res) => {
-  const updatedPost = await upvoteForumPost(req.params.id);
+router.route("/upvote/:id").put(async (req, res) => {
+  const userId = req.body.userId;
+  const updatedPost = await upvoteForumPost(req.params.id, userId);
   return res.json(updatedPost);
 });
 
-router.route("/downvote/:id").patch(async (req, res) => {
-  const updatedPost = await downvoteForumPost(req.params.id);
+router.route("/downvote/:id").put(async (req, res) => {
+  const userId = req.body.userId;
+  const updatedPost = await downvoteForumPost(req.params.id, userId);
   return res.json(updatedPost);
 });
 
@@ -173,7 +180,9 @@ router.route("/reported").get(async (req, res) => {
   }
 });
 
-router.route('/comments/:forumId').get(async (req, res) => {
+/// FORUM COMMENT RELATED ROUTES
+
+router.route("/comments/:forumId").get(async (req, res) => {
   try {
     const forumId = req.params.forumId;
     const comments = await getCommentsByForumId(forumId);
@@ -183,14 +192,51 @@ router.route('/comments/:forumId').get(async (req, res) => {
   }
 });
 
-router.route('/comments').post(async (req, res) => {
+router.route("/comments").post(async (req, res) => {
   try {
     const { forumId, userId, content, imageURLs } = req.body;
 
-    const newComment = await createForumComment(forumId, userId, content, imageURLs);
+    const newComment = await createForumComment(
+      forumId,
+      userId,
+      content,
+      imageURLs
+    );
     return res.status(201).json(newComment);
   } catch (error) {
     return res.status(400).json({ error: error.message });
+  }
+});
+
+router.route("/comments/upvote/:commentId").put(async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const updatedComment = await upvoteComment(commentId, userId);
+    return res.status(200).json(updatedComment);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.route("/comments/downvote/:commentId").put(async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const updatedComment = await downvoteComment(commentId, userId);
+    return res.status(200).json(updatedComment);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 });
 
