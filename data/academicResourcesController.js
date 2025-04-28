@@ -72,3 +72,36 @@ export const getAcademicResourceById = async (id) => {
   }
   return academicResource;
 };
+
+export const updateAcademicResourceByID = async (
+  id,
+  updatedAcademicResource
+) => {};
+
+export const deleteAcacdemicResourceById = async (id) => {};
+
+export const filterAcademicResources = async (keyword) => {};
+
+export const getAcademicResourceByUserId = async (userId) => {};
+
+export const getAcademicResourceByTagId = async (tagId) => {};
+
+export const getAcademicResourceByStatus = async (status) => {};
+
+export const upvoteAcademicResource = async (
+  getAcademicResourceById,
+  userId
+) => {};
+
+export const downvoteAcademicResource = async (
+  getAcademicResourceById,
+  userId
+) => {};
+
+export const reportAcademicResource = async () => {};
+
+export const unreportAcademicResource = async () => {};
+
+export const getReportedAcademicResources = async () => {};
+
+export const changeAcademicResourceStatus = async () => {};
