@@ -13,20 +13,21 @@ import {
   searchUserByName,
   getUsersByRole,
 } from "../data/userController.js";
-import { isLoggedIn,isNotLoggedIn } from "../middlewares/auth.middleware.js";
+import { isLoggedIn, isNotLoggedIn } from "../middlewares/auth.middleware.js";
 import { checkRole } from "../middlewares/roleCheck.middleware.js";
 import session from "express-session";
+import { getAllForumPosts } from "../data/forumsController.js";
 
 // Create a new user
 // router.post("/signUp", createUser);
 
 router
   //middleware to check if user is logged in
-  .route('/signUp')
+  .route("/signUp")
   .all(isNotLoggedIn)
   // Show the signup form (any pending toast will display here)
   .get((req, res) => {
-    res.render('signUp', { title: 'Sign Up' });
+    res.render("signUp", { title: "Sign Up" });
   })
   // Handle signup submissions
   .post(async (req, res) => {
@@ -35,10 +36,10 @@ router
     // Basic presence check
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       req.session.toast = {
-        type: 'error',
-        message: 'Please fill all the fields'
+        type: "error",
+        message: "Please fill all the fields",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
 
     //  Trimmed validations
@@ -50,82 +51,83 @@ router
 
     if (p.length < 6) {
       req.session.toast = {
-        type: 'error',
-        message: 'Password must be at least 6 characters long'
+        type: "error",
+        message: "Password must be at least 6 characters long",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
     if (p.length > 1024) {
       req.session.toast = {
-        type: 'error',
-        message: 'Password must be less than 1024 characters'
+        type: "error",
+        message: "Password must be less than 1024 characters",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
     if (f.length < 2 || f.length > 50) {
       req.session.toast = {
-        type: 'error',
-        message: 'First name must be between 2 and 50 characters'
+        type: "error",
+        message: "First name must be between 2 and 50 characters",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
     if (l.length < 2 || l.length > 50) {
       req.session.toast = {
-        type: 'error',
-        message: 'Last name must be between 2 and 50 characters'
+        type: "error",
+        message: "Last name must be between 2 and 50 characters",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
-    if (p === '' || cp === '') {
+    if (p === "" || cp === "") {
       req.session.toast = {
-        type: 'error',
-        message: 'Password fields cannot be empty'
+        type: "error",
+        message: "Password fields cannot be empty",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
     if (p !== cp) {
       req.session.toast = {
-        type: 'error',
-        message: 'Passwords do not match'
+        type: "error",
+        message: "Passwords do not match",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
     //check if user already exists
     const userExists = await getUserByEmail(e);
     if (userExists) {
       req.session.toast = {
-        type: 'error',
-        message: 'User already exists'
+        type: "error",
+        message: "User already exists",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
     // All validations passed — attempt to create user
     try {
       const newUser = await createUser(f, l, e, p, cp);
       if (newUser) {
         req.session.toast = {
-          type: 'success',
-          message: 'Account created! Please log in.'
+          type: "success",
+          message: "Account created! Please log in.",
         };
-        return res.redirect('/users/login');
+        return res.redirect("/users/login");
       } else {
         req.session.toast = {
-          type: 'error',
-          message: 'Error creating user. Please try again.'
+          type: "error",
+          message: "Error creating user. Please try again.",
         };
-        return res.redirect('/users/signUp');
+        return res.redirect("/users/signUp");
       }
     } catch (err) {
-      console.error('Error creating user:', err);
+      console.error("Error creating user:", err);
       req.session.toast = {
-        type: 'error',
-        message: 'Server error. Please try again later.'
+        type: "error",
+        message: "Server error. Please try again later.",
       };
-      return res.redirect('/users/signUp');
+      return res.redirect("/users/signUp");
     }
   });
 // Login a user
-router.route("/login")
+router
+  .route("/login")
   // Show the login form (any toast will display here)
   .all(isNotLoggedIn)
   .get(async (req, res) => {
@@ -141,29 +143,28 @@ router.route("/login")
       if (user) {
         // Save user in session and show a welcome toast
         console.log("User logged in:", user);
-        
+
         req.session.user = user;
 
         req.session.toast = {
           type: "success",
-          message: `Welcome back, ${user.user.firstName}!`
+          message: `Welcome back, ${user.user.firstName}!`,
         };
-        return res.redirect("/users/userProfile");
+        return res.redirect("/forums/");
       } else {
         // Invalid credentials: show error toast and reload login
         req.session.toast = {
           type: "error",
-          message: "Invalid email or password."
+          message: "Invalid email or password.",
         };
         return res.redirect("/users/login");
       }
-
     } catch (e) {
       console.error("Error logging in:", e);
       // Unexpected error: show generic error toast
       req.session.toast = {
         type: "error",
-        message: `${e}`
+        message: `${e}`,
       };
       return res.redirect("/users/login");
     }
@@ -184,11 +185,10 @@ router.route("/getAllUsers").get(async (req, res) => {
   }
 });
 
-
 router.use(isLoggedIn).get("/userProfile", async (req, res) => {
   //redirect to login page
   console.log("User profile route");
-  
+
   let user = req.session.user;
   console.log("userprofile route", user);
 
@@ -203,81 +203,83 @@ router.use(isLoggedIn).get("/userProfile", async (req, res) => {
     lastName,
     email,
     role,
-    error: null
+    error: null,
   });
 });
 // Get a user by ID
-router.route("/user/:id").get(async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const user = await getUserById(userId);
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.status(404).json({ error: "User not found" });
+router
+  .route("/user/:id")
+  .get(async (req, res) => {
+    const userId = req.params.id;
+    try {
+      const user = await getUserById(userId);
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-})
-// Update a user by ID
- .put(async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const updatedUser = await updateUser(userId, req.body);
-    if (updatedUser) {
-      res.status(200).json(updatedUser);
-    } else {
-      res.status(404).json({ error: "User not found" });
+  })
+  // Update a user by ID
+  .put(async (req, res) => {
+    const userId = req.params.id;
+    try {
+      const updatedUser = await updateUser(userId, req.body);
+      if (updatedUser) {
+        res.status(200).json(updatedUser);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-})
-// Delete a user by ID
+  })
+  // Delete a user by ID
   .delete(async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const deletedUser = await deleteUser(userId);
-    if (deletedUser) {
-      res.status(200).json(deletedUser);
-    } else {
-      res.status(404).json({ error: "User not found" });
+    const userId = req.params.id;
+    try {
+      const deletedUser = await deleteUser(userId);
+      if (deletedUser) {
+        res.status(200).json(deletedUser);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
+  });
 // Logout a user
 // This route handles the logout process
-router.route('/logout').get((req, res) => {
+router.route("/logout").get((req, res) => {
   // If they’re not logged in, redirect to login with an error toast
   if (!req.session.user) {
     req.session.toast = {
-      type: 'error',
-      message: 'Please log in to access this page'
+      type: "error",
+      message: "Please log in to access this page",
     };
-    return res.redirect('/users/login');
+    return res.redirect("/users/login");
   }
 
   // Regenerate the session (clearing all data) and then set a success toast
-  req.session.regenerate(err => {
+  req.session.regenerate((err) => {
     if (err) {
-      console.error('Error logging out:', err);
+      console.error("Error logging out:", err);
       // On regenerate failure, we can still set a toast on the fresh session
       req.session.toast = {
-        type: 'error',
-        message: 'Error logging out: ' + err.message
+        type: "error",
+        message: "Error logging out: " + err.message,
       };
-      return res.redirect('/users/login');
+      return res.redirect("/users/login");
     }
 
     // New, empty session—now tell them they logged out
     req.session.toast = {
-      type: 'success',
-      message: 'Logged out successfully'
+      type: "success",
+      message: "Logged out successfully",
     };
-    res.redirect('/users/login');
+    res.redirect("/users/login");
   });
 });
 

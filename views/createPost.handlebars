@@ -1,0 +1,52 @@
+<div class="create-post-page">
+  <h2>Create a New Post</h2>
+
+  <div class="post-type-selection">
+    <button id="createForumBtn" type="button">Create Forum</button>
+    <button id="createPollBtn" type="button">Create Poll</button>
+  </div>
+
+  <div id="forumFormContainer" style="display: none;">
+    <form id="forumForm" enctype="multipart/form-data">
+      <input type="hidden" id="userId" name="userId" value="{{loggedUserId}}" />
+
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+
+      <div class="form-group">
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="tags">Select Tags:</label>
+        <select id="tags" name="tags">
+          {{#each tags}}
+            <option value="{{this._id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="images">Upload Images (max 5):</label>
+        <input
+          type="file"
+          id="images"
+          name="images"
+          accept="image/*"
+          multiple
+        />
+      </div>
+
+      <button type="submit" class="submit-post-button">Submit Forum Post</button>
+    </form>
+  </div>
+
+  <div id="pollFormContainer" style="display: none;">
+    <p>Poll creation coming soon!</p>
+  </div>
+</div>
+
+<script src="/js/createPost.js"></script>

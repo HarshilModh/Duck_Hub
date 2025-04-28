@@ -3,6 +3,8 @@ import multer from "multer";
 import fs from "fs";
 import Forum from "../models/forums.model.js";
 import { userImage } from "../middlewares/cloudinary.js";
+import { isLoggedIn } from "../middlewares/auth.middleware.js";
+import Tags from "../models/tags.model.js";
 const router = express.Router();
 import {
   getForumPostById,
@@ -69,10 +71,23 @@ router.route("/").post(upload.array("images", 5), async (req, res) => {
   }
 });
 
+router.get("/create", isLoggedIn, async (req, res) => {
+  try {
+    const tags = await Tags.find({}); // Assuming you have a Tag model
+    const loggedUserId = req.session.user?.user?._id || null;
+    res.render("createPost", { tags, loggedUserId, layout: "dashboard" });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading create post page");
+  }
+});
+
 router.route("/").get(async (req, res) => {
-  const forumPosts = await getAllForumPosts(req, res);
+  const forumPosts = await getAllForumPosts();
+  const loggedUserId = req.session.user?.user?._id || null;
   res.render("forumLanding", {
     forumPosts,
+    loggedUserId,
     layout: "dashboard",
   });
 });

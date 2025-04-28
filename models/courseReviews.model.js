@@ -38,6 +38,25 @@ const reviewSchema = new mongoose.Schema(
       enum: ["active", "hidden"],
       default: "active",
     },
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+    isAnonymous: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    upVotes: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    downVotes: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
     reports: [
       {
         type: mongoose.Schema.Types.ObjectId,
