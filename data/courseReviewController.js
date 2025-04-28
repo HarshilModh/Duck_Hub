@@ -9,6 +9,7 @@ import {
   isValidString,
 } from "../utils/validation.utils.js";
 import Review from "../models/courseReviews.model.js";
+import ReviewVotes from "../models/reviewVotes.model.js";
 
 //Create a new course review
 export const createCourseReview = async (
@@ -16,7 +17,8 @@ export const createCourseReview = async (
   courseId,
   difficultyRating,
   overallRating,
-  review
+  review,
+  isAnonymous
 ) => {
   try {
     userId = isValidID(userId, "UserID");
@@ -28,9 +30,18 @@ export const createCourseReview = async (
     // Need to change the structure of the code in controller function
     let course = await getCourseById(courseId);
 
+    let userReviews = await Review.exists({
+      courseId: courseId,
+      userId: userId,
+    });
+
+    if (userReviews) {
+      throw new Error("Sorry, you can only post one review per course!");
+    }
+
     let totalReviews = await Review.countDocuments({ courseId: courseId });
 
-    if (!difficultyRating) {
+    if (difficultyRating == null) {
       throw new Error("You must provide a valid Difficulty Rating");
     }
     difficultyRating = isValidNumber(difficultyRating, "Difficulty Rating");
@@ -38,7 +49,7 @@ export const createCourseReview = async (
       throw new Error("Difficulty Rating must be between 1 & 3");
     }
 
-    if (!overallRating) {
+    if (overallRating == null) {
       throw new Error("You must provide a valid Overall Rating");
     }
     overallRating = isValidNumber(overallRating, "Overall Rating");
@@ -57,30 +68,28 @@ export const createCourseReview = async (
       overallRating,
       reports: [],
       review,
+      isAnonymous: Boolean(isAnonymous),
     });
-    try {
-      const savedReview = await newReview.save();
-      if (!savedReview || !savedReview._id) {
-        throw new Error("Could not create a review");
-      }
 
-      const updatedRatings = await calculateOverallRatings(
-        courseId,
-        difficultyRating,
-        overallRating,
-        false,
-        totalReviews + 1
-      );
-
-      course.difficultyRating = updatedRatings.updatedDifficulty;
-      course.averageRating = updatedRatings.updatedOverall;
-
-      await course.save();
-
-      return savedReview;
-    } catch (error) {
-      throw new Error(error.message);
+    const savedReview = await newReview.save();
+    if (!savedReview || !savedReview._id) {
+      throw new Error("Could not create a review");
     }
+
+    const updatedRatings = await calculateOverallRatings(
+      courseId,
+      difficultyRating,
+      overallRating,
+      false,
+      totalReviews + 1
+    );
+
+    course.difficultyRating = updatedRatings.updatedDifficulty;
+    course.averageRating = updatedRatings.updatedOverall;
+
+    await course.save();
+
+    return savedReview;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -107,6 +116,11 @@ export const getCourseReviewById = async (reviewId) => {
     if (!review) {
       throw new Error("Forum post not found");
     }
+    if (review.status === "hidden") {
+      throw new Error(
+        "This review has been removed by the admin since it goes against the guidelines"
+      );
+    }
     return review;
   } catch (error) {
     throw new Error(error.message);
@@ -116,26 +130,34 @@ export const getCourseReviewById = async (reviewId) => {
 export const updateCourseReviewById = async (reviewId, updatedReview) => {
   try {
     reviewId = isValidID(reviewId);
-    const existingReview = await Review.findById(forumId);
+    const existingReview = await Review.findById(reviewId);
     if (!existingReview) {
       throw new Error("Could not find the review with the given ID");
     }
 
-    if (updatedReview.difficultyRating) {
+    if (existingReview.isEdited) {
+      throw new Error("You already edited this review!");
+    }
+
+    existingReview.isEdited = true;
+
+    existingReview.isAnonymous = updatedReview.isAnonymous;
+
+    if (updatedReview.difficultyRating != null) {
       existingReview.difficultyRating = isValidNumber(
         updatedReview.difficultyRating,
         "Difficulty Rating"
       );
     }
 
-    if (updatedReview.overallRating) {
+    if (updatedReview.overallRating != null) {
       existingReview.overallRating = isValidNumber(
         updatedReview.overallRating,
         "Overall Rating"
       );
     }
 
-    if (updatedReview.review) {
+    if (updatedReview.review != null) {
       existingReview.review = await isValidString(
         updatedReview.review,
         "Review"
@@ -344,3 +366,123 @@ export const getRecentCourseReviews = async (req, res) => {};
 
 //Get course reviews by multiple tags
 // export const getCourseReviewsByMultipleTags = async (req, res) => {};
+
+export const upVoteReview = async (reviewId, userId) => {
+  reviewId = isValidID(reviewId, "ReviewID");
+  userId = isValidID(userId, "UserID");
+
+  // Checking if the user voted previously
+  let existingVote = await ReviewVotes.findOne({
+    reviewId: reviewId,
+    voterId: userId,
+  });
+
+  // If not, create a new vote and also update the upVote count by 1
+  if (!existingVote) {
+    let review = await Review.findByIdAndUpdate(
+      reviewId,
+      { $inc: { upVotes: 1 } },
+      { new: true }
+    );
+    if (!review) {
+      throw new Error("Review not found.");
+    }
+
+    const newVote = new ReviewVotes({
+      voterId: userId,
+      reviewId: reviewId,
+      voteType: "UP",
+    });
+
+    const savedVote = await newVote.save();
+    if (!savedVote || !savedVote._id) {
+      throw new Error("Could not create a document for new Vote");
+    }
+    return review;
+  }
+
+  // If there was a upVote, throw error
+  if (existingVote && existingVote.voteType === "UP") {
+    throw new Error("You can't vote for a review more than once !");
+  }
+
+  // If there was a downVote, remove it and create a new upVote
+  if (existingVote && existingVote.voteType === "DOWN") {
+    let review = await Review.findByIdAndUpdate(
+      reviewId,
+      { $inc: { upVotes: 1, downVotes: -1 } },
+      { new: true }
+    );
+    if (!review) {
+      throw new Error("Review not found.");
+    }
+
+    let updatedVote = await ReviewVotes.findByIdAndUpdate(
+      existingVote._id,
+      { $set: { voteType: "UP" } },
+      { new: true }
+    );
+    if (!updatedVote) {
+      throw new Error("Could not upvote the previous downVote");
+    }
+    return review;
+  }
+};
+
+export const downVoteReview = async (reviewId, userId) => {
+  reviewId = isValidID(reviewId, "ReviewID");
+  userId = isValidID(userId, "UserID");
+
+  let existingVote = await ReviewVotes.findOne({
+    reviewId: reviewId,
+    voterId: userId,
+  });
+
+  if (!existingVote) {
+    let review = await Review.findByIdAndUpdate(
+      reviewId,
+      { $inc: { downVotes: 1 } },
+      { new: true }
+    );
+    if (!review) {
+      throw new Error("Review not found.");
+    }
+
+    const newVote = new ReviewVotes({
+      voterId: userId,
+      reviewId: reviewId,
+      voteType: "DOWN",
+    });
+
+    const savedVote = await newVote.save();
+    if (!savedVote || !savedVote._id) {
+      throw new Error("Could not create a document for new Vote");
+    }
+    return review;
+  }
+
+  if (existingVote && existingVote.voteType === "DOWN") {
+    throw new Error("You can't vote for a review more than once !");
+  }
+
+  if (existingVote && existingVote.voteType === "UP") {
+    let review = await Review.findByIdAndUpdate(
+      reviewId,
+      { $inc: { upVotes: -1, downVotes: 1 } },
+      { new: true }
+    );
+    if (!review) {
+      throw new Error("Review not found.");
+    }
+
+    let updatedVote = await ReviewVotes.findByIdAndUpdate(
+      existingVote._id,
+      { $set: { voteType: "DOWN" } },
+      { new: true }
+    );
+    if (!updatedVote) {
+      throw new Error("Could not upvote the previous downVote");
+    }
+    return review;
+  }
+};

@@ -1,5 +1,7 @@
-{{!-- views/addCourse.handlebars --}}
-<div class="min-h-screen flex items-center justify-center bg-stevensBg px-4 py-12">
+{{! views/addCourse.handlebars }}
+<div
+  class="min-h-screen flex items-center justify-center bg-stevensBg px-4 py-12"
+>
   <form
     action="/courses/addCourse"
     method="POST"
@@ -35,7 +37,10 @@
 
     <!-- Description -->
     <div>
-      <label for="courseDescription" class="block text-stevensGray mb-1">Description</label>
+      <label
+        for="courseDescription"
+        class="block text-stevensGray mb-1"
+      >Description</label>
       <textarea
         id="courseDescription"
         name="courseDescription"
@@ -47,7 +52,10 @@
 
     <!-- Department Select -->
     <div>
-      <label for="departmentId" class="block text-stevensGray mb-1">Department</label>
+      <label
+        for="departmentId"
+        class="block text-stevensGray mb-1"
+      >Department</label>
       <select
         id="departmentId"
         name="departmentId"
@@ -63,7 +71,8 @@
 
     <!-- Note about difficulty -->
     <p class="text-sm text-stevensGray italic">
-      * Difficulty rating will be calculated automatically after reviews are posted.
+      * Difficulty rating will be calculated automatically after reviews are
+      posted.
     </p>
 
     <!-- Submit -->

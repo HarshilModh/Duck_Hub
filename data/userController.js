@@ -11,7 +11,13 @@ import session from "express-session";
 
 // Create a new user
 //Harshil
-export const createUser = async (firstName, lastName, email, password,confirmPassword) => {
+export const createUser = async (
+  firstName,
+  lastName,
+  email,
+  password,
+  confirmPassword
+) => {
   if (!firstName || !lastName || !email || !password || !confirmPassword) {
     throw new Error("Please provide all required fields");
   }
@@ -54,15 +60,14 @@ export const createUser = async (firstName, lastName, email, password,confirmPas
     throw new Error("Passwords do not match");
   }
 
-
-  const isUserAlreadyExists = await User.findOne({ email });
+  const isUserAlreadyExists = await User.findOne({ email: email });
   if (isUserAlreadyExists) {
     throw new Error("User already exists");
   }
   if (!isValidEmail(email)) {
     throw new Error("Invalid email format");
   }
-  
+
   try {
     const user = await User.create({
       firstName,
@@ -77,7 +82,6 @@ export const createUser = async (firstName, lastName, email, password,confirmPas
     }
     throw new Error("Internal server error" + error);
   }
-
 };
 // Get all users
 //Harshil
@@ -155,7 +159,6 @@ export const deleteUser = async (userId) => {
 // Login a user
 //Harshil
 export const loginUser = async (email, password) => {
-
   if (!email || !password) {
     throw new Error("Please provide all required fields");
   }
