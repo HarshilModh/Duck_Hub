@@ -5,93 +5,80 @@
 >
   <h2 class="text-2xl font-heading text-stevensMaroon">Add Review</h2>
 
-  <!-- Course Info -->
+  <!-- Course Info (read-only) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <div>
-      <label for="courseCode" class="block text-stevensGray font-medium mb-1">
-        Course Code
-      </label>
+      <label for="courseCode" class="block text-stevensGray font-medium mb-1">Course Code</label>
       <input
-        type="text"
-        id="courseCode"
-        name="courseCode"
-        value="{{course.courseCode}}"
-        readonly
+        type="text" id="courseCode" name="courseCode"
+        value="{{course.courseCode}}" readonly
         class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 cursor-not-allowed"
       />
     </div>
     <div>
-      <label for="courseName" class="block text-stevensGray font-medium mb-1">
-        Course Name
-      </label>
+      <label for="courseName" class="block text-stevensGray font-medium mb-1">Course Name</label>
       <input
-        type="text"
-        id="courseName"
-        name="courseName"
-        value="{{course.courseName}}"
-        readonly
+        type="text" id="courseName" name="courseName"
+        value="{{course.courseName}}" readonly
         class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 cursor-not-allowed"
       />
     </div>
   </div>
 
-  <!-- Your Review -->
+  <!-- Review Text -->
   <div>
-    <label for="review" class="block text-stevensGray font-medium mb-1">
-      Review
-    </label>
+    <label for="review" class="block text-stevensGray font-medium mb-1">Review</label>
     <textarea
-      id="review"
-      name="review"
-      rows="4"
+      id="review" name="review" rows="4"
       placeholder="Write your review…"
-      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-stevensMaroon focus:outline-none"
+      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-stevensMaroon"
     ></textarea>
   </div>
 
-  <!-- Overall Rating Select -->
+  <!-- Overall Rating Stars -->
   <div>
-    <label for="overallRating" class="block text-stevensGray font-medium mb-1">
-      Overall Rating
-    </label>
-    <select
-      id="overallRating"
-      name="overallRating"
-      required
-      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-stevensMaroon focus:outline-none"
-    >
-      <option value="" disabled selected>Select rating</option>
-      <option value="1">1 – Poor</option>
-      <option value="2">2 – Fair</option>
-      <option value="3">3 – Good</option>
-      <option value="4">4 – Very Good</option>
-      <option value="5">5 – Excellent</option>
-    </select>
+    <p class="text-stevensGray font-medium mb-1">Overall Rating</p>
+    <div class="flex space-x-1">
+      <!-- generate 5 radios -->
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="overallRating" value="1" class="hidden" />★
+      </label>
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="overallRating" value="2" class="hidden" />★
+      </label>
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="overallRating" value="3" class="hidden" />★
+      </label>
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="overallRating" value="4" class="hidden" />★
+      </label>
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="overallRating" value="5" class="hidden" />★
+      </label>
+    </div>
   </div>
 
-  <!-- Difficulty Rating Select -->
+  <!-- Difficulty Rating Stars (1–3) -->
   <div>
-    <label for="difficultyRating" class="block text-stevensGray font-medium mb-1">
-      Difficulty Rating
-    </label>
-    <select
-      id="difficultyRating"
-      name="difficultyRating"
-      required
-      class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-stevensMaroon focus:outline-none"
-    >
-      <option value="" disabled selected>Select difficulty</option>
-      <option value="1">1 – Easy</option>
-      <option value="2">2 – Moderate</option>
-      <option value="3">3 – Hard</option>
-    </select>
+    <p class="text-stevensGray font-medium mb-1">Difficulty</p>
+    <div class="flex space-x-1">
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="difficultyRating" value="1" class="hidden" />★
+      </label>
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="difficultyRating" value="2" class="hidden" />★
+      </label>
+      <label class="cursor-pointer text-2xl text-gray-300 hover:text-stevensMaroon">
+        <input type="radio" name="difficultyRating" value="3" class="hidden" />★
+      </label>
+    </div>
   </div>
 
-  <!-- Submit Button -->
+  <!-- Submit -->
   <div class="text-right">
     <button
       type="submit"
-      class="bg-stevensMaroon text-stevensWhite font-medium px-6 py-2 rounded-full hover:bg-stevensMaroon/90 transition"
+      class="bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-full hover:bg-stevensMaroon/90 transition"
     >
       Submit Review
     </button>
