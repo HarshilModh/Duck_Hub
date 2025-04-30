@@ -1,0 +1,39 @@
+{{!-- views/partials/navbar.handlebars --}}
+
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+
+      <!-- Brand -->
+      <a href="/" class="flex items-center space-x-2">
+        <span class="text-2xl font-bold text-stevensMaroon">DuckHub</span>
+      </a>
+
+      <!-- Desktop Links -->
+      <ul class="flex space-x-6">
+        <li><a href="/"                class="text-gray-700 hover:text-stevensMaroon">Home</a></li>
+        <li><a href="/departments"     class="text-gray-700 hover:text-stevensMaroon">Departments</a></li>
+        <li><a href="/userSideCourses" class="text-gray-700 hover:text-stevensMaroon">Courses</a></li>
+        <li><a href="/userSideCourses/myReviews"            class="text-gray-700 hover:text-stevensMaroon">My Reviews</a></li>
+      </ul>
+
+      <!-- Search & Profile (only when logged in) -->
+      <div class="flex items-center space-x-4">
+
+
+          <!-- Profile icon -->
+          <a href="/users/userProfile" class="text-gray-700 hover:text-stevensMaroon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5.121 17.804A13.937 13.937 0 0112 15c2.59 0 5 .833
+                       6.879 2.246M15 11a3 3 0 11-6 0 3 3 0 016 0zm6
+                       2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </a>
+
+      </div>
+
+    </div>
+  </div>
+</nav>
