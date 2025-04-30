@@ -49,10 +49,14 @@ app.engine(
   "handlebars",
   exphbs.engine({
     defaultLayout: "main",
+    layoutsDir: "views/layouts",
+    partialsDir: "views/partials",
     helpers: {
       eq: (a, b) => a == b,
       json: (context) => JSON.stringify(context || {}),
-    },
+      formatDate: (d) =>
+        new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York' })
+    }
   })
 );
 app.set("view engine", "handlebars");
