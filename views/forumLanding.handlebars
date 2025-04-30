@@ -13,7 +13,6 @@
   </div>
 </div>
 
-<!-- 🚀 New Heading + Create Post button wrapper -->
 <div class="section-heading-bar">
   <h2 id="sectionHeading">Forum Posts</h2>
 
@@ -36,6 +35,8 @@
       <!-- Content -->
       <p class="forum-content">{{content}}</p>
 
+      {{! NEED TO IMPLEMENT THE TAGS PART }}
+
       <!-- If images exist -->
       {{#if imageURLs.length}}
         <div class="forum-images">
@@ -48,13 +49,23 @@
       <!-- Upvote, Downvote, Comment buttons -->
       <div class="forum-buttons">
         <button class="vote-button upvote-button" data-id="{{_id}}">
-          Upvote
+          <img
+            src="/public/images/icons/upVote.png"
+            alt="Upvote"
+            class="vote-icon"
+          />
+          <span>{{upVotes}}</span>
         </button>
         <button class="vote-button downvote-button" data-id="{{_id}}">
-          Downvote
+          <img
+            src="/public/images/icons/downVote.png"
+            alt="Downvote"
+            class="vote-icon"
+          />
+          <span>{{downVotes}}</span>
         </button>
         <button class="comment-button" data-id="{{_id}}">
-          Comment
+          💬 Comment
         </button>
       </div>
     </div>
@@ -64,4 +75,4 @@
 <script>
   const loggedInUserId = "{{loggedUserId}}";
 </script>
-<script src="/js/forumLanding.js"></script>
+<script src="/public/js/forumLanding.js"></script>

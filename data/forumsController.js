@@ -79,7 +79,7 @@ export const getAllForumPosts = async () => {
 // Get a forum post by ID
 export const getForumPostById = async (id) => {
   id = isValidID(id, "Forum ID");
-  const forumPost = await Forum.findById(id);
+  const forumPost = await Forum.findById(id).lean();
   if (!forumPost) {
     throw new Error("Forum post not found");
   }
@@ -165,7 +165,9 @@ export const getForumPostsByUserId = async (userId) => {
   let posts;
   userId = isValidID(userId, "UserID");
   try {
-    posts = await Forum.find({ userId: userId });
+    posts = await Forum.find({ userId: userId })
+      .populate("userId", "firstName lastName")
+      .lean();
   } catch (error) {
     throw new Error("Failed to fetch forum posts: " + error.message);
   }

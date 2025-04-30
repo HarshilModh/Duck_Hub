@@ -3,7 +3,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{title}}</title>
+    <!-- Main Dashboard CSS -->
     <link rel="stylesheet" href="/public/css/dashboard.css" />
+
+    <!-- Page-specific CSS will go here if needed -->
+    {{{customStyles}}}
     <link
       href="https://fonts.googleapis.com/css2?family=Saira&family=Bitter&family=IBM+Plex+Sans&display=swap"
       rel="stylesheet"
@@ -20,11 +24,14 @@
                 alt="Courses"
                 class="sidebar-icon"
               />Courses</a></li>
-          <li><a href="/my-forums"><img
+          <li><a href="/forums/user/{{loggedUserId}}">
+              <img
                 src="/public/images/icons/myForums.png"
                 alt="Forums"
                 class="sidebar-icon"
-              />My Forums</a></li>
+              />
+              My Forums
+            </a></li>
           <li><a href="/my-reviews"><img
                 src="/public/images/icons/myReviews.png"
                 alt="Reviews"
@@ -35,7 +42,7 @@
                 alt="Campus Resources"
                 class="sidebar-icon"
               />Campus Resources</a></li>
-          <li><a href="/academicResources"><img
+          <li><a href="/academic-resources"><img
                 src="/public/images/icons/academicResources.png"
                 alt="Academic Resources"
                 class="sidebar-icon"
@@ -50,12 +57,13 @@
       <div class="burger-menu" id="burgerMenu">&#9776;</div>
 
       <!-- Search bar -->
-      <div class="search-container">
+      {{! <div class="search-container">
         <input type="text" placeholder="Search..." class="search-input" />
-      </div>
+      </div> }}
 
       <!-- Notification and Profile Icons -->
       <div class="header-icons">
+        <a href="/forums" class="home-button">Home</a>
         <button class="icon-button" id="notificationsBtn">
           <img
             src="/public/images/icons/bell.svg"
