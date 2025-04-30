@@ -1,0 +1,17 @@
+<div class="add-comment-form-container">
+  <h2 class="form-title">Add a Comment</h2>
+
+  <form action="/forums/comments" method="POST" class="comment-form">
+    <input type="hidden" name="forumId" value="{{forumId}}" />
+    <input type="hidden" name="userId" value="{{userId}}" />
+
+    <div class="form-group">
+      <label for="content">Your Comment:</label>
+      <textarea name="content" id="content" rows="4" required></textarea>
+    </div>
+
+    {{! NEED TO IMPLEMENT THE ADD IMAGES PART }}
+
+    <button type="submit" class="submit-comment-button">Post Comment</button>
+  </form>
+</div>

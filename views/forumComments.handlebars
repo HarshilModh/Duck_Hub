@@ -1,0 +1,59 @@
+<div class="forum-post-card">
+  <h3 class="forum-title">{{forum.title}}</h3>
+  <p class="forum-posted-by">Posted by:
+    {{forum.userId.firstName}}_{{forum.userId.lastName}}</p>
+  <p class="forum-content">{{forum.content}}</p>
+
+  {{#if forum.imageURLs.length}}
+    <div class="forum-images">
+      {{#each forum.imageURLs}}
+        <img src="{{this}}" alt="Forum Image" class="forum-image" />
+      {{/each}}
+    </div>
+  {{/if}}
+</div>
+
+<div class="comments-header">
+  <h2 class="comments-title">Comments</h2>
+  <a href="/forums/comments/add/{{forum._id}}" class="add-comment-button">Add
+    Comment</a>
+</div>
+
+<div class="comments-list">
+  {{#if comments.length}}
+    {{#each comments}}
+      <div class="comment-card">
+        <p
+          class="comment-user"
+        >{{this.userId.firstName}}_{{this.userId.lastName}}</p>
+        <p class="comment-content">{{this.content}}</p>
+        <div class="comment-actions">
+          <button class="comment-upvote" data-id="{{this._id}}">
+            <img
+              src="/public/images/icons/upVote.png"
+              alt="Upvote"
+              class="vote-icon"
+            />
+            <span class="comment-upvote-count">{{this.upVotes}}</span>
+          </button>
+          <button class="comment-downvote" data-id="{{this._id}}">
+            <img
+              src="/public/images/icons/downVote.png"
+              alt="Downvote"
+              class="vote-icon"
+            />
+            <span class="comment-downvote-count">{{this.downVotes}}</span>
+          </button>
+        </div>
+
+      </div>
+    {{/each}}
+  {{else}}
+    <p>No comments yet. Be the first to comment!</p>
+  {{/if}}
+</div>
+
+<script>
+  const loggedInUserId = "{{loggedUserId}}";
+</script>
+<script src="/public/js/commentUpvote.js"></script>

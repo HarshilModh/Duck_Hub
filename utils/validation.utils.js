@@ -90,7 +90,10 @@ export const calculateOverallRatings = async (
   isDeleted,
   totalRatings
 ) => {
-  courseId = isValidID(courseId, "Course ID");
+  
+if(!ObjectId.isValid(courseId)){
+    throw new Error("Course ID is not a valid ObjectId");
+  }
   let course;
   try {
     course = await getCourseById(courseId);
