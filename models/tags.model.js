@@ -13,7 +13,7 @@ const tagsSchema = new mongoose.Schema(
     name: {
       type: String,
       trim: true,
-      lowercase: true,
+      uppercase: true,
       required: true,
     },
 
