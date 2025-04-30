@@ -1,0 +1,35 @@
+<div class="create-post-page">
+  <h2>Create a New Academic Resource</h2>
+
+  <div id="forumFormContainer">
+    <form method="POST" action="/academicResources/create" name="forumForm" id="forumForm">
+      <input type="hidden" id="userId" name="userId" value="{{loggedUserId}}" />
+
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="url">URL:</label>
+        <textarea id="url" name="url" required></textarea>
+      </div>
+    
+      <div class="form-group">
+        <label for="tags">Select Tags:</label>
+        <select id="tags" name="tags">
+          {{#each tags}}
+            <option value="{{this._id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <button type="submit" class="submit-post-button">Submit Academic Resource</button>
+    </form>
+  </div>
+</div>

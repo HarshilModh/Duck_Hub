@@ -62,9 +62,10 @@ export const getTagsById = async (id) => {
 };
 
 export const getTagsByUser = async (userId) => {
+  let tags;
   userId = isValidID(userId, "User ID");
   try {
-    const tags = await Tag.find({ userId: userId });
+    tags = await Tag.find({ userId: userId });
   } catch (error) {
     throw new Error("Failed to fetch Tags: " + error.message);
   }

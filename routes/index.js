@@ -5,6 +5,7 @@ import reviewRoutes from "./review.routes.js";
 import departmentRoutes from "./department.routes.js";
 import courseRoutes from "./course.routes.js";
 import userSideCoursesRoutes from "./userSideCourses.routes.js";
+import academicResourcesRoutes from "./academicResources.routes.js";
 const router = express.Router();
 
 // Define the base route for users
@@ -16,5 +17,6 @@ router.use("/reviews", reviewRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/courses", courseRoutes);
 router.use("/userSideCourses", userSideCoursesRoutes);
+router.use("/academicResources", academicResourcesRoutes);
 
 export default router;
