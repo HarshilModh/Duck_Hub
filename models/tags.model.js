@@ -2,12 +2,14 @@ import mongoose from "mongoose";
 
 const tagsSchema = new mongoose.Schema(
   {
+    /*
     _id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       trim: true,
     },
+    */
     name: {
       type: String,
       trim: true,

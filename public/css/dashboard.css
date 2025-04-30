@@ -15,7 +15,7 @@ body {
   height: 100vh;
   background-color: #949594;
   border-right: 1px solid #ccc;
-  padding-top: 30px;
+  padding-top: 70px;
   box-sizing: border-box;
   transition: left 0.3s ease;
   z-index: 999;
@@ -67,6 +67,10 @@ body {
   border-bottom: 1px solid #ccc;
   z-index: 1000;
   box-sizing: border-box;
+}
+
+.dashboard-content {
+  padding-top: 70px;
 }
 
 /* Burger */

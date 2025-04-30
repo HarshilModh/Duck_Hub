@@ -1,12 +1,6 @@
-import express from "express";
-const router = express.Router();
-
+import Tags from "../models/tags.model.js";
 import {
-  isValidString,
-  isValidArray,
-  isValidID,
-} from "../utils/validation.utils.js";
-import {
+  createAcademicResource,
   deleteAcacdemicResourceById,
   downvoteAcademicResource,
   filterAcademicResources,
@@ -18,6 +12,16 @@ import {
   upvoteAcademicResource,
 } from "../data/academicResourcesController.js";
 
+import { isLoggedIn } from "../middlewares/auth.middleware.js";
+import {
+  isValidString,
+  isValidArray,
+  isValidID,
+} from "../utils/validation.utils.js";
+
+import express from "express";
+const router = express.Router();
+
 router.route("/").get(async (req, res) => {
   const academicResources = await getAllAcademicResources();
   const loggedUserId = req.session.user?.user?._id || null;
@@ -27,6 +31,42 @@ router.route("/").get(async (req, res) => {
     layout: "dashboard",
   });
 });
+
+router
+  .route("/create")
+  .get(isLoggedIn, async (req, res) => {
+    try {
+      const tags = await Tags.find({});
+      const loggedUserId = req.session.user?.user?._id || null;
+      res.render("createAcademicResource", {
+        tags,
+        loggedUserId,
+        layout: "dashboard",
+      });
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error loading create academic resource page");
+    }
+  })
+  .post(async (req, res) => {
+    try {
+      const { userId, title, description, url, tags } = req.body;
+
+      const tagsArray = tags ? tags.split(",").map((t) => t.trim()) : [];
+      const academicResource = await createAcademicResource(
+        userId,
+        title,
+        description,
+        url,
+        tagsArray
+      );
+      if (academicResource) {
+        return res.status(201).redirect("/");
+      }
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
 
 router.route("/:id").get(async (req, res) => {
   const academicResourceId = req.params.id;
@@ -96,3 +136,5 @@ router.route("/reported").get(async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+
+export default router;

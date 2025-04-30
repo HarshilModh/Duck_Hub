@@ -1,5 +1,6 @@
-import academicResources from "../models/academicResources.model";
-import { isValidID, isValidString } from "../utils/validation.utils";
+import academicResources from "../models/academicResources.model.js";
+import { getUserById } from "./userController.js";
+import { isValidID, isValidString } from "../utils/validation.utils.js";
 
 export const createAcademicResource = async (
   userId,
@@ -28,10 +29,10 @@ export const createAcademicResource = async (
   }
 
   const newAcademicResource = new academicResources({
-    userId,
     title,
     description,
     url,
+    uploadedBy: userId,
     tags: tags || [],
   });
 
@@ -50,7 +51,7 @@ export const getAllAcademicResources = async () => {
   try {
     const allAcademicResources = await academicResources
       .find()
-      .populate("userId", "firstName lastName")
+      .populate("uploadedBy", "firstName lastName")
       .select("-reportedBy")
       .lean();
     if (!allAcademicResources) {
@@ -74,27 +75,141 @@ export const getAcademicResourceById = async (id) => {
 };
 
 export const updateAcademicResourceByID = async (
-  id,
+  academicResourceId,
   updatedAcademicResource
-) => {};
+) => {
+  try {
+    academicResourceId = isValidID(academicResourceId);
+    const existingResource = await academicResources.findById(
+      academicResourceId
+    );
+    if (!existingResource) {
+      throw new Error("Could not find the academic resource with the given ID");
+    }
 
-export const deleteAcacdemicResourceById = async (id) => {};
+    if (updatedAcademicResource.title) {
+      existingResource.title = isValidString(
+        updatedAcademicResource.title,
+        "Academic Resource Title"
+      );
+    }
 
-export const filterAcademicResources = async (keyword) => {};
+    if (updatedAcademicResource.description) {
+      existingResource.description = isValidString(
+        updatedAcademicResource.description,
+        "Academic Resource Description"
+      );
+    }
 
-export const getAcademicResourceByUserId = async (userId) => {};
+    if (updatedAcademicResource.url) {
+      existingResource.url = isValidString(
+        updatedAcademicResource.url,
+        "Academic Resource URL"
+      );
+    }
 
-export const getAcademicResourceByTagId = async (tagId) => {};
+    if (
+      updatedAcademicResource.tags &&
+      updatedAcademicResource.tags.length !== 0
+    ) {
+      updatedAcademicResource.tags = await isValidArray(
+        updatedAcademicResource.tags,
+        "Tags"
+      );
+      existingResource.tags = updatedAcademicResource.tags.map((tag) =>
+        isValidID(tag, "TagID")
+      );
+    }
+    const newAcademicResource = await existingResource.save();
+    return newAcademicResource;
+  } catch (error) {
+    throw new Error("Error Updating the Academic Resource:" + error.message);
+  }
+};
 
-export const getAcademicResourceByStatus = async (status) => {};
+export const deleteAcacdemicResourceById = async (id) => {
+  try {
+    const validId = isValidID(id, "Forum Post ID");
 
-export const upvoteAcademicResource = async (
-  getAcademicResourceById,
-  userId
-) => {};
+    const deletedAcademicResource = await academicResources.findByIdAndDelete(
+      validId
+    );
+    if (!deletedAcademicResource) {
+      throw new Error("Academic Resource post not found");
+    }
+
+    return {
+      message: "Academic Resource deleted successfully",
+      deletedAcademicResource,
+    };
+  } catch (error) {
+    throw new Error(`Error deleting Academic Resource: ${error.message}`);
+  }
+};
+
+export const filterAcademicResources = async (keyword) => {
+  try {
+    keyword = isValidString(keyword, "keyword");
+    const academicResource = await academicResources.find({
+      $or: [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    });
+    if (!academicResource || academicResource.length === 0) {
+      throw new Error("No Academic Resources found matching the keyword.");
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getAcademicResourceByUserId = async (userId) => {
+  let academicResource;
+  userId = isValidID(userId, "UserID");
+  try {
+    academicResource = await academicResources.find({ userId: userId });
+  } catch (error) {
+    throw new Error("Failed to fetch Academic Resources: " + error.message);
+  }
+  if (!academicResource || academicResource.length === 0) {
+    throw new Error("Sorry, you haven't created any Academic Resources yet!!");
+  }
+  return academicResource;
+};
+
+export const getAcademicResourceByTagId = async (tagId) => {
+  let academicResource;
+  tagId = isValidID(tagId, "tagID");
+  try {
+    academicResource = await academicResources.find({ tags: tagId });
+  } catch (error) {
+    throw new Error("Failed to fetch Academic Resources: " + error.message);
+  }
+  if (!academicResource || academicResource.length === 0) {
+    throw new Error(`No Academic Resources found with tag: ${tagId}`);
+  }
+  return academicResource;
+};
+
+export const getAcademicResourceByStatus = async (status) => {
+  let academicResource;
+  status = isValidString(status, "Status");
+  try {
+    academicResource = await academicResources.find({ status: status });
+  } catch (error) {
+    throw new Error("Failed to fetch Academic Resources: " + error.message);
+  }
+  if (!academicResource || academicResource.length === 0) {
+    throw new Error(`No Academic Resources found with status: ${status}`);
+  }
+  return academicResource;
+};
+
+export const upvoteAcademicResource = async (academicResourceId, userId) => {};
 
 export const downvoteAcademicResource = async (
-  getAcademicResourceById,
+  academicResourceId,
   userId
 ) => {};
 

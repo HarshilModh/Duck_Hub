@@ -2,12 +2,14 @@ import mongoose from "mongoose";
 
 const academicResourcesSchema = new mongoose.Schema(
   {
+    /*
     _id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       trim: true,
     },
+    */
     title: {
       type: String,
       required: true,
@@ -41,10 +43,12 @@ const academicResourcesSchema = new mongoose.Schema(
       default: Date.now,
     },
     */
-    tags: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tags",
-    },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tags",
+      },
+    ],
     upVotes: {
       type: Number,
       min: 0,
@@ -58,7 +62,6 @@ const academicResourcesSchema = new mongoose.Schema(
     reportedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
       trim: true,
     },
     status: {

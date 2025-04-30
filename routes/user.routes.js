@@ -17,6 +17,7 @@ import { isLoggedIn, isNotLoggedIn } from "../middlewares/auth.middleware.js";
 import { checkRole } from "../middlewares/roleCheck.middleware.js";
 import session from "express-session";
 import { getAllForumPosts } from "../data/forumsController.js";
+import User from "../models/user.model.js";
 
 // Create a new user
 // router.post("/signUp", createUser);
@@ -92,7 +93,7 @@ router
       return res.redirect("/users/signUp");
     }
     //check if user already exists
-    const userExists = await getUserByEmail(e);
+    const userExists = await User.findOne({ email });
     if (userExists) {
       req.session.toast = {
         type: "error",
@@ -150,6 +151,7 @@ router
           type: "success",
           message: `Welcome back, ${user.user.firstName}!`,
         };
+        //Fix why is it always redirected to forums?
         return res.redirect("/forums/");
       } else {
         // Invalid credentials: show error toast and reload login
