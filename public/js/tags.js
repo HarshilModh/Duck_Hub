@@ -3,6 +3,7 @@
   let newTagBtn = document.getElementById("addTagBtn");
   let saveTagBtn = document.getElementById("saveNewTag");
   let newTagName = document.getElementById("newTagName");
+  let userId = document.getElementById("userId");
 
   if (newTagBtn) {
     newTagBtn.addEventListener("click", () => {
@@ -14,12 +15,26 @@
     saveTagBtn.addEventListener("click", async () => {
       newTagName = newTagName.value.trim();
 
-      if (!newTagName) return alert("Tag name can't be empty");
+      if (!newTagName) {
+        console.log("Tag name can't be empty");
+        return;
+      }
 
-      const res = await fetch("/tags/create", {
+      newTagName = newTagName.toUpperCase();
+
+      if (!userId) {
+        console.log("Cannot create a tag with logging in");
+        return;
+      }
+
+      userId = userId.value;
+
+      const res = await fetch(`/tags`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newTagName, userId: "{{loggedUserId}}" }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newTagName, userId: userId }),
       });
 
       const tag = await res.json();
@@ -33,7 +48,8 @@
         document.getElementById("newTagModal").style.display = "none";
         document.getElementById("newTagName").value = "";
       } else {
-        alert(tag.error || "Failed to create tag");
+        console.log(tag.error || "Failed to create tag");
+        return;
       }
     });
   }

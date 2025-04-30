@@ -7,7 +7,7 @@ import {
   getTagsByUser,
   updateTagById,
   deleteTagById,
-} from "../data/tagController";
+} from "../data/tagController.js";
 
 router
   .route("/")
@@ -16,7 +16,7 @@ router
       const allTags = await getAllTags();
       return res.status(201).json(allTags);
     } catch (e) {
-      return res.status(500).json({ error: e });
+      return res.status(500).json({ error: e.message });
     }
   })
   .post(async (req, res) => {
@@ -25,7 +25,7 @@ router
       const createdTag = await createTag(userId, name);
       return res.status(201).json(createdTag);
     } catch (e) {
-      return res.status(500).json({ error: e });
+      return res.status(500).json({ error: e.message });
     }
   });
 router.route("/:id").get(async (req, res) => {
@@ -65,3 +65,5 @@ router.route("/delete/:id").delete(async (req, res) => {
     return res.status(500).json({ error: e });
   }
 });
+
+export default router;
