@@ -1,6 +1,10 @@
 import academicResources from "../models/academicResources.model.js";
 import { getUserById } from "./userController.js";
-import { isValidID, isValidString } from "../utils/validation.utils.js";
+import {
+  isValidID,
+  isValidString,
+  isValidArray,
+} from "../utils/validation.utils.js";
 
 export const createAcademicResource = async (
   userId,
@@ -52,6 +56,7 @@ export const getAllAcademicResources = async () => {
     const allAcademicResources = await academicResources
       .find()
       .populate("uploadedBy", "firstName lastName")
+      .populate("tags", "name")
       .select("-reportedBy")
       .lean();
     if (!allAcademicResources) {

@@ -4,7 +4,6 @@
   let saveTagBtn = document.getElementById("saveNewTag");
   let newTagName = document.getElementById("newTagName");
   let userId = document.getElementById("userId");
-  let tagSelect = document.getElementById("tags");
 
   if (newTagBtn) {
     newTagBtn.addEventListener("click", () => {

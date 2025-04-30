@@ -57,7 +57,7 @@ router
     try {
       const { userId, title, description, url, tags } = req.body;
 
-      const tagsArray = tags ? tags.split(",").map((t) => t.trim()) : [];
+      const tagsArray = tags ? tags.map((t) => t.trim()) : [];
       const academicResource = await createAcademicResource(
         userId,
         title,
