@@ -1,0 +1,89 @@
+<div class="resource-details-container">
+  <div class="resource-header">
+    <h2 class="resource-title">{{resource.resourceName}}</h2>
+    
+    {{#if isAdmin}}
+      <div class="admin-actions">
+        <a href="/campus-resources/{{resource._id}}/edit" class="edit-button">Edit</a>
+        <button class="delete-button" data-id="{{resource._id}}">Delete</button>
+      </div>
+    {{/if}}
+  </div>
+
+  <div class="resource-info-card">
+    <div class="resource-type-section">
+      <h3>Resource Type:</h3>
+      <div class="resource-types">
+        {{#each resource.resourceType}}
+          <span class="resource-type-tag">{{this}}</span>
+        {{else}}
+          <span class="no-types">No types specified</span>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="resource-location-section">
+      <h3>Location:</h3>
+      <p>{{resource.location}}</p>
+    </div>
+
+    <div class="resource-description-section">
+      <h3>Description:</h3>
+      <p>{{resource.description}}</p>
+    </div>
+    
+    {{#if resource.contactDetails}}
+      <div class="resource-contact-section">
+        <h3>Contact Information:</h3>
+        <p>Email: <a href="mailto:{{resource.contactDetails.email}}">{{resource.contactDetails.email}}</a></p>
+        {{#if resource.contactDetails.contactNumber}}
+          <p>Phone: {{resource.contactDetails.contactNumber}}</p>
+        {{/if}}
+      </div>
+    {{/if}}
+    
+    {{#if resource.operatingHours.length}}
+      <div class="resource-hours-section">
+        <h3>Operating Hours:</h3>
+        <ul class="hours-list">
+          {{#each resource.operatingHours}}
+            <li>{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/if}}
+    
+    {{#if resource.imageURL}}
+      <div class="resource-image-section">
+        <img src="{{resource.imageURL}}" alt="{{resource.resourceName}}" class="resource-image" />
+      </div>
+    {{/if}}
+  </div>
+</div>
+
+<script>
+  // Delete confirmation
+  const deleteBtn = document.querySelector('.delete-button');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function() {
+      const resourceId = this.getAttribute('data-id');
+      // ask for confirmation
+      if (confirm('Are you sure you want to delete this resource?')) {
+        // if yes, submit delete request
+        fetch(`/campus-resources/${resourceId}`, {
+          method: 'DELETE',
+        })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/campus-resources';
+          } else {
+            alert('Failed to delete resource');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+    });
+  }
+</script>
