@@ -1,0 +1,48 @@
+<div class="section-heading-bar">
+  <h2 id="sectionHeading">Campus Resources</h2>
+
+  <a href="/campus-resources/create" class="create-post-button">Add Campus Resource</a>
+</div>
+
+<div class="forum-posts-list">
+  {{#each campusResources}}
+    <div class="forum-post-card">
+      <h3 class="forum-title">{{resourceName}}</h3>
+      <p class="resource-type">
+        Type: 
+        {{#each resourceType}}
+          <span class="resource-type-tag">{{this}}</span>
+        {{/each}}
+      </p>
+      <p class="resource-location">Location: {{location}}</p>
+      <p class="resource-description">{{description}}</p>
+      
+      {{#if contactDetails}}
+        <div class="contact-details">
+          <p>Contact: {{contactDetails.email}} {{#if contactDetails.contactNumber}} | {{contactDetails.contactNumber}} {{/if}}</p>
+        </div>
+      {{/if}}
+      
+      {{#if operatingHours.length}}
+        <div class="operating-hours">
+          <p>Hours:</p>
+          <ul>
+            {{#each operatingHours}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+      
+      <div class="resource-buttons">
+        <a href="/campus-resources/{{_id}}" class="view-details-button">View Details</a>
+      </div>
+    </div>
+  {{else}}
+    <p class="no-resources-message">No campus resources available yet.</p>
+  {{/each}}
+</div>
+
+<script>
+  const loggedInUserId = "{{loggedUserId}}";
+</script>

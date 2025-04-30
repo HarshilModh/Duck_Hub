@@ -1,0 +1,135 @@
+<div class="course-review-container">
+  <div class="course-info">
+    <h2 class="course-title">{{course.courseCode}} - {{course.courseName}}</h2>
+    <p class="course-department">Department: {{course.departmentId.departmentName}}</p>
+    <p class="course-description">{{course.courseDescription}}</p>
+    
+    <div class="course-ratings">
+      <div class="rating-box">
+        <span class="rating-label">Average Rating</span>
+        <div class="stars-container">
+          {{#times course.averageRating}}
+            <span class="star filled">★</span>
+          {{/times}}
+          {{#times (subtract 5 course.averageRating)}}
+            <span class="star">★</span>
+          {{/times}}
+          <span class="rating-number">{{formatDecimal course.averageRating}}/5</span>
+        </div>
+      </div>
+      
+      <div class="rating-box">
+        <span class="rating-label">Difficulty</span>
+        <div class="difficulty-meter">
+          {{#times course.difficultyRating}}
+            <span class="difficulty-level filled">●</span>
+          {{/times}}
+          {{#times (subtract 3 course.difficultyRating)}}
+            <span class="difficulty-level">●</span>
+          {{/times}}
+          <span class="rating-number">{{course.difficultyRating}}/3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <h3>Course Reviews</h3>
+      <a href="/courses/{{course._id}}/add-review" class="add-review-button">Add Review</a>
+    </div>
+    
+    {{#if reviews.length}}
+      <div class="reviews-list">
+        {{#each reviews}}
+          <div class="review-card">
+            <div class="review-header">
+              <span class="reviewer-name">
+                {{#if this.anonymous}}
+                  Anonymous Student
+                {{else}}
+                  {{this.userId.firstName}} {{this.userId.lastName}}
+                {{/if}}
+              </span>
+              <div class="review-ratings">
+                <div class="stars-container small">
+                  {{#times this.overallRating}}
+                    <span class="star filled">★</span>
+                  {{/times}}
+                  {{#times (subtract 5 this.overallRating)}}
+                    <span class="star">★</span>
+                  {{/times}}
+                </div>
+                <div class="difficulty-meter small">
+                  {{#times this.difficultyRating}}
+                    <span class="difficulty-level filled">●</span>
+                  {{/times}}
+                  {{#times (subtract 3 this.difficultyRating)}}
+                    <span class="difficulty-level">●</span>
+                  {{/times}}
+                </div>
+              </div>
+            </div>
+            
+            <p class="review-content">{{this.review}}</p>
+            
+            {{#if isLoggedIn}}
+              <div class="review-actions">
+                {{#if (eq this.userId._id ../loggedUserId)}}
+                  <a href="/courses/reviews/{{this._id}}/edit" class="edit-review-link">Edit</a>
+                  <button class="delete-review-button" data-id="{{this._id}}">Delete</button>
+                {{else}}
+                  <button class="report-review-button" data-id="{{this._id}}">Report</button>
+                {{/if}}
+              </div>
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="no-reviews-message">No reviews yet. Be the first to review this course!</p>
+    {{/if}}
+  </div>
+</div>
+
+<script>
+  // For deleting reviews
+  const deleteButtons = document.querySelectorAll('.delete-review-button');
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const reviewId = this.getAttribute('data-id');
+      if (confirm('Are you sure you want to delete your review?')) {
+        window.location.href = `/courses/reviews/${reviewId}/delete`;
+      }
+    });
+  });
+  
+  // For reporting reviews
+  const reportButtons = document.querySelectorAll('.report-review-button');
+  reportButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const reviewId = this.getAttribute('data-id');
+      const reason = prompt('Why are you reporting this review?');
+      if (reason) {
+        // send the report
+        fetch('/courses/reviews/report', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ reviewId, reason }),
+        })
+        .then(response => {
+          if (response.ok) {
+            alert('Review reported. Thank you for your feedback.');
+          } else {
+            alert('Failed to report review.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+    });
+  });
+</script>
