@@ -1,0 +1,70 @@
+<div class="create-post-page">
+  <h2>Add New Campus Resource</h2>
+
+  <div id="resourceFormContainer">
+    <form method="POST" action="/campus-resources/create" id="campusResourceForm" enctype="multipart/form-data">
+      <input type="hidden" id="userId" name="userId" value="{{loggedUserId}}" />
+
+      <div class="form-group">
+        <label for="resourceName">Resource Name:</label>
+        <input type="text" id="resourceName" name="resourceName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="resourceType">Resource Type (comma separated):</label>
+        <input type="text" id="resourceType" name="resourceType" placeholder="Study Space, Library, Computer Lab" />
+        <p class="form-help">Example: Quiet Space, Library, Hanlon Lab</p>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" required />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="contactEmail">Contact Email:</label>
+        <input type="email" id="contactEmail" name="contactDetails[email]" required />
+      </div>
+
+      <div class="form-group">
+        <label for="contactNumber">Contact Number (optional):</label>
+        <input type="text" id="contactNumber" name="contactDetails[contactNumber]" />
+      </div>
+
+      <div class="form-group">
+        <label for="operatingHours">Operating Hours (one per line):</label>
+        <textarea id="operatingHours" name="operatingHours" placeholder="Mon-Fri: 8am - 10pm&#10;Sat-Sun: 10am - 6pm"></textarea>
+        <p class="form-help">Enter each time range on a new line</p>
+      </div>
+
+      <div class="form-group">
+        <label for="resourceImage">Upload Image (optional):</label>
+        <input type="file" id="resourceImage" name="resourceImage" accept="image/*" />
+      </div>
+
+      <button type="submit" class="submit-resource-button">Add Campus Resource</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // form validation will go here
+  const form = document.getElementById('campusResourceForm');
+  form.addEventListener('submit', function(event) {
+    // get resource types and split by comma
+    const resourceTypeInput = document.getElementById('resourceType');
+    const resourceTypeValue = resourceTypeInput.value;
+    
+    // tried to use split but sometimes it doesn't work right
+    // so just adding a simple check for now
+    if (resourceTypeValue && !resourceTypeValue.includes(',')) {
+      // if user didn't add commas, just use the whole thing as one type
+      // console.log('No commas found, treating as single resource type');
+    }
+  });
+</script>
