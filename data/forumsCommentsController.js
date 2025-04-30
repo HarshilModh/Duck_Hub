@@ -48,7 +48,8 @@ export const getCommentsByForumId = async (forumId) => {
   try {
     const comments = await forumCommentsModel
       .find({ forumId })
-      .populate("userId", "firstName lastName");
+      .populate("userId", "firstName lastName")
+      .lean();
     return comments;
   } catch (error) {
     throw new Error(error.message);

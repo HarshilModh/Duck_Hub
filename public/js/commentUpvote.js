@@ -1,21 +1,9 @@
-// Upvote and Downvote button logic
-const upvoteButtons = document.querySelectorAll(".upvote-button");
-const downvoteButtons = document.querySelectorAll(".downvote-button");
-const commentButtons = document.querySelectorAll(".comment-button");
+const upvoteButtons = document.querySelectorAll(".comment-upvote");
+const downvoteButtons = document.querySelectorAll(".comment-downvote");
 
-commentButtons.forEach((button) => {
-  button.addEventListener("click", (e) => {
-    const forumId = button.getAttribute("data-id");
-    if (forumId) {
-      window.location.href = `/forums/comments/view/${forumId}`;
-    }
-  });
-});
-
-// Handle upvote clicks
 upvoteButtons.forEach((button) => {
   button.addEventListener("click", async (e) => {
-    const forumId = e.target.getAttribute("data-id");
+    const commentId = e.target.getAttribute("data-id");
 
     if (!loggedInUserId) {
       console.log("User ID is mandatory");
@@ -24,7 +12,7 @@ upvoteButtons.forEach((button) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/forums/upvote/${forumId}`,
+        `http://localhost:3000/forums/comments/upvote/${commentId}`,
         {
           method: "PUT",
           headers: {
@@ -49,19 +37,18 @@ upvoteButtons.forEach((button) => {
   });
 });
 
-// Handle downvote clicks
 downvoteButtons.forEach((button) => {
   button.addEventListener("click", async (e) => {
-    const forumId = e.target.getAttribute("data-id");
+    const commentId = e.target.getAttribute("data-id");
 
     if (!loggedInUserId) {
-      console.error("No logged-in user. Cannot downvote.");
+      console.log("User ID is mandatory");
       return;
     }
 
     try {
       const response = await fetch(
-        `http://localhost:3000/forums/downvote/${forumId}`,
+        `http://localhost:3000/forums/comments/downvote/${commentId}`,
         {
           method: "PUT",
           headers: {
@@ -78,10 +65,10 @@ downvoteButtons.forEach((button) => {
           countSpan.textContent = updatedPost.downVotes;
         }
       } else {
-        console.error("Failed to downvote:", response.status);
+        console.error("Failed to downVote:", response.status);
       }
     } catch (err) {
-      console.error("Error while downvoting:", err);
+      console.error("Error while downVoting:", err);
     }
   });
 });

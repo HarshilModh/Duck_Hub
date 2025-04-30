@@ -73,22 +73,28 @@ router.route("/").post(upload.array("images", 5), async (req, res) => {
 
 router.get("/create", isLoggedIn, async (req, res) => {
   try {
-    const tags = await Tags.find({}); // Assuming you have a Tag model
+    const tags = await Tags.find({}).lean(); // Assuming you have a Tag model
     const loggedUserId = req.session.user?.user?._id || null;
-    res.render("createPost", { tags, loggedUserId, layout: "dashboard" });
+    res.render("createPost", {
+      tags,
+      loggedUserId,
+      layout: "dashboard",
+      customStyles: '<link rel="stylesheet" href="/public/css/createPost.css">',
+    });
   } catch (e) {
     console.error(e);
     res.status(500).send("Error loading create post page");
   }
 });
 
-router.route("/").get(async (req, res) => {
+router.route("/").get(isLoggedIn, async (req, res) => {
   const forumPosts = await getAllForumPosts();
   const loggedUserId = req.session.user?.user?._id || null;
   res.render("forumLanding", {
     forumPosts,
     loggedUserId,
     layout: "dashboard",
+    customStyles: '<link rel="stylesheet" href="/public/css/forumLanding.css">',
   });
 });
 
@@ -98,9 +104,13 @@ router.route("/:id").get(async (req, res) => {
   return res.status(200).json(post);
 });
 
-router.route("/user/:userId").get(async (req, res) => {
+router.route("/user/:userId").get(isLoggedIn, async (req, res) => {
   const posts = await getForumPostsByUserId(req.params.userId);
-  return res.status(200).json(posts);
+  res.render("userForums", {
+    forumPosts: posts,
+    layout: "dashboard",
+    customStyles: '<link rel="stylesheet" href="/public/css/userForums.css">',
+  });
 });
 
 router.route("/tag/:tagId").get(async (req, res) => {
@@ -208,6 +218,27 @@ router.route("/comments/:forumId").get(async (req, res) => {
   }
 });
 
+router.route("/comments/view/:forumId").get(async (req, res) => {
+  const forumId = req.params.forumId;
+  const loggedUserId = req.session.user?.user?._id || null;
+
+  try {
+    const forum = await getForumPostById(forumId);
+    const comments = await getCommentsByForumId(forumId);
+
+    res.render("forumComments", {
+      forum,
+      comments,
+      loggedUserId,
+      layout: "dashboard",
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/forumComments.css">',
+    });
+  } catch (err) {
+    return res.status(500).send("Error loading comments page.");
+  }
+});
+
 router.route("/comments").post(async (req, res) => {
   try {
     const { forumId, userId, content, imageURLs } = req.body;
@@ -218,10 +249,27 @@ router.route("/comments").post(async (req, res) => {
       content,
       imageURLs
     );
-    return res.status(201).json(newComment);
+
+    return res.redirect(`/forums/comments/view/${forumId}`);
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    return res.status(400).send("Error adding comment: " + error.message);
   }
+});
+
+router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
+  const userId = req.session.user?.user?._id;
+  const forumId = req.params.forumId;
+
+  if (!userId) {
+    throw new Error("Please login to add a comment");
+  }
+
+  res.render("addComment", {
+    layout: "dashboard",
+    forumId,
+    userId,
+    customStyles: '<link rel="stylesheet" href="/public/css/addComment.css">',
+  });
 });
 
 router.route("/comments/upvote/:commentId").put(async (req, res) => {
