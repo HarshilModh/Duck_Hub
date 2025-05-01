@@ -22,11 +22,17 @@
 
       <div class="form-group">
         <label for="tags">Select Tags:</label>
-        <select id="tags" name="tags">
+        <select id="tags" name="tags" multiple>
           {{#each tags}}
             <option value="{{this._id}}">{{this.name}}</option>
           {{/each}}
         </select>
+        <button type="button" id="addTagBtn">Add New Tag</button>
+      </div>
+
+      <div class="form-group" id="newTagDiv" style="display: none;">
+        <input type="text" id="newTagName" placeholder="Enter new tag name" />
+        <button type="button" id="saveNewTag">Save</button>
       </div>
 
       <div class="form-group">

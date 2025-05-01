@@ -31,6 +31,18 @@ export const createReport = async (type, userId, reason, contentId) => {
     throw new Error(error.message);
   }
 };
-export const getAllReports = async () => {};
+export const getAllReports = async () => {
+  try {
+    const allReports = await Reports.find()
+      .populate("reportedBy", "firstName lastName")
+      .lean();
+    if (!allReports) {
+      throw new Error("Sorry, no Reports available right now to be displayed");
+    }
+    return allReports;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
 export const getReportById = async () => {};
 export const updateReport = async () => {};

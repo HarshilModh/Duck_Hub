@@ -221,7 +221,7 @@ export const courseValidation = async (
   return true;
 };
 
-export const reportTypeValidation = async (type) => {
+export const reportTypeValidation = (type) => {
   const validTypes = ["Forum", "Review", "AcademicResource"];
   if (!validTypes.includes(type)) {
     throw new Error("Not a valid report type");
