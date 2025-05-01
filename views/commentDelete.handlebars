@@ -1,7 +1,9 @@
 <div class="forum-post-card">
   <h3 class="forum-title">{{forum.title}}</h3>
-  <p class="forum-posted-by">Posted by:
-    {{forum.userId.firstName}}_{{forum.userId.lastName}}</p>
+  <p class="forum-posted-by">
+    Posted by:
+    {{forum.userId.firstName}}_{{forum.userId.lastName}}
+  </p>
   <p class="forum-content">{{forum.content}}</p>
 
   {{#if forum.imageURLs.length}}
@@ -15,8 +17,6 @@
 
 <div class="comments-header">
   <h2 class="comments-title">Comments</h2>
-  <a href="/forums/comments/add/{{forum._id}}" class="add-comment-button">Add
-    Comment</a>
 </div>
 
 <div class="comments-list">
@@ -26,10 +26,8 @@
         <p class="comment-user">
           {{this.userId.firstName}}_{{this.userId.lastName}}
         </p>
-
         <p class="comment-content">{{this.content}}</p>
 
-        {{! NEW: show any images attached to this comment }}
         {{#if this.imageURLs.length}}
           <div class="comment-images">
             {{#each this.imageURLs}}
@@ -38,24 +36,9 @@
           </div>
         {{/if}}
 
-        <div class="comment-actions">
-          <button class="comment-upvote" data-id="{{this._id}}">
-            <img
-              src="/public/images/icons/upVote.png"
-              alt="Upvote"
-              class="vote-icon"
-            />
-            <span class="comment-upvote-count">{{this.upVotes}}</span>
-          </button>
-          <button class="comment-downvote" data-id="{{this._id}}">
-            <img
-              src="/public/images/icons/downVote.png"
-              alt="Downvote"
-              class="vote-icon"
-            />
-            <span class="comment-downvote-count">{{this.downVotes}}</span>
-          </button>
-        </div>
+        <button type="button" class="comment-delete" data-id="{{this._id}}">
+          Delete
+        </button>
       </div>
     {{/each}}
   {{else}}
@@ -66,4 +49,4 @@
 <script>
   const loggedInUserId = "{{loggedUserId}}";
 </script>
-<script src="/public/js/commentUpvote.js"></script>
+<script src="/public/js/forumLanding.js"></script>

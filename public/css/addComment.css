@@ -1,4 +1,4 @@
-.add-comment-form-container {
+.forum-body .add-comment-form-container {
   max-width: 700px;
   margin: 5rem auto;
   padding: 2rem;
@@ -7,23 +7,25 @@
   border: 1px solid #ccc;
 }
 
-.form-title {
+.forum-body .form-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
   color: #a32638;
 }
 
-.form-group {
+.forum-body .form-group {
   margin-bottom: 1rem;
 }
 
-label {
+/* Label styling */
+.forum-body label {
   display: block;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-textarea {
+/* Textarea styling */
+.forum-body textarea {
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
@@ -32,7 +34,20 @@ textarea {
   resize: vertical;
 }
 
-.submit-comment-button {
+/* File-input styling */
+.forum-body .form-group input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+/* Submit button */
+.forum-body .submit-comment-button {
   background-color: #004380;
   color: white;
   border: none;
@@ -42,6 +57,6 @@ textarea {
   cursor: pointer;
 }
 
-.submit-comment-button:hover {
+.forum-body .submit-comment-button:hover {
   background-color: #002f5b;
 }

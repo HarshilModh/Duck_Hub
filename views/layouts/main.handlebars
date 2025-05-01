@@ -28,20 +28,26 @@
       }
     };
   </script>
+
+  {{{customStyles}}}
 </head>
 
+
 <body class="min-h-screen bg-stevensBg font-body text-stevensMaroon">
-  {{> nav}}
+  {{>nav}}
 
   <main class="max-w-6xl mx-auto px-6 py-10">
-    {{{body}}}
+    <div class="forum-body">
+      {{{body}}}
+    </div>
   </main>
 
-  <!-- Comment Overlay -->
+  {{!-- <!-- Comment Overlay -->
   <div id="commentOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-xl shadow-lg max-w-6xl w-full flex p-6 relative">
       <button id="closeOverlay" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
 
+      <div id="overlayPostContent" class="w-2/3 pr-6 border-r border-gray-200"></div>
       <div id="overlayPostContent" class="w-2/3 pr-6 border-r border-gray-200"></div>
 
       <div id="overlayComments" class="w-1/3 pl-6 overflow-y-auto max-h-[80vh]">
@@ -49,21 +55,32 @@
           <h3 class="text-lg font-semibold text-stevensMaroon mb-3">Add a Comment</h3>
           <form id="commentForm" class="space-y-3">
             <input type="hidden" id="commentForumId" name="forumId" />
-            <input type="hidden" id="commentUserId" name="userId" value="67fd9a1593edbb521ccbfab2" />
+            <input type="hidden" id="commentUserId" name="userId" value="{{loggedUserId}}" />
 
-            <textarea id="commentContent" name="content" rows="3" class="w-full border border-gray-300 rounded p-2 text-sm" placeholder="Write your comment..." required></textarea>
+            <textarea id="commentContent" name="content" rows="3"
+              class="w-full border border-gray-300 rounded p-2 text-sm"
+              placeholder="Write your comment..."
+              required></textarea>
 
-            <input type="text" id="commentImage" name="imageURLs" class="w-full border border-gray-300 rounded p-2 text-sm" placeholder="Image URL (optional)" />
+            <input type="text" id="commentImage" name="imageURLs"
+              class="w-full border border-gray-300 rounded p-2 text-sm"
+              placeholder="Image URL (optional)" />
 
-            <button type="submit" class="bg-stevensMaroon text-white px-4 py-2 rounded hover:bg-red-700 transition">Post Comment</button>
+            <button type="submit"
+              class="bg-stevensMaroon text-white px-4 py-2 rounded hover:bg-red-700 transition">
+              Post Comment
+            </button>
           </form>
         </div>
 
         <div id="commentList"></div>
       </div>
     </div>
-  </div>
+  </div> --}}
 
+  <footer class="text-center text-stevensGray py-6">
+    © {{year}} Stevens Institute of Technology
+  </footer>
   <footer class="text-center text-stevensGray py-6">
     © {{year}} Stevens Institute of Technology
   </footer>
@@ -85,6 +102,8 @@
       }
     });
   </script>
+
   <script src="/js/comments.js"></script>
 </body>
 </html>
+

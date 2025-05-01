@@ -32,6 +32,7 @@ import {
   getCommentsByForumId,
   upvoteComment,
   downvoteComment,
+  deleteCommentById,
 } from "../data/forumsCommentsController.js";
 
 const uploadDir = "uploads";
@@ -78,7 +79,6 @@ router.get("/create", isLoggedIn, async (req, res) => {
     res.render("createPost", {
       tags,
       loggedUserId,
-      layout: "dashboard",
       customStyles: '<link rel="stylesheet" href="/public/css/createPost.css">',
     });
   } catch (e) {
@@ -93,7 +93,6 @@ router.route("/").get(isLoggedIn, async (req, res) => {
   res.render("forumLanding", {
     forumPosts,
     loggedUserId,
-    layout: "dashboard",
     customStyles: '<link rel="stylesheet" href="/public/css/forumLanding.css">',
   });
 });
@@ -108,7 +107,6 @@ router.route("/user/:userId").get(isLoggedIn, async (req, res) => {
   const posts = await getForumPostsByUserId(req.params.userId);
   res.render("userForums", {
     forumPosts: posts,
-    layout: "dashboard",
     customStyles: '<link rel="stylesheet" href="/public/css/userForums.css">',
   });
 });
@@ -125,8 +123,13 @@ router.route("/status/:status").get(async (req, res) => {
 
 router.route("/upvote/:id").put(async (req, res) => {
   const userId = req.body.userId;
-  const updatedPost = await upvoteForumPost(req.params.id, userId);
-  return res.json(updatedPost);
+  const forumPosts = await upvoteForumPost(req.params.id, userId);
+  const loggedUserId = req.session.user?.user?._id || null;
+  res.render("forumLanding", {
+    forumPosts,
+    loggedUserId,
+    customStyles: '<link rel="stylesheet" href="/public/css/forumLanding.css">',
+  });
 });
 
 router.route("/downvote/:id").put(async (req, res) => {
@@ -218,19 +221,17 @@ router.route("/comments/:forumId").get(async (req, res) => {
   }
 });
 
-router.route("/comments/view/:forumId").get(async (req, res) => {
-  const forumId = req.params.forumId;
-  const loggedUserId = req.session.user?.user?._id || null;
-
+router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
   try {
+    const forumId = req.params.forumId;
     const forum = await getForumPostById(forumId);
     const comments = await getCommentsByForumId(forumId);
+    const loggedUserId = req.session.user?.user?._id || null;
 
     res.render("forumComments", {
       forum,
       comments,
       loggedUserId,
-      layout: "dashboard",
       customStyles:
         '<link rel="stylesheet" href="/public/css/forumComments.css">',
     });
@@ -239,10 +240,37 @@ router.route("/comments/view/:forumId").get(async (req, res) => {
   }
 });
 
-router.route("/comments").post(async (req, res) => {
+router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
   try {
-    const { forumId, userId, content, imageURLs } = req.body;
+    const forumId = req.params.id;
+    const forum = await getForumPostById(forumId);
+    const comments = await getCommentsByForumId(forumId);
+    const loggedUserId = req.session.user?.user?._id || null;
 
+    res.render("commentDelete", {
+      forum,
+      comments,
+      loggedUserId,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/forumComments.css">',
+    });
+  } catch (err) {
+    return res.status(500).send("Error loading comments page.");
+  }
+});
+
+router.route("/comments").post(upload.array("images", 5), async (req, res) => {
+  try {
+    const { forumId, userId, content } = req.body;
+    let imageURLs = [];
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const cloudinaryUrl = await userImage(file.path);
+        imageURLs.push(cloudinaryUrl);
+        fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+      }
+    }
     const newComment = await createForumComment(
       forumId,
       userId,
@@ -265,7 +293,6 @@ router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
   }
 
   res.render("addComment", {
-    layout: "dashboard",
     forumId,
     userId,
     customStyles: '<link rel="stylesheet" href="/public/css/addComment.css">',
@@ -303,5 +330,18 @@ router.route("/comments/downvote/:commentId").put(async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+router
+  .route("/comments/:commentId")
+  .delete(isLoggedIn, async (req, res, next) => {
+    try {
+      const commentId = req.params.commentId;
+      await deleteCommentById(commentId);
+      return res.json({ success: true, message: "Comment deleted." });
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+      return res.status(500).json({ error: "Failed to delete comment." });
+    }
+  });
 
 export default router;
