@@ -1,6 +1,6 @@
 import express from 'express';
 import { createCourse, deleteCourseById, getAllCourses, getCourseById, updateCourseById } from '../data/courseController.js';
-import {createCourseReview,deleteCourseReviewById,downVoteReview,upVoteReview,getCourseReviewsByCourseId, getCourseReviewsByUserId} from "../data/courseReviewController.js"
+import {createCourseReview,deleteCourseReviewById,downVoteReview,upVoteReview,getCourseReviewsByCourseId, getCourseReviewsByUserId, getReviewById, updateCourseReviewById} from "../data/courseReviewController.js"
 import session from 'express-session';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { isValidID } from '../utils/validation.utils.js';
@@ -424,5 +424,329 @@ router.route('/deleteReview/:id').get(async (req, res) => {
             message: 'Failed to delete review',
         };
     }
+    return res.redirect(`/userSideCourses/course/${courseId}`);
 });
-export default router;
+// reviews/6811b81134bd42a91111f888/vote
+{/* <input type="hidden" name="vote" value="up"> */}
+
+router.route('/reviews/:id/vote').post(async (req, res) => {
+
+    console.log("vote review request");
+    let reviewId = req.params.id;
+    let userId = req.session.user.user._id;  
+    let courseId = req.body.courseId;
+    if (!reviewId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Review ID is required',
+        };
+        //redirect to the course details page
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    if (!userId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'User ID is required',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    if (!courseId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Course ID is required',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    userId = userId.trim();
+    courseId = courseId.trim();
+    reviewId = reviewId.trim();
+    // Check if userId is a valid ObjectId
+    try {
+        if (!isValidID(userId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid user ID',
+            };
+            return res.redirect(`/userSideCourses/course/${courseId}`);
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid user ID',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    // Check if reviewId is a valid ObjectId
+    try {
+        if (!isValidID(reviewId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid review ID',
+            };      
+            return res.redirect(`/userSideCourses/course/${courseId}`);
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid review ID',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    // Check if courseId is a valid ObjectId
+    try {
+        if (!isValidID(courseId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid course ID',
+            };
+            return res.redirect(`users/userProfile`);
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid course ID',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    // Fetch course details
+    console.log('Fetching review with ID:', reviewId);
+
+    const vote = req.body.vote;
+    console.log("vote: ", vote);
+    if (!vote) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Vote is required',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    if (vote !== 'up' && vote !== 'down') {
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid vote value',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    // Fetch course details
+    try {
+        let updatedReview;
+        if (vote === 'up') {
+            updatedReview = await upVoteReview(reviewId, userId);
+        } else {
+            updatedReview = await downVoteReview(reviewId, userId);
+        }
+        if (!updatedReview) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Review not found',
+            };
+            return res.redirect(`/userSideCourses/course/${courseId}`);
+        }
+        req.session.toast = {
+            type: 'success',
+            message: 'Vote added successfully',
+        };
+        return res.redirect(`/userSideCourses/course/${courseId}`);
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: `Failed to add vote: ${error.message}`,
+        };
+    return res.redirect(`/userSideCourses/course/${courseId}`);
+    }
+    
+});
+router.route('/editReview/:id').get(async (req, res) => {
+    console.log("edit review request");
+    let reviewId = req.params.id;
+    if (!reviewId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Review ID is required',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    reviewId = reviewId.trim();
+    // Check if reviewId is a valid ObjectId
+    try {
+        if (!isValidID(reviewId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid review ID',
+            };
+            return res.redirect('/users/userProfile');
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid review ID',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    // Fetch course details
+    console.log('Fetching review with ID:', reviewId);
+    try {
+        const review = await getReviewById(reviewId);
+
+        if (!review) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Review not found',
+            };
+            return res.redirect('/users/userProfile');
+        }
+        console.log("rendering edit review page");
+        console.log("review: ", review);
+        
+        res.render('editReview', { title: 'Edit Review', review });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch review details',
+        };
+    }
+}).post(async (req, res) => {
+    let reviewId = req.params.id;
+    let review = req.body.review;
+    let difficultyRating = req.body.difficultyRating;
+    let overallRating = req.body.overallRating;
+    if(!reviewId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Review ID is required',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    reviewId = reviewId.trim();
+
+    // Fetch course details
+    if(!difficultyRating || !overallRating ) {
+        req.session.toast = {
+            type: 'error',
+            message: 'All fields are required',
+        };
+        return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+    }   
+    if(isNaN(difficultyRating) || isNaN(overallRating)) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid rating values',
+        };
+        return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+    }
+    if(difficultyRating < 1 || difficultyRating > 3 || overallRating < 0 || overallRating > 5) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid rating values',
+        };
+        return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+    }
+    // Check if reviewId is a valid ObjectId
+    try {
+        if (!isValidID(reviewId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid review ID',
+            };
+            return res.redirect('/users/userProfile');
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid review ID',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    // Fetch course details
+    console.log('Fetching review with ID:', reviewId);
+    try {
+        const updatedReview = await updateCourseReviewById(reviewId,difficultyRating, overallRating, review);
+        if (!updatedReview) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Review not found',
+            };
+            return res.redirect('/users/userProfile');
+        }
+        req.session.toast = {
+            type: 'success',
+            message: 'Review updated successfully',
+        };
+        return res.redirect('/userSideCourses/myReviews');
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: `Failed to update review: ${error.message}`,
+        };
+    }
+    return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+});
+//Courses by department
+router.route('/departmentCourses/:id').get(async (req, res) => {
+    console.log("Fetching all courses by department");
+    let departmentId = req.params.id;
+    if (!departmentId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Department ID is required',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    departmentId = departmentId.trim();
+    // Check if departmentId is a valid ObjectId
+    try {
+        if (!isValidID(departmentId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid department ID',
+            };
+            return res.redirect('/users/userProfile');
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid department ID',
+        };
+        return res.redirect('/users/userProfile');
+    }
+    // Fetch course details
+    console.log('Fetching course with ID:', departmentId);
+    try {
+        let courses = await getAllCourses();
+        courses= courses.filter((course) => course.departmentId._id.toString() === departmentId);
+        if (!courses) {
+            req.session.toast = {
+                type: 'error',
+                message: 'No courses found',
+            };
+            return res.redirect('/users/userProfile');
+        }
+        console.log("rendering course page");
+        
+        res.render('userCourse', { title: 'Courses', courses });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch courses',
+        };
+    }
+
+}
+);
+export default router; 

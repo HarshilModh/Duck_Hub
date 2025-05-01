@@ -1,0 +1,35 @@
+{{!-- views/departments.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg font-body text-stevensMaroon">
+  <main class="max-w-6xl mx-auto px-6 py-10">
+    <h1 class="font-heading text-3xl text-stevensMaroon mb-6">
+      Departments
+    </h1>
+
+    {{#if departments.length}}
+      <div class="space-y-4">
+        {{#each departments}}
+          <div class="flex items-center justify-between bg-stevensWhite rounded-2xl shadow p-4">
+            
+            <span class="text-stevensMaroon font-heading">
+              {{this.departmentName}}
+            </span>
+
+            <a
+              href="/userSideCourses/departmentCourses/{{this._id}}"
+              class="inline-flex items-center bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-full hover:bg-stevensMaroon/90 transition"
+            >
+              View Courses
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
+
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="text-stevensGray italic">No departments found.</p>
+    {{/if}}
+  </main>
+</div>
