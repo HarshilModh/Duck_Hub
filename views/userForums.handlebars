@@ -1,32 +1,72 @@
-<div class="forum-posts-list">
-  {{#each forumPosts}}
-    <div class="forum-post-card">
+<div class="forum-body">
+  <div class="forum-posts-list">
+    {{#each forumPosts}}
+      <div class="forum-post-card">
 
-      <button
-        type="button"
-        class="delete-button"
-        data-id="{{_id}}"
-        title="Delete this post"
-      >✕</button>
+        <!-- top-right action icons -->
+        <div class="post-actions">
+          <!-- Edit button -->
+          <button
+            type="button"
+            class="edit-button"
+            data-id="{{_id}}"
+            title="Edit this post"
+            aria-label="Edit this post"
+          >
+            <img
+              src="/public/images/icons/compose.png"
+              alt="Edit icon"
+              class="action-icon"
+            />
+          </button>
 
-      <h3 class="forum-title">{{title}}</h3>
-
-      <p class="forum-posted-by">
-        Posted by:
-        {{userId.firstName}}_{{userId.lastName}}
-      </p>
-
-      <p class="forum-content">{{content}}</p>
-
-      {{#if imageURLs.length}}
-        <div class="forum-images">
-          {{#each imageURLs}}
-            <img src="{{this}}" alt="Forum Image" class="forum-image" />
-          {{/each}}
+          <!-- Delete button -->
+          <button
+            type="button"
+            class="delete-button"
+            data-id="{{_id}}"
+            title="Delete this post"
+            aria-label="Delete this post"
+          >
+            <img
+              src="/images/icons/bin.png"
+              alt="Trash bin icon"
+              class="action-icon"
+            />
+          </button>
         </div>
-      {{/if}}
-    </div>
-  {{/each}}
+
+        <h3 class="forum-title">{{title}}</h3>
+
+        <p class="forum-posted-by">
+          Posted by:
+          {{userId.firstName}}_{{userId.lastName}}
+        </p>
+
+        <p class="forum-content">{{content}}</p>
+
+        {{#if imageURLs.length}}
+          <div class="forum-images">
+            {{#each imageURLs}}
+              <img src="{{this}}" alt="Forum Image" class="forum-image" />
+            {{/each}}
+          </div>
+        {{/if}}
+
+        <a
+          href="/forums/user/comments/view/{{_id}}"
+          class="comments-button"
+          title="View comments for this post"
+        >
+          COMMENTS
+        </a>
+
+      </div>
+    {{/each}}
+  </div>
 </div>
 
+<script>
+  const loggedInUserId = "{{loggedUserId}}";
+</script>
 <script src="/public/js/userForums.js"></script>

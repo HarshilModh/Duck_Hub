@@ -16,7 +16,6 @@ document.querySelectorAll(".delete-button").forEach((button) => {
       });
 
       if (response.ok) {
-        // Remove post card from DOM
         const postCard = button.closest(".forum-post-card");
         postCard.remove();
         console.log(`Post ${forumId} deleted successfully.`);
