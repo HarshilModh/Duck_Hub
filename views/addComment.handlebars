@@ -1,7 +1,12 @@
 <div class="add-comment-form-container">
   <h2 class="form-title">Add a Comment</h2>
 
-  <form action="/forums/comments" method="POST" class="comment-form">
+  <form
+    action="/forums/comments"
+    method="POST"
+    class="comment-form"
+    enctype="multipart/form-data"
+  >
     <input type="hidden" name="forumId" value="{{forumId}}" />
     <input type="hidden" name="userId" value="{{userId}}" />
 
@@ -10,8 +15,14 @@
       <textarea name="content" id="content" rows="4" required></textarea>
     </div>
 
-    {{! NEED TO IMPLEMENT THE ADD IMAGES PART }}
+    <!-- NEW: upload up to 5 images -->
+    <div class="form-group">
+      <label for="images">Attach images (max 5):</label>
+      <input type="file" name="images" id="images" accept="image/*" multiple />
+    </div>
 
-    <button type="submit" class="submit-comment-button">Post Comment</button>
+    <button type="submit" class="submit-comment-button">
+      Post Comment
+    </button>
   </form>
 </div>

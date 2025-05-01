@@ -3,7 +3,7 @@ const downvoteButtons = document.querySelectorAll(".comment-downvote");
 
 upvoteButtons.forEach((button) => {
   button.addEventListener("click", async (e) => {
-    const commentId = e.target.getAttribute("data-id");
+    const commentId = e.currentTarget.dataset.id;
 
     if (!loggedInUserId) {
       console.log("User ID is mandatory");
@@ -28,6 +28,7 @@ upvoteButtons.forEach((button) => {
         if (countSpan) {
           countSpan.textContent = updatedPost.upVotes;
         }
+        window.location.reload();
       } else {
         console.error("Failed to upvote:", response.status);
       }
@@ -39,7 +40,7 @@ upvoteButtons.forEach((button) => {
 
 downvoteButtons.forEach((button) => {
   button.addEventListener("click", async (e) => {
-    const commentId = e.target.getAttribute("data-id");
+    const commentId = e.currentTarget.dataset.id;
 
     if (!loggedInUserId) {
       console.log("User ID is mandatory");
@@ -64,6 +65,7 @@ downvoteButtons.forEach((button) => {
         if (countSpan) {
           countSpan.textContent = updatedPost.downVotes;
         }
+        window.location.reload();
       } else {
         console.error("Failed to downVote:", response.status);
       }
