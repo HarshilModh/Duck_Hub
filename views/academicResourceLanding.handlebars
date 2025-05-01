@@ -15,6 +15,12 @@
       </p>
       <p class="forum-content">{{description}}</p>
       <a class="forum-content" href={{url}}>{{url}}</a>
+      {{#each tags}}
+        <p class="forum-content">{{this.name}}</p>
+      {{/each}}
+      <div class="forum-buttons">
+        <button class="vote-button delete-button" data-id="{{_id}}">Delete</button>
+      </div>
     </div>
   {{/each}}
 </div>
@@ -22,3 +28,4 @@
 <script>
   const loggedInUserId = "{{loggedUserId}}";
 </script>
+<script src="/public/js/academicResourceLanding.js"></script>

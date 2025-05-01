@@ -72,5 +72,8 @@ const academicResourcesSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const academicResources = mongoose.model("Resources", academicResourcesSchema);
-export default academicResources;
+const AcademicResource = mongoose.model(
+  "AcademicResource",
+  academicResourcesSchema
+);
+export default AcademicResource;

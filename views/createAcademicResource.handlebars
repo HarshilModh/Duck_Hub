@@ -22,7 +22,7 @@
     
       <div class="form-group">
         <label for="tags">Select Tags:</label>
-        <select id="tags" name="tags">
+        <select id="tags" name="tags" multiple>
           {{#each tags}}
             <option value={{this._id}}>{{this.name}}</option>
           {{/each}}
@@ -40,4 +40,4 @@
   </div>
 </div>
 
-<script src="/public/js/tags.js"></script>
+<script src="/public/js/createAcademicResource.js"></script>
