@@ -5,7 +5,7 @@ import {
   isValidID,
   isValidPassword,
 } from "../utils/validation.utils.js";
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, mongo } from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
 
@@ -87,7 +87,7 @@ export const createUser = async (
 //Harshil
 export const getUsers = async () => {
   try {
-    const users = await User.find().select("-password -refreshToken");
+    const users = await User.find().select("-password -refreshToken").lean();
     if (!users || users.length === 0) {
       throw new Error("No users found");
     }
@@ -102,7 +102,7 @@ export const getUserById = async (userId) => {
   try {
     userId = isValidID(userId, "userId");
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).lean();
     if (!user) {
       throw new Error("User not found");
     }
@@ -114,26 +114,64 @@ export const getUserById = async (userId) => {
 // Update a user by ID
 // Vamshi
 // TODO: Maybe create a seperate API for password updation.
-export const updateUser = async (req, res) => {
-  let userId;
+export const updateUser = async (userId,firstName,lastName,email) => {
   try {
-    userId = isValidID(req.params.id, "userId");
-  } catch (e) {
-    return res.status(400).json({ error: e.message });
-  }
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
+    if(!mongo.ObjectId.isValid(userId)){
+      throw new Error("Invalid userId");
     }
 
-    return res.status(200).json(updatedUser);
+  if (!firstName || !lastName || !email) {
+    throw new Error("Please provide all required fields");
+  }
+  firstName = firstName.trim();
+  lastName = lastName.trim();
+  email = email.trim();
+  if (firstName.length < 2) {
+    throw new Error("First name must be at least 2 characters long");
+  }
+  if (firstName.length > 50) {
+    throw new Error("First name must be less than 50 characters long");
+  }
+  if (lastName.length < 2) {
+    throw new Error("Last name must be at least 2 characters long");
+  }
+  if (lastName.length > 50) {
+    throw new Error("Last name must be less than 50 characters long");
+  }
+  if (firstName.trim().length === 0 || lastName.trim().length === 0) {
+    throw new Error("First name and last name cannot be empty");
+  }
+  if (email.trim().length === 0) {
+    throw new Error("Email cannot be empty");
+  }
+  if (!isValidEmail(email)) {
+    throw new Error("Invalid email format");
+  }
+  if (email.length < 5) {
+    throw new Error("Email must be at least 5 characters long");
+  }
+  if (email.length > 50) {
+    throw new Error("Email must be less than 50 characters long");
+  }
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { firstName, lastName, email },
+    { new: true }
+  );
+  if (!updatedUser) {
+    throw new Error("User not found");
+  }
+  console.log("Updated user: ", updatedUser);
+  
+  return updatedUser;
   } catch (e) {
-    return res.status(500).json({ error: "Server error: " + e.message });
+    console.log(e);
+    
+    throw new Error(e.message);
   }
 };
 // Delete a user by ID
@@ -150,7 +188,7 @@ export const deleteUser = async (userId) => {
     if (!deletedUser) {
       throw new Error("User not found");
     }
-
+    return deletedUser;
     // TODO: Need to discuss about self deletion of account. Need to do something with tokens?
   } catch (e) {
     throw new Error(e.message);

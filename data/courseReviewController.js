@@ -3,7 +3,7 @@ import Course from "../models/courses.model.js";
 import { getUserById } from "./userController.js";
 import { getCourseById } from "./courseController.js";
 import {
-  calculateOverallRatings,
+  calculateOverallRatingsForAdding,
   isValidID,
   isValidNumber,
   isValidString,
@@ -128,16 +128,21 @@ export const createCourseReview = async (
       throw new Error("Could not create a review");
     }
 
-    const updatedRatings = await calculateOverallRatings(
+    const updatedRatings = await calculateOverallRatingsForAdding(
       courseId,
-      difficultyRating,
       overallRating,
-      false,
-      totalReviews + 1
+      difficultyRating,
+      totalReviews
     );
+    console.log("Updated Ratings: ", updatedRatings);
 
     course.difficultyRating = updatedRatings.updatedDifficulty;
-    course.averageRating = updatedRatings.updatedOverall;
+    course.averageRating = updatedRatings.updatedaverageRating;
+    console.log("Updated Ratings: ", updatedRatings);
+
+    console.log("averageRating: ", updatedRatings.updatedaverageRating);
+    
+    
     // Need to update the course with the new ratings and add the newly created reviewId in the course
     let reviews = course.reviews;
     if (!reviews) {
@@ -149,7 +154,7 @@ export const createCourseReview = async (
       courseId,
       {
         difficultyRating: updatedRatings.updatedDifficulty,
-        averageRating: updatedRatings.updatedOverall,
+        averageRating: updatedRatings.updatedaverageRating,
         reviews: reviews,
       },
       { new: true }
@@ -195,51 +200,116 @@ export const getCourseReviewById = async (reviewId) => {
   }
 };
 //Update a course review by ID
-export const updateCourseReviewById = async (reviewId, updatedReview) => {
+export const updateCourseReviewById = async (reviewId, difficultyRating,overallRating, review) => {
   try {
-    reviewId = isValidID(reviewId);
-    const existingReview = await Review.findById(reviewId);
-    if (!existingReview) {
-      throw new Error("Could not find the review with the given ID");
+ 
+    
+    
+    if(!reviewId) {
+      throw new Error("Review ID is required");
     }
-
-    if (existingReview.isEdited) {
-      throw new Error("You already edited this review!");
+    if(!overallRating) {
+      throw new Error("Overall Rating is required");
     }
-
-    existingReview.isEdited = true;
-
-    existingReview.isAnonymous = updatedReview.isAnonymous;
-
-    if (updatedReview.difficultyRating != null) {
-      existingReview.difficultyRating = isValidNumber(
-        updatedReview.difficultyRating,
-        "Difficulty Rating"
-      );
+    if(!difficultyRating) {
+      throw new Error("Difficulty Rating is required");
     }
-
-    if (updatedReview.overallRating != null) {
-      existingReview.overallRating = isValidNumber(
-        updatedReview.overallRating,
-        "Overall Rating"
-      );
+    if(!review) {
+      throw new Error("Review is required");
     }
-
-    if (updatedReview.review != null) {
-      existingReview.review = await isValidString(
-        updatedReview.review,
-        "Review"
-      );
+    if(mongoose.isValidObjectId(reviewId) === false) {
+      throw new Error("Invalid Review ID");
     }
-    const newReview = await existingReview.save();
-
-    // Need to update the logic to calculate the overall ratings
-
-    return newReview;
+    const validNumberStringRegex = /^[0-9]$/;
+    if (typeof difficultyRating === "string") {
+      difficultyRating = difficultyRating.trim();
+      if (!validNumberStringRegex.test(difficultyRating)) {
+        throw new Error("Difficulty Rating must be a number");
+      }
+      difficultyRating = Number(difficultyRating);
+    } else if (typeof difficultyRating === "number") {
+      difficultyRating = difficultyRating;
+    } else {
+      throw new Error("Difficulty Rating must be a number");
+    }
+    if (typeof difficultyRating !== "number") {
+      throw new Error("Difficulty Rating must be a number");
+    }
+    if (difficultyRating < 1 || difficultyRating > 3) {
+      throw new Error("Difficulty Rating must be between 1 & 3");
+    }
+    if (typeof overallRating === "string") {
+      overallRating = overallRating.trim();
+      if (!validNumberStringRegex.test(overallRating)) {
+        throw new Error("Overall Rating must be a number");
+      }
+      overallRating = Number(overallRating);  
+    } else if (typeof overallRating === "number") {
+      overallRating = overallRating;
+    } else {
+      throw new Error("Overall Rating must be a number");
+    }
+    if (typeof overallRating !== "number") {
+      throw new Error("Overall Rating must be a number");
+    }
+    if (overallRating < 0 || overallRating > 5) {
+      throw new Error("Overall Rating must be between 0 & 5");
+    }
+    if (!review) {
+      throw new Error("A review must be passed");
+    }
+    review = isValidString(review, "Review");
+    
+    const reviewToUpdate = await Review.findByIdAndUpdate(
+      reviewId,
+      {
+        overallRating,
+        difficultyRating,
+        review,
+      },
+      { new: true }
+    );
+    if (!reviewToUpdate) {
+      throw new Error("Review not found");
+    }
+    const course = await Course.findById(reviewToUpdate.courseId);
+    if (!course) {
+      throw new Error("Course not found");
+    }
+    const totalReviews = await Review.countDocuments({
+      courseId: reviewToUpdate.courseId,
+    });
+    let updatedAverageRating = 0;
+    let updatedDifficultyRating = 0;
+    if (totalReviews > 0) {
+      updatedAverageRating =
+        (course.averageRating * totalReviews - reviewToUpdate.overallRating) /
+        totalReviews;
+      updatedDifficultyRating =
+        (course.difficultyRating * totalReviews -
+          reviewToUpdate.difficultyRating) /
+        totalReviews;
+    }
+    console.log("Updated Average Rating: ", updatedAverageRating);
+    console.log("Updated Difficulty Rating: ", updatedDifficultyRating);
+    // Need to update the course with the new ratings
+    let updatedCourse = await Course.findByIdAndUpdate(
+      reviewToUpdate.courseId,
+      {
+        difficultyRating: updatedDifficultyRating,
+        averageRating: updatedAverageRating,
+        reviews: course.reviews,
+      },
+      { new: true }
+    );
+    if (!updatedCourse) {
+      throw new Error("Could not update the course with the new ratings");
+    }
+    return reviewToUpdate;
   } catch (error) {
-    throw new Error("Error Updating the review:" + error.message);
+    throw new Error(error.message);
   }
-};
+}
 //Delete a course review by ID
 export const deleteCourseReviewById = async (reviewId) => {
   try {
@@ -249,6 +319,8 @@ export const deleteCourseReviewById = async (reviewId) => {
     reviewId = isValidID(reviewId, "Review ID");
 
     let deletedReview = await Review.findByIdAndDelete(reviewId);
+    console.log("Deleted Review: ", deletedReview);
+    
     if (!deletedReview) {
       throw new Error("Review not found");
     }
@@ -269,20 +341,47 @@ export const deleteCourseReviewById = async (reviewId) => {
       return { message: "Review deleted successfully", deletedReview };
     }
     else{
-      // Need to update the course with the new ratings
-      let updatedRatings = await calculateOverallRatings(
-        deletedReview.courseId,
-        deletedReview.difficultyRating,
-        deletedReview.overallRating,
-        true,
-        totalReviews
-      );
-      console.log("Updated Ratings: ", updatedRatings);
-      await Course.findByIdAndUpdate(deletedReview.courseId, {
-        difficultyRating: updatedRatings.updatedDifficulty,
-        averageRating: updatedRatings.updatedOverall,
+      //Need to update the logic to calculate the overall ratings here only
+      let course = await Course.findById(deletedReview.courseId);
+      if (!course) {
+        throw new Error("Course not found");
+      }
+      if (course.reviews) {
+        course.reviews = course.reviews.filter(
+          (review) => review.toString() !== reviewId.toString()
+        );
+      }
+      let newTotalReviews = await Review.countDocuments({
+        courseId: deletedReview.courseId,
       });
-      return { message: "Review deleted successfully", deletedReview };
+      console.log("New Total Reviews: ", newTotalReviews);
+      let updatedAverageRating = 0;
+      let updatedDifficultyRating = 0;
+      if (newTotalReviews > 0) {
+        updatedAverageRating =
+          (course.averageRating * totalReviews - deletedReview.overallRating) /
+          newTotalReviews;
+        updatedDifficultyRating =
+          (course.difficultyRating * totalReviews -
+            deletedReview.difficultyRating) /
+          newTotalReviews;
+      }
+      console.log("Updated Average Rating: ", updatedAverageRating);
+      console.log("Updated Difficulty Rating: ", updatedDifficultyRating);
+      // Need to update the course with the new ratings
+      let updatedCourse = await Course.findByIdAndUpdate(
+        deletedReview.courseId,
+        {
+          difficultyRating: updatedDifficultyRating,
+          averageRating: updatedAverageRating,
+          reviews: course.reviews,
+        },
+        { new: true }
+      );
+      if (!updatedCourse) {
+        throw new Error("Could not update the course with the new ratings");
+      }
+      return  deletedReview ;
     }
   } catch (error) {
     throw new Error(`Error deleting the review: ${error.message}`);
@@ -488,10 +587,12 @@ export const upVoteReview = async (reviewId, userId) => {
       voteType: "UP",
     });
 
-    const savedVote = await newVote.save();
+    const savedVote = await ReviewVotes.create(newVote);
+    // Check if the vote was saved successfully
     if (!savedVote || !savedVote._id) {
       throw new Error("Could not create a document for new Vote");
     }
+    // Check if the vote was saved successfully
     return review;
   }
 
@@ -548,7 +649,7 @@ export const downVoteReview = async (reviewId, userId) => {
       voteType: "DOWN",
     });
 
-    const savedVote = await newVote.save();
+    const savedVote = await ReviewVotes.create(newVote);
     if (!savedVote || !savedVote._id) {
       throw new Error("Could not create a document for new Vote");
     }
@@ -578,5 +679,22 @@ export const downVoteReview = async (reviewId, userId) => {
       throw new Error("Could not upvote the previous downVote");
     }
     return review;
+  }
+};
+
+export const getReviewById = async (reviewId) => {
+  try {
+    reviewId = isValidID(reviewId, "Review ID");
+    const review = await Review.findById(reviewId).populate(
+      "userId",
+      "firstName lastName"
+    ).populate("courseId", "courseCode courseName").lean();
+    
+    if (!review) {
+      throw new Error("Review not found");
+    }
+    return review;
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
