@@ -1,0 +1,39 @@
+{{!-- 
+firstName
+"first"
+lastName
+"demo"
+email
+"firstdemo@gmail.com" User can edit this here--}}
+<div class="min-h-screen flex items-center justify-center bg-stevensBg px-4">
+  <div class="w-full max-w-md bg-stevensWhite rounded-2xl shadow p-8 text-center">
+    <h1 class="text-3xl font-heading text-stevensMaroon mb-4">
+      Edit Profile 
+    </h1>
+    <form action="/users/editProfile" method="POST" class="space-y-6">
+    {{!-- put request --}}
+        <input type="hidden" name="_method" value="PUT">    
+      <div>
+        <label for="firstName" class="block text-sm font-medium text-stevensMaroon">First Name</label>
+        <input type="text" id="firstName" name="firstName" value="{{user.firstName}}"  class="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-stevensMaroon focus:border-stevensMaroon">
+      </div>
+      <div>
+        <label for="lastName" class="block text-sm font-medium text-stevensMaroon">Last Name</label>
+        <input type="text" id="lastName" name="lastName" value="{{user.lastName}}"  class="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-stevensMaroon focus:border-stevensMaroon">
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-stevensMaroon">Email</label>
+        <input type="email" id="email" name="email" value="{{user.email}}"  class="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-stevensMaroon focus:border-stevensMaroon">
+      </div>
+          
+      <div>
+        <button type="submit" class="w-full bg-stevensMaroon text-white px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition">
+          Update Profile
+        </button>
+      </div>
+      <div>
+        <a href="/users/userProfile" class="text-sm text-stevensMaroon hover:underline">Back to Profile</a> 
+        </div>
+    </form>
+  </div>
+</div>

@@ -1,5 +1,4 @@
 {{!-- views/courseDetails.handlebars ------------------------------------}}
-
 <div class="max-w-3xl mx-auto px-4 py-8 space-y-8">
 
   <!-- Course Header -->
@@ -16,35 +15,40 @@
 
   <!-- Course Details -->
   <section class="bg-stevensWhite border rounded-xl p-6 shadow">
-    <dl class="grid grid-cols-1 gap-6 md:grid-cols-2">
-      {{#if course.courseDescription}}
-      <div>
-        <dt class="text-xs text-gray-500 uppercase">Description</dt>
-        <dd class="mt-1 text-gray-700">{{course.courseDescription}}</dd>
-      </div>
-      {{/if}}
 
-      {{#if course.reviews.length}}
-      <div>
-        <dt class="text-xs text-gray-500 uppercase">Average Rating</dt>
-        <dd class="mt-1 flex items-center text-lg font-medium text-gray-800">
-          {{course.averageRating}} / 5
-          <span class="ml-1 text-stevensMaroon">★</span>
-        </dd>
-      </div>
-      <div>
-        <dt class="text-xs text-gray-500 uppercase">Difficulty</dt>
-        <dd class="mt-1 flex items-center text-lg font-medium text-gray-800">
-          {{course.difficultyRating}} / 3
-          <span class="ml-1">🎯</span>
-        </dd>
-      </div>
-      {{else}}
-      <div class="md:col-span-2 text-gray-500 italic">
+    {{#if course.reviews.length}}
+      <dl class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+        {{#if course.courseDescription}}
+        <div>
+          <dt class="text-xs text-gray-500 uppercase">Description</dt>
+          <dd class="mt-1 text-gray-700">{{course.courseDescription}}</dd>
+        </div>
+        {{/if}}
+
+        <div>
+          <dt class="text-xs text-gray-500 uppercase">Average Rating</dt>
+          <dd class="mt-1 flex items-center text-lg font-medium text-gray-800">
+            {{course.averageRating}} / 5
+            <span class="ml-1 text-stevensMaroon">★</span>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-xs text-gray-500 uppercase">Difficulty</dt>
+          <dd class="mt-1 flex items-center text-lg font-medium text-gray-800">
+            {{course.difficultyRating}} / 3
+            <span class="ml-1">🎯</span>
+          </dd>
+        </div>
+
+      </dl>
+    {{else}}
+      <p class="text-gray-500 italic">
         No ratings yet. Be the first to review!
-      </div>
-      {{/if}}
-    </dl>
+      </p>
+    {{/if}}
+
   </section>
 
   <!-- Reviews List -->
@@ -52,67 +56,72 @@
     <h2 class="text-2xl font-heading text-stevensMaroon">Reviews</h2>
 
     {{#if course.reviews.length}}
-    <ul class="space-y-4">
-      {{#each courseReviews}}
-        <li class="bg-white border-l-4 border-stevensMaroon rounded-r-lg shadow-sm p-6 space-y-4">
+      <ul class="space-y-4">
+        {{#each courseReviews}}
+          <li class="bg-white border-l-4 border-stevensMaroon rounded-r-lg shadow-sm p-6 space-y-4">
 
-          <!-- Reviewer & Edited Badge -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="font-semibold">
-                {{#if this.isAnonymous}}Anonymous{{else}}{{this.user.firstName}} {{this.user.lastName}}{{/if}}
-              </span>
-              {{#if this.isEdited}}
-                <span class="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                  Edited
+            <!-- Reviewer & Edited Badge -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold">
+                  {{#if this.isAnonymous}}Anonymous{{else}}{{this.user.firstName}} {{this.user.lastName}}{{/if}}
                 </span>
-              {{/if}}
+                {{#if this.isEdited}}
+                  <span class="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+                    Edited
+                  </span>
+                {{/if}}
+              </div>
+              <time class="text-xs text-gray-500">{{this.createdAt}}</time>
             </div>
-            <time class="text-xs text-gray-500">{{this.createdAt}}</time>
-          </div>
 
-          <!-- Review Text -->
-          <p class="text-gray-700 leading-relaxed">{{this.review}}</p>
+            <!-- Review Text -->
+            <p class="text-gray-700 leading-relaxed">{{this.review}}</p>
 
-          <!-- Ratings -->
-          <div class="flex flex-wrap gap-6 text-sm">
-            <div class="flex items-center gap-1">
-              <span class="text-gray-500">Overall:</span>
-              <span class="font-medium text-stevensMaroon">{{this.overallRating}}/5</span>
-              <span class="text-stevensMaroon">★</span>
+            <!-- Ratings -->
+            <div class="flex flex-wrap gap-6 text-sm">
+              <div class="flex items-center gap-1">
+                <span class="text-gray-500">Overall:</span>
+                <span class="font-medium text-stevensMaroon">{{this.overallRating}}/5</span>
+                <span class="text-stevensMaroon">★</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="text-gray-500">Difficulty:</span>
+                <span class="font-medium text-stevensMaroon">{{this.difficultyRating}}/3</span>
+                <span>🎯</span>
+              </div>
             </div>
-            <div class="flex items-center gap-1">
-              <span class="text-gray-500">Difficulty:</span>
-              <span class="font-medium text-stevensMaroon">{{this.difficultyRating}}/3</span>
-              <span>🎯</span>
+
+            <!-- Votes & Report -->
+            <div class="flex items-center gap-4 text-sm pt-2">
+              <form action="/userSideCourses/reviews/{{this.reviewId}}/vote" method="post" class="flex items-center gap-1">
+                <input type="hidden" name="vote" value="up">
+                <input type="hidden" name="courseId" value="{{this.courseId}}">
+
+                <button type="submit" class="hover:text-green-600 transition">▲</button>
+                <span>{{this.upVotes}}</span>
+              </form>
+
+              <form action="/userSideCourses/reviews/{{this.reviewId}}/vote" method="post" class="flex items">
+              
+                <input type="hidden" name="vote" value="down">
+                <input type="hidden" name="courseId" value="{{this.courseId}}">
+
+                <button type="submit" class="hover:text-red-600 transition">▼</button>
+                <span>{{this.downVotes}}</span>
+              </form>
+
+              <span class="flex-1"></span>
+
+              <form action="/reviews/{{this.reviewId}}/report" method="post">
+                <button type="submit" class="text-xs text-gray-500 hover:text-red-600 transition">
+                  🚩 Report
+                </button>
+              </form>
             </div>
-          </div>
-
-          <!-- Votes & Report -->
-          <div class="flex items-center gap-4 text-sm pt-2">
-            <form action="/reviews/{{this.reviewId}}/vote" method="post" class="flex items-center gap-1">
-              <input type="hidden" name="vote" value="up">
-              <button type="submit" class="hover:text-green-600 transition">▲</button>
-              <span>{{this.upVotes}}</span>
-            </form>
-
-            <form action="/reviews/{{this.reviewId}}/vote" method="post" class="flex items-center gap-1">
-              <input type="hidden" name="vote" value="down">
-              <button type="submit" class="hover:text-red-600 transition">▼</button>
-              <span>{{this.downVotes}}</span>
-            </form>
-
-            <span class="flex-1"></span>
-
-            <form action="/reviews/{{this.reviewId}}/report" method="post">
-              <button type="submit" class="text-xs text-gray-500 hover:text-red-600 transition">
-                🚩 Report
-              </button>
-            </form>
-          </div>
-        </li>
-      {{/each}}
-    </ul>
+          </li>
+        {{/each}}
+      </ul>
     {{else}}
       <p class="text-gray-500 italic">No reviews yet—be the first!</p>
     {{/if}}

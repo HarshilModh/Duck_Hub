@@ -59,7 +59,7 @@ router
       let tagsArray;
       if (!tags) {
         tagsArray = [];
-      } else if (!Array.isArray(tagsArray)) {
+      } else if (!Array.isArray(tags)) {
         tagsArray = [tags.trim()];
       } else {
         tagsArray = tags.map((t) => t.trim());
