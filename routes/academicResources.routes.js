@@ -56,8 +56,14 @@ router
   .post(async (req, res) => {
     try {
       const { userId, title, description, url, tags } = req.body;
-
-      const tagsArray = tags ? tags.map((t) => t.trim()) : [];
+      let tagsArray;
+      if (!tags) {
+        tagsArray = [];
+      } else if (!Array.isArray(tagsArray)) {
+        tagsArray = [tags.trim()];
+      } else {
+        tagsArray = tags.map((t) => t.trim());
+      }
       const academicResource = await createAcademicResource(
         userId,
         title,

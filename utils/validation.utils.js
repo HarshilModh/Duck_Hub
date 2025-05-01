@@ -90,8 +90,7 @@ export const calculateOverallRatings = async (
   isDeleted,
   totalRatings
 ) => {
-  
-if(!ObjectId.isValid(courseId)){
+  if (!ObjectId.isValid(courseId)) {
     throw new Error("Course ID is not a valid ObjectId");
   }
   let course;
@@ -131,19 +130,30 @@ export const courseValidation = async (
   courseDescription,
   departmentId
 ) => {
-  
   if (!courseCode || !courseName || !courseDescription || !departmentId) {
     throw new Error("Please fill all the fields");
   }
-  if (courseCode.trim().length === 0 || courseName.trim().length === 0 || courseDescription.trim().length === 0 || departmentId.trim().length === 0) {
+  if (
+    courseCode.trim().length === 0 ||
+    courseName.trim().length === 0 ||
+    courseDescription.trim().length === 0 ||
+    departmentId.trim().length === 0
+  ) {
     throw new Error("Please fill all the fields");
   }
-  if (typeof courseCode !== "string" || typeof courseName !== "string" || typeof courseDescription !== "string" || typeof departmentId !== "string") {
-    throw new Error("Course code, name, description and department ID must be strings");
+  if (
+    typeof courseCode !== "string" ||
+    typeof courseName !== "string" ||
+    typeof courseDescription !== "string" ||
+    typeof departmentId !== "string"
+  ) {
+    throw new Error(
+      "Course code, name, description and department ID must be strings"
+    );
   }
 
-  courseCode = courseCode.trim()
-  courseName = courseName.trim()
+  courseCode = courseCode.trim();
+  courseName = courseName.trim();
   courseDescription = courseDescription.trim();
   departmentId = departmentId.trim();
   const courseCodeRegex = /^[A-Za-z]{2}(?:\d{3}|\d{4})$/;
@@ -155,4 +165,12 @@ export const courseValidation = async (
   departmentId = isValidID(departmentId, "Department ID");
 
   return true;
-}
+};
+
+export const reportTypeValidation = async (type) => {
+  const validTypes = ["Forum", "Review", "AcademicResource"];
+  if (!validTypes.includes(type)) {
+    throw new Error("Not a valid report type");
+  }
+  return type;
+};

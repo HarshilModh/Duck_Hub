@@ -24,7 +24,7 @@
         throw new Error("Cannot create a tag with logging in");
       }
 
-      const res = await fetch(`/tags`, {
+      const res = await fetch("/tags", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
