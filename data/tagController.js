@@ -18,15 +18,15 @@ export const createTag = async (userId, name) => {
     throw new Error("No User Found With Given ID");
   }
   // Check if Tag already exists
-  name = name.toLowerCase();
+  name = name.toUpperCase();
   const isTagAlreadyExists = await Tag.findOne({ name });
   if (isTagAlreadyExists) {
     throw new Error("Tag already exists");
   }
   // Create new Tag
   const newTag = new Tag({
-    userId,
-    name,
+    name: name,
+    createdBy: userId,
   });
   // Try Saving
   try {
@@ -42,7 +42,8 @@ export const createTag = async (userId, name) => {
 
 export const getAllTags = async () => {
   try {
-    const allTags = await Tag.find();
+    let allTags = await Tag.find({}, { _id: 1, name: 1 }).lean();
+    allTags = allTags.map(({ _id, name }) => ({ _id: _id.toString(), name }));
     if (!allTags) {
       throw new Error("No Tags yet");
     }

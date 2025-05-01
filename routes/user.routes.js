@@ -325,6 +325,137 @@ router.route("/email/:email").get(async (req, res) => {
 router.get("/search/:name", searchUserByName);
 // Get all users by role
 router.get("/role/:role", getUsersByRole);
+
+//Update user profile
+router.route("/editProfile").get(async (req, res) => {
+  const userId = req.session.user.user._id;
+  try {
+    const user = await getUserById(userId);
+    if (user) {
+      console.log("user", user);
+      
+      res.render("editUserProfie", { title: "Edit Profile", user });
+    } else {
+      req.session.toast = {
+        type: "error",
+        message: "User not found",
+      };
+      return res.redirect("/users/userProfile");
+    }
+  } catch (e) {
+    console.error(e);
+    req.session.toast = {
+      type: "error",
+      message: "Error fetching user",
+    };
+    return res.redirect("/users/userProfile");
+  }
+}).put(async (req, res) => {
+  const userId = req.session.user.user._id;
+  const { firstName, lastName, email } = req.body;
+  try {
+    const updatedUser = await updateUser(userId,firstName, lastName, email);
+    console.log(updatedUser);
+    
+    req.session.user.user.firstName = updatedUser.firstName;
+    req.session.user.user.lastName = updatedUser.lastName;
+    req.session.user.user.email = updatedUser.email;
+    if (updatedUser) {
+      req.session.toast = {
+        type: "success",
+        message: "Profile updated successfully",
+      };
+      return res.redirect("/users/userProfile");
+    } else {
+      req.session.toast = {
+        type: "error",
+        message: "Error updating profile",
+      };
+      return res.redirect("/users/editProfile");
+    }
+    
+  } catch (e) {
+    console.error(e);
+    req.session.toast = {
+      type: "error",
+      message: "Error updating profile",
+    };
+    return res.redirect("/users/editProfile");
+  }
+}
+);
+//Admin dashboard for user management
+router
+  .route("/adminDashboard")
+  .all(isLoggedIn, checkRole("admin"))
+  .get(async (req, res) => {
+    try {
+      const users = await getUsers();
+      if (users) {
+        res.render("userDashboard", { title: "Admin Dashboard", users });
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "No users found",
+        };
+        return res.redirect("/users/userProfile");
+      }
+    } catch (e) {
+      console.error(e);
+      req.session.toast = {
+        type: "error",
+        message: "Error fetching users",
+      };
+      return res.redirect("/users/userProfile");
+    }
+  }).get(async (req, res) => {
+    try {
+      const users = await getUsers();
+      if (!users || users.length === 0) {
+        req.session.toast = {
+          type: "error",
+          message: "No users found",
+        };
+        return res.redirect("/users/userProfile");
+      }
+      res.render("userDashboard", { title: "Admin Dashboard", users });
+    } catch (error) {
+      console.error(error);
+      req.session.toast = {
+        type: "error",
+        message: "Failed to fetch users",
+      };
+    }
+  });
+//Delete user
+router.
+route("/deleteUser/:id").all(isLoggedIn, checkRole("admin"))
+.delete(async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const deletedUser = await deleteUser(userId);
+    if (deletedUser) {
+      req.session.toast = {
+        type: "success",
+        message: "User deleted successfully",
+      };
+      return res.redirect("/users/adminDashboard");
+    } else {
+      req.session.toast = {
+        type: "error",
+        message: "Error deleting user",
+      };
+      return res.redirect("/users/adminDashboard");
+    }
+  } catch (e) {
+    console.error(e);
+    req.session.toast = {
+      type: "error",
+      message: "Error deleting user",
+    };
+    return res.redirect("/users/adminDashboard");
+  }
+});
 // Export the router
 
 export default router;

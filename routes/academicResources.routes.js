@@ -20,6 +20,7 @@ import {
 } from "../utils/validation.utils.js";
 
 import express from "express";
+import { getAllTags } from "../data/tagController.js";
 const router = express.Router();
 
 router.route("/").get(async (req, res) => {
@@ -29,6 +30,8 @@ router.route("/").get(async (req, res) => {
     academicResources,
     loggedUserId,
     layout: "dashboard",
+    customStyles:
+      '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
   });
 });
 
@@ -36,12 +39,14 @@ router
   .route("/create")
   .get(isLoggedIn, async (req, res) => {
     try {
-      const tags = await Tags.find({});
+      const tags = await getAllTags();
       const loggedUserId = req.session.user?.user?._id || null;
       res.render("createAcademicResource", {
         tags,
         loggedUserId,
         layout: "dashboard",
+        customStyles:
+          '<link rel="stylesheet" href="/public/css/createAcademicResource.css">',
       });
     } catch (e) {
       console.error(e);
@@ -61,7 +66,7 @@ router
         tagsArray
       );
       if (academicResource) {
-        return res.status(201).redirect("/");
+        return res.status(201).redirect("/academicResources");
       }
     } catch (e) {
       return res.status(500).json({ error: e.message });

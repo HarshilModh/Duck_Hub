@@ -24,12 +24,20 @@
         <label for="tags">Select Tags:</label>
         <select id="tags" name="tags">
           {{#each tags}}
-            <option value="{{this._id}}">{{this.name}}</option>
+            <option value={{this._id}}>{{this.name}}</option>
           {{/each}}
         </select>
+        <button type="button" id="addTagBtn">Add New Tag</button>
+      </div>
+
+      <div id="newTagModal" style="display: none;">
+        <input type="text" id="newTagName" placeholder="Enter new tag name" />
+        <button type="button" id="saveNewTag">Save</button>
       </div>
 
       <button type="submit" class="submit-post-button">Submit Academic Resource</button>
     </form>
   </div>
 </div>
+
+<script src="/public/js/tags.js"></script>
