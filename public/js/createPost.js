@@ -3,9 +3,12 @@ const createPollBtn = document.getElementById("createPollBtn");
 const forumFormContainer = document.getElementById("forumFormContainer");
 const pollFormContainer = document.getElementById("pollFormContainer");
 const forumForm = document.getElementById("forumForm");
+
 const addNewTagBtn = document.getElementById("addTagBtn");
 const newTagDiv = document.getElementById("newTagDiv");
+const newTagName = document.getElementById("newTagName");
 const saveTagBtn = document.getElementById("saveNewTag");
+const userId = document.getElementById("userId");
 
 createForumBtn.addEventListener("click", () => {
   forumFormContainer.style.display = "block";
@@ -32,20 +35,23 @@ saveTagBtn.addEventListener("click", async () => {
   if (!userIdValue) {
     throw new Error("Cannot create a tag with logging in");
   }
+  try {
+    const res = await fetch("/tags", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: tagValue, userId: userIdValue }),
+    });
 
-  const res = await fetch("/tags", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name: tagValue, userId: userIdValue }),
-  });
-
-  const newTag = res.json();
-  if (res.ok) {
-    location.reload();
-  } else {
-    throw new Error(newTag.error || "Something went wrong.");
+    const newTag = await res.json();
+    if (!res.ok) {
+      throw new Error(newTag.error || "Duplicate Tags");
+    }
+    window.location.reload();
+  } catch (e) {
+    console.error("Error submitting forum:", e);
+    alert(e.message || "Failed to create forum.");
   }
 });
 
