@@ -10,9 +10,6 @@ import tagsRoutes from "./tags.routes.js";
 import reportRoutes from "./report.routes.js";
 const router = express.Router();
 
-// Define the base route for users
-// This will be the base route for all user-related routes
-// For example, if the base route is '/users', then the route for creating a user will be '/users/create'
 router.use("/users", userRoutes);
 router.use("/forums", forumRoutes);
 router.use("/reviews", reviewRoutes);
@@ -22,8 +19,11 @@ router.use("/userSideCourses", userSideCoursesRoutes);
 router.use("/academicResources", academicResourcesRoutes);
 router.use("/tags", tagsRoutes);
 router.use("/report", reportRoutes);
-// router.use(/(.*)/, (req, res) => {
-// console.log("404 error");
-//   res.status(404).render("notFound", { title: "404" });
+
+
+// ← Catch-all for any route not handled above
+// router.all(/(.*)/, (req, res) => {
+//   res.status(404).render("notFound");
 // });
+
 export default router;
