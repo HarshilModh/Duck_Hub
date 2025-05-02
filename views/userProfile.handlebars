@@ -1,20 +1,92 @@
-<div class="min-h-screen flex items-center justify-center bg-stevensBg px-4">
-  <div class="w-full max-w-md bg-stevensWhite rounded-2xl shadow p-8 text-center">
-    <h1 class="text-3xl font-heading text-stevensMaroon mb-4">
-      Welcome, {{firstName}} {{lastName}}
-    </h1>
-    <p class="text-stevensGray mb-6">
-      Email: <span class="font-medium text-stevensMaroon">{{email}}</span>
-    </p>
-    <a
-      href="/users/editProfile"
-      class="inline-block bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
-    >Edit Profile</a>
-    <a
-      href="/users/logout"
-      class="inline-block bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
-    >
-      Logout
-    </a>
+{{!-- views/userProfile.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg py-12">
+  <div class="max-w-md mx-auto bg-stevensWhite rounded-2xl shadow-lg overflow-hidden">
+
+    <!-- Header -->
+    <div class="bg-stevensMaroon px-6 py-8 flex items-center space-x-4">
+      <div class="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-stevensGray" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5.121 17.804A13.937 13.937 0 0112 15c2.59 0 5 .833 
+                   6.879 2.246M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-2xl font-heading text-stevensWhite">{{firstName}} {{lastName}}</h2>
+        <p class="text-stevensWhite/90">{{email}}</p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="px-6 py-8 space-y-4">
+
+      <a
+        href="/users/editProfile"
+        class="flex items-center justify-center w-full space-x-2 border border-stevensMaroon text-stevensMaroon px-4 py-2 rounded-lg hover:bg-stevensMaroon hover:text-white transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 
+                   2h12a2 2 0 002-2v-5m-5-7l5 5m0 
+                   0l-5 5m5-5H6"/>
+        </svg>
+        <span>Edit Profile</span>
+      </a>
+
+      <a
+        href="/users/changePassword"
+        class="flex items-center justify-center w-full space-x-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 11c0-1.657-1.343-3-3-3S6 
+                   9.343 6 11s1.343 3 3 
+                   3 3-1.343 3-3zm4-3h1a2 2 0 012 
+                   2v6a2 2 0 01-2 2h-1m-8 0H7a2 
+                   2 0 01-2-2v-1"/>
+        </svg>
+        <span>Change Password</span>
+      </a>
+
+      <form action="/users/logout" method="GET">
+        <button
+          type="submit"
+          class="flex items-center justify-center w-full space-x-2 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 
+                     4v1a2 2 0 01-2 2H5a2 2 0 
+                     01-2-2V7a2 2 0 012-2h6a2 2 
+                     0 012 2v1"/>
+          </svg>
+          <span>Logout</span>
+        </button>
+      </form>
+
+      <form
+        action="/users/deleteAccount"
+        method="POST"
+        onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');"
+      >
+        <input type="hidden" name="_method" value="DELETE">
+        <button
+          type="submit"
+          class="flex items-center justify-center w-full space-x-2 bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 
+                     0116.138 21H7.862a2 2 0 
+                     01-1.995-1.858L5 7m5 4v6m4-6v6M1 
+                     7h22M8 7V4a1 1 0 011-1h6a1 
+                     1 0 011 1v3"/>
+          </svg>
+          <span>Delete Account</span>
+        </button>
+      </form>
+
+    </div>
   </div>
 </div>

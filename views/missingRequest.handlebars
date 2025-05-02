@@ -1,0 +1,74 @@
+{{!-- views/newRequest.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg py-10">
+  <main class="max-w-md mx-auto px-4">
+
+
+    <!-- Request Form -->
+    <div class="bg-stevensWhite rounded-2xl shadow-lg p-8">
+      <h1 class="text-2xl font-heading text-stevensMaroon mb-6">
+        Request a New Item
+      </h1>
+      <form action="/users/missingRequest" method="POST" class="space-y-6">
+
+        <!-- Item Type -->
+        <div>
+          <label for="itemType" class="block text-stevensGray font-medium mb-2">
+            Type of Item
+          </label>
+          <select
+            id="itemType"
+            name="itemType"
+            required
+            class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          >
+            <option value="">-- Select Type --</option>
+            <option value="Course">Course</option>
+            <option value="Department">Department</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Item Name -->
+        <div>
+          <label for="itemName" class="block text-stevensGray font-medium mb-2">
+            Name of Item
+          </label>
+          <input
+            type="text"
+            id="itemName"
+            name="itemName"
+            required
+            placeholder="e.g. CS550 – Advanced AI"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label for="description" class="block text-stevensGray font-medium mb-2">
+            Details
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            placeholder="Any additional information…"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          ></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-right">
+          <button
+            type="submit"
+            class="bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-lg hover:bg-stevensMaroon/90 transition focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          >
+            Submit Request
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </main>
+</div>
