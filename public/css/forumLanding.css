@@ -1,17 +1,25 @@
-/* ———————————————————— Forum Header Bar ———————————————————— */
+/* ——————————————— Forum Header Bar & Controls ——————————————— */
 .forum-header-bar {
-  display: flex;
-  justify-content: flex-start; /* search stays left, rest pushed right */
-  align-items: center;
   padding: 1rem;
   margin-bottom: 1rem;
 }
 
-/* Search Section (stuck to left) */
+.forum-header-bar .controls-form {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+/* SEARCH WRAPPER (stuck to left) */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: auto; /* push the other controls to the right */
+}
+
 .search-section {
   display: flex;
   align-items: center;
-  margin-right: auto;
 }
 
 .search-section input {
@@ -42,7 +50,14 @@
   background: #004380;
 }
 
-/* Filter Section (pushed right) */
+/* FILTER WRAPPER */
+.filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
 .filter-section {
   display: flex;
   gap: 0.5rem;
@@ -68,26 +83,32 @@
   color: #fff;
 }
 
-/* Sort Section (immediately to the right of filter) */
-.forum-header-bar .sort-section {
+/* SORT WRAPPER */
+.sort-wrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: 1rem; /* space between filter buttons & sort dropdowns */
+  margin-left: 1rem;
 }
 
-.forum-header-bar .sort-section label {
+.sort-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-section label {
   font-size: 0.9rem;
 }
 
-.forum-header-bar .sort-section select {
+.sort-section select {
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
   border: 1px solid #ccc;
   cursor: pointer;
 }
 
-/* —————————————————— Section Heading & Create Button —————————————————— */
+/* ——————————— Section Heading & Create Button ——————————— */
 .section-heading-bar {
   width: 100%;
   max-width: 900px;
@@ -106,7 +127,7 @@
 
 .create-post-button {
   padding: 0.5rem 1rem;
-  background: #004380;
+  background: #9d1535;
   color: #fff;
   text-decoration: none;
   border-radius: 6px;
@@ -118,7 +139,7 @@
   background: #002f5b;
 }
 
-/* ——————————————————— Forum Posts List ——————————————————— */
+/* ————————————— Forum Posts List ————————————— */
 .forum-posts-list {
   width: 100%;
   max-width: 900px;
@@ -194,4 +215,8 @@
   color: #a32638;
   border-radius: 4px;
   cursor: pointer;
+}
+.forum-comment-button:hover {
+  background: #a32638;
+  color: #fff;
 }

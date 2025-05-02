@@ -20,6 +20,7 @@ router.use("/academicResources", academicResourcesRoutes);
 router.use("/tags", tagsRoutes);
 router.use("/report", reportRoutes);
 
+
 // ← Catch-all for any route not handled above
 // router.all(/(.*)/, (req, res) => {
 //   res.status(404).render("notFound");

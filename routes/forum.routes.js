@@ -81,7 +81,7 @@ router.route("/").post(upload.array("images", 5), async (req, res) => {
 
 router.get("/create", isLoggedIn, async (req, res) => {
   try {
-    const tags = await Tags.find({}).lean(); // Assuming you have a Tag model
+    const tags = await Tags.find({}).lean();
     const loggedUserId = req.session.user?.user?._id || null;
     res.render("createPost", {
       tags,
@@ -296,7 +296,10 @@ router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
   const forumId = req.params.forumId;
 
   if (!userId) {
-    throw new Error("Please login to add a comment");
+    req.session.toast = {
+      type: "error",
+      message: "Please login to add a comment.",
+    };
   }
 
   res.render("addComment", {
