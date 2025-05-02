@@ -394,6 +394,8 @@ export const getCourseReviewsByCourseId = async (courseId) => {
     let reviews = await Review.find({ courseId: courseId })
       .populate("userId", "firstName lastName")
       .sort({ createdAt: -1 });
+      //if userId is not present in the reviews, then don't populate it with userId
+   
     if (!reviews ) {
       throw new Error("No reviews found for the given course");
     }

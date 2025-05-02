@@ -89,12 +89,23 @@ router.route('/course/:id').get(async (req, res) => {
                     createdAt: review.createdAt,
                     updatedAt: review.updatedAt,
                     user: {
-                        userId: review.userId._id,
-                        firstName: review.userId.firstName,
-                        lastName: review.userId.lastName,
+                        userId: review?.userId?._id,
+                        firstName: review?.userId?.firstName,
+                        lastName: review?.userId?.lastName,
                     },
+                    
                 };                
             });
+            for (let i = 0; i < courseReviews.length; i++) {
+                //if userid is not there in the review then set the userId to anonymous
+                if (!courseReviews[i].user.userId) {
+                    courseReviews[i].userId = {
+                        _id: null,
+                        firstName: "Anonymous",
+                        lastName: "",
+                    };
+                }
+            }
             console.log("courseReviews: ", courseReviews);
         }
         
