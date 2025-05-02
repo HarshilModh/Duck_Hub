@@ -6,7 +6,7 @@ import indexRoutes from "./routes/index.js";
 import { connectDB } from "./dbConfig/index.js";
 import exphbs from "express-handlebars";
 import session from "express-session";
-import campusResourcesRoutes from './routes/campusResource.routes.js';
+import campusResourcesRoutes from "./routes/campusResource.routes.js";
 
 // 1️⃣ Create your app
 const app = express();
@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.use('/campus-resources', campusResourcesRoutes);
+app.use("/campus-resources", campusResourcesRoutes);
 
 // 3️⃣ Method-override helper (if you still need it)
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -55,8 +55,8 @@ app.engine(
       eq: (a, b) => a == b,
       json: (context) => JSON.stringify(context || {}),
       formatDate: (d) =>
-        new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York' })
-    }
+        new Date(d).toLocaleString("en-US", { timeZone: "America/New_York" }),
+    },
   })
 );
 app.set("view engine", "handlebars");
