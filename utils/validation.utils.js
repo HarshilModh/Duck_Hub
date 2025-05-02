@@ -91,15 +91,20 @@ export const calculateOverallRatings = async (
   isDeleting,
   currentTotalRatings
 ) => {
+  if (!ObjectId.isValid(courseId)) {
+    throw new Error("Course ID is not a valid ObjectId");
+  }
   console.log("isDeleting", isDeleting);
   console.log("courseId", courseId);
   console.log("newOverallValue", newOverallValue);
   console.log("newDifficultyValue", newDifficultyValue);
   console.log("currentTotalRatings", currentTotalRatings);
-  
+
   //if we are adding a new rating we will be sending the current total ratings+1
   if (!courseId || !newOverallValue || !newDifficultyValue) {
-    throw new Error("Course ID, overall value and difficulty value are required");
+    throw new Error(
+      "Course ID, overall value and difficulty value are required"
+    );
   }
   if (!currentTotalRatings) {
     throw new Error("Current total ratings are required");
@@ -110,12 +115,15 @@ export const calculateOverallRatings = async (
   if (!ObjectId.isValid(courseId)) {
     throw new Error("Invalid course ID");
   }
-  if (typeof newOverallValue !== "number" || typeof newDifficultyValue !== "number") {
+  if (
+    typeof newOverallValue !== "number" ||
+    typeof newDifficultyValue !== "number"
+  ) {
     throw new Error("Overall value and difficulty value must be numbers");
   }
   if (isDeleting) {
     console.log("Inside isDeleting");
-    
+
     currentTotalRatings = currentTotalRatings - 1;
     let course = await getCourseById(courseId);
     if (!course) {
@@ -127,50 +135,49 @@ export const calculateOverallRatings = async (
         updatedDifficulty: 0,
       };
     }
-    let updatedaverageRating = (course.averageRating * course.reviews.length - newOverallValue) / currentTotalRatings;
-    let updatedDifficulty = (course.difficultyRating * course.reviews.length - newDifficultyValue) / currentTotalRatings;
+    let updatedaverageRating =
+      (course.averageRating * course.reviews.length - newOverallValue) /
+      currentTotalRatings;
+    let updatedDifficulty =
+      (course.difficultyRating * course.reviews.length - newDifficultyValue) /
+      currentTotalRatings;
     updatedaverageRating = Math.round(updatedaverageRating * 10) / 10;
     updatedDifficulty = Math.round(updatedDifficulty * 10) / 10;
     console.log("updatedOverall", updatedaverageRating);
     console.log("updatedDifficulty", updatedDifficulty);
-    
+
     return {
       updatedaverageRating,
       updatedDifficulty,
     };
-
   } else {
     let course = await getCourseById(courseId);
     if (!course) {
       throw new Error("Course not found");
     }
     if (course.reviews.length === 0) {
-     
       return {
         updatedDifficulty: newOverallValue,
         updatedaverageRating: newDifficultyValue,
-      }
-    }
-    else {
-
-
-      
-      
-      let updatedaverageRating = (course.averageRating * course.reviews.length + newOverallValue) / currentTotalRatings;
-      let updatedDifficulty = (course.difficultyRating * course.reviews.length + newDifficultyValue) / currentTotalRatings;
+      };
+    } else {
+      let updatedaverageRating =
+        (course.averageRating * course.reviews.length + newOverallValue) /
+        currentTotalRatings;
+      let updatedDifficulty =
+        (course.difficultyRating * course.reviews.length + newDifficultyValue) /
+        currentTotalRatings;
       updatedaverageRating = Math.round(updatedaverageRating * 10) / 10;
       updatedDifficulty = Math.round(updatedDifficulty * 10) / 10;
       console.log("updatedOverall", updatedaverageRating);
       console.log("updatedDifficulty", updatedDifficulty);
-      
+
       return {
         updatedaverageRating,
         updatedDifficulty,
       };
     }
-
   }
-
 };
 export const courseValidation = async (
   courseCode,
@@ -178,19 +185,30 @@ export const courseValidation = async (
   courseDescription,
   departmentId
 ) => {
-
   if (!courseCode || !courseName || !courseDescription || !departmentId) {
     throw new Error("Please fill all the fields");
   }
-  if (courseCode.trim().length === 0 || courseName.trim().length === 0 || courseDescription.trim().length === 0 || departmentId.trim().length === 0) {
+  if (
+    courseCode.trim().length === 0 ||
+    courseName.trim().length === 0 ||
+    courseDescription.trim().length === 0 ||
+    departmentId.trim().length === 0
+  ) {
     throw new Error("Please fill all the fields");
   }
-  if (typeof courseCode !== "string" || typeof courseName !== "string" || typeof courseDescription !== "string" || typeof departmentId !== "string") {
-    throw new Error("Course code, name, description and department ID must be strings");
+  if (
+    typeof courseCode !== "string" ||
+    typeof courseName !== "string" ||
+    typeof courseDescription !== "string" ||
+    typeof departmentId !== "string"
+  ) {
+    throw new Error(
+      "Course code, name, description and department ID must be strings"
+    );
   }
 
-  courseCode = courseCode.trim()
-  courseName = courseName.trim()
+  courseCode = courseCode.trim();
+  courseName = courseName.trim();
   courseDescription = courseDescription.trim();
   departmentId = departmentId.trim();
   const courseCodeRegex = /^[A-Za-z]{2}(?:\d{3}|\d{4})$/;
@@ -202,36 +220,49 @@ export const courseValidation = async (
   departmentId = isValidID(departmentId, "Department ID");
 
   return true;
-}
+};
+
+export const reportTypeValidation = (type) => {
+  const validTypes = ["Forum", "Review", "AcademicResource"];
+  if (!validTypes.includes(type)) {
+    throw new Error("Not a valid report type");
+  }
+  return type;
+};
+
 export const calculateOverallRatingsForAdding = async (
   courseId,
   newOverallValue,
   newDifficultyValue,
-  totalNumberOfRatings,
+  totalNumberOfRatings
 ) => {
   console.log("courseId", courseId);
   console.log("newOverallValue", newOverallValue);
   console.log("newDifficultyValue", newDifficultyValue);
   console.log("totalNumberOfRatings", totalNumberOfRatings);
 
-  
-  if(!courseId || !newOverallValue || !newDifficultyValue) {
-    throw new Error("Course ID, overall value and difficulty value are required");
+  if (!courseId || !newOverallValue || !newDifficultyValue) {
+    throw new Error(
+      "Course ID, overall value and difficulty value are required"
+    );
   }
-  if (totalNumberOfRatings=== undefined) {
+  if (totalNumberOfRatings === undefined) {
     throw new Error("Total number of ratings are required");
   }
   if (!ObjectId.isValid(courseId)) {
     throw new Error("Invalid course ID");
   }
-  if (typeof newOverallValue !== "number" || typeof newDifficultyValue !== "number") {
+  if (
+    typeof newOverallValue !== "number" ||
+    typeof newDifficultyValue !== "number"
+  ) {
     throw new Error("Overall value and difficulty value must be numbers");
   }
-  if(totalNumberOfRatings === 0) {
+  if (totalNumberOfRatings === 0) {
     return {
       updatedaverageRating: newOverallValue,
       updatedDifficulty: newDifficultyValue,
-    }
+    };
   }
   let course = await getCourseById(courseId);
   if (!course) {
@@ -239,19 +270,21 @@ export const calculateOverallRatingsForAdding = async (
   }
   totalNumberOfRatings = totalNumberOfRatings + 1;
   console.log("totalNumberOfRatings", totalNumberOfRatings);
-  let updatedaverageRating = (course.averageRating  + newOverallValue) / totalNumberOfRatings;
-  let updatedDifficulty = (course.difficultyRating + newDifficultyValue) / totalNumberOfRatings;
+  let updatedaverageRating =
+    (course.averageRating + newOverallValue) / totalNumberOfRatings;
+  let updatedDifficulty =
+    (course.difficultyRating + newDifficultyValue) / totalNumberOfRatings;
   console.log("updatedOverall", updatedaverageRating);
   console.log("updatedDifficulty", updatedDifficulty);
-  
-  updatedaverageRating=parseInt(updatedaverageRating);
-  updatedDifficulty=parseInt(updatedDifficulty);
+
+  updatedaverageRating = parseInt(updatedaverageRating);
+  updatedDifficulty = parseInt(updatedDifficulty);
 
   return {
     updatedaverageRating,
     updatedDifficulty,
   };
-}
+};
 export const calculateOverallRatingsForDeleting = async (
   courseId,
   newOverallValue,
@@ -259,7 +292,9 @@ export const calculateOverallRatingsForDeleting = async (
   currentTotalRatings
 ) => {
   if (!courseId || !newOverallValue || !newDifficultyValue) {
-    throw new Error("Course ID, overall value and difficulty value are required");
+    throw new Error(
+      "Course ID, overall value and difficulty value are required"
+    );
   }
   if (!currentTotalRatings) {
     throw new Error("Current total ratings are required");
@@ -267,7 +302,10 @@ export const calculateOverallRatingsForDeleting = async (
   if (!ObjectId.isValid(courseId)) {
     throw new Error("Invalid course ID");
   }
-  if (typeof newOverallValue !== "number" || typeof newDifficultyValue !== "number") {
+  if (
+    typeof newOverallValue !== "number" ||
+    typeof newDifficultyValue !== "number"
+  ) {
     throw new Error("Overall value and difficulty value must be numbers");
   }
 
@@ -287,8 +325,12 @@ export const calculateOverallRatingsForDeleting = async (
   console.log("newDifficultyValue", newDifficultyValue);
   console.log("currentTotalRatings", currentTotalRatings);
 
-  let updatedaverageRating = (course.averageRating * course.reviews.length - newOverallValue) / currentTotalRatings;
-  let updatedDifficulty = (course.difficultyRating * course.reviews.length - newDifficultyValue) / currentTotalRatings;
+  let updatedaverageRating =
+    (course.averageRating * course.reviews.length - newOverallValue) /
+    currentTotalRatings;
+  let updatedDifficulty =
+    (course.difficultyRating * course.reviews.length - newDifficultyValue) /
+    currentTotalRatings;
   updatedaverageRating = Math.round(updatedaverageRating * 10) / 10;
   updatedDifficulty = Math.round(updatedDifficulty * 10) / 10;
   console.log("updatedOverall", updatedaverageRating);
@@ -303,12 +345,12 @@ export const calculateOverallRatingsForDeleting = async (
   updatedDifficulty = parseInt(updatedDifficulty);
   console.log("updatedOverall", updatedaverageRating);
   console.log("updatedDifficulty", updatedDifficulty);
-  
+
   return {
     updatedaverageRating,
     updatedDifficulty,
   };
-}
+};
 export const calculateOverallRatingsForUpdating = async (
   courseId,
   newOverallValue,
@@ -316,7 +358,9 @@ export const calculateOverallRatingsForUpdating = async (
   currentTotalRatings
 ) => {
   if (!courseId || !newOverallValue || !newDifficultyValue) {
-    throw new Error("Course ID, overall value and difficulty value are required");
+    throw new Error(
+      "Course ID, overall value and difficulty value are required"
+    );
   }
   if (!currentTotalRatings) {
     throw new Error("Current total ratings are required");
@@ -324,17 +368,22 @@ export const calculateOverallRatingsForUpdating = async (
   if (!ObjectId.isValid(courseId)) {
     throw new Error("Invalid course ID");
   }
-  if (typeof newOverallValue !== "number" || typeof newDifficultyValue !== "number") {
+  if (
+    typeof newOverallValue !== "number" ||
+    typeof newDifficultyValue !== "number"
+  ) {
     throw new Error("Overall value and difficulty value must be numbers");
   }
-  
-  let updatedaverageRating = (newOverallValue + currentTotalRatings) / currentTotalRatings;
-  let updatedDifficulty = (newDifficultyValue + currentTotalRatings) / currentTotalRatings;
+
+  let updatedaverageRating =
+    (newOverallValue + currentTotalRatings) / currentTotalRatings;
+  let updatedDifficulty =
+    (newDifficultyValue + currentTotalRatings) / currentTotalRatings;
   updatedaverageRating = Math.round(updatedaverageRating * 10) / 10;
   updatedDifficulty = Math.round(updatedDifficulty * 10) / 10;
-  
+
   return {
     updatedaverageRating,
     updatedDifficulty,
   };
-}
+};

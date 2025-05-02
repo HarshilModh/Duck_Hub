@@ -1,9 +1,9 @@
-import Tags from "../models/tags.model.js";
 import {
   createAcademicResource,
   deleteAcacdemicResourceById,
   downvoteAcademicResource,
   filterAcademicResources,
+  getAcademicResourceById,
   getAcademicResourceByStatus,
   getAcademicResourceByTagId,
   getAcademicResourceByUserId,
@@ -19,8 +19,8 @@ import {
   isValidID,
 } from "../utils/validation.utils.js";
 
-import express from "express";
 import { getAllTags } from "../data/tagController.js";
+import express from "express";
 const router = express.Router();
 
 router.route("/").get(async (req, res) => {
@@ -56,8 +56,14 @@ router
   .post(async (req, res) => {
     try {
       const { userId, title, description, url, tags } = req.body;
-
-      const tagsArray = tags ? tags.split(",").map((t) => t.trim()) : [];
+      let tagsArray;
+      if (!tags) {
+        tagsArray = [];
+      } else if (!Array.isArray(tags)) {
+        tagsArray = [tags.trim()];
+      } else {
+        tagsArray = tags.map((t) => t.trim());
+      }
       const academicResource = await createAcademicResource(
         userId,
         title,
@@ -75,7 +81,7 @@ router
 
 router.route("/:id").get(async (req, res) => {
   const academicResourceId = req.params.id;
-  const academicResource = await getAllAcademicResources(academicResourceId);
+  const academicResource = await getAcademicResourceById(academicResourceId);
   return res.status(200).json(academicResource);
 });
 

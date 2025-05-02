@@ -7,6 +7,7 @@ import courseRoutes from "./course.routes.js";
 import userSideCoursesRoutes from "./userSideCourses.routes.js";
 import academicResourcesRoutes from "./academicResources.routes.js";
 import tagsRoutes from "./tags.routes.js";
+import reportRoutes from "./report.routes.js";
 const router = express.Router();
 
 // Define the base route for users

@@ -57,7 +57,14 @@ router.route("/").post(upload.array("images", 5), async (req, res) => {
       }
     }
 
-    const tagsArray = tags ? tags.split(",").map((t) => t.trim()) : [];
+    let tagsArray;
+    if (!tags) {
+      tagsArray = [];
+    } else if (!Array.isArray(tags)) {
+      tagsArray = [tags.trim()];
+    } else {
+      tagsArray = tags.map((t) => t.trim());
+    }
 
     const post = await createForumPost(
       userId,

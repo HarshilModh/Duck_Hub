@@ -1,0 +1,26 @@
+<div class="create-post-page">
+  <h2>Create a Report</h2>
+
+  <div id="forumFormContainer">
+    <form method="POST" action="/report/create/{{contentId}}" name="forumForm" id="forumForm">
+      <input id="userId" name="userId" value="{{loggedUserId}}" />
+      <input id="contentId" name="contentId" value="{{contentId}}" />
+
+      <div class="form-group">
+        <label for="title">Type:</label>
+        <select id="type" name="type">
+            <option value="Forum">Forum</option>
+            <option value="Review">Review</option>
+            <option value="AcademicResource">AcademicResource</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason:</label>
+        <textarea id="reason" name="reason" required></textarea>
+      </div>
+
+      <button type="submit" class="submit-post-button">Submit Report</button>
+    </form>
+  </div>
+</div>

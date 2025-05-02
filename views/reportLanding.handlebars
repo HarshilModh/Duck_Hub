@@ -1,0 +1,22 @@
+<div class="section-heading-bar">
+    <h2 id="sectionHeading">Reports</h2>
+</div>
+
+<div class="forum-posts-list">
+    {{#each reports}}
+        <div class="forum-post-card">
+            <h3 class="forum-title">{{reportedContentId}}</h3>
+            <h3 class="forum-title">{{reportedContentType}}</h3>
+            <h3 class="forum-title">{{status}}</h3>
+            <p class="forum-posted-by">
+                Reported by:
+                {{reportedBy.firstName}} {{reportedBy.lastName}}
+            </p>
+            <p class="forum-content">{{reason}}</p>
+        </div>
+    {{/each}}
+</div>
+
+<script>
+  const loggedInUserId = "{{loggedUserId}}";
+</script>

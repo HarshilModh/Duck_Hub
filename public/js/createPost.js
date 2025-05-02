@@ -4,6 +4,12 @@ const forumFormContainer = document.getElementById("forumFormContainer");
 const pollFormContainer = document.getElementById("pollFormContainer");
 const forumForm = document.getElementById("forumForm");
 
+const addNewTagBtn = document.getElementById("addTagBtn");
+const newTagDiv = document.getElementById("newTagDiv");
+const newTagName = document.getElementById("newTagName");
+const saveTagBtn = document.getElementById("saveNewTag");
+const userId = document.getElementById("userId");
+
 createForumBtn.addEventListener("click", () => {
   forumFormContainer.style.display = "block";
   pollFormContainer.style.display = "none";
@@ -12,6 +18,41 @@ createForumBtn.addEventListener("click", () => {
 createPollBtn.addEventListener("click", () => {
   forumFormContainer.style.display = "none";
   pollFormContainer.style.display = "block";
+});
+
+addNewTagBtn.addEventListener("click", () => {
+  newTagDiv.style.display = "block";
+});
+
+saveTagBtn.addEventListener("click", async () => {
+  const tagValue = newTagName.value.trim().toUpperCase();
+  const userIdValue = userId.value;
+
+  if (!tagValue) {
+    throw new Error("Tag name can't be empty");
+  }
+
+  if (!userIdValue) {
+    throw new Error("Cannot create a tag with logging in");
+  }
+  try {
+    const res = await fetch("/tags", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: tagValue, userId: userIdValue }),
+    });
+
+    const newTag = await res.json();
+    if (!res.ok) {
+      throw new Error(newTag.error || "Duplicate Tags");
+    }
+    window.location.reload();
+  } catch (e) {
+    console.error("Error submitting forum:", e);
+    alert(e.message || "Failed to create forum.");
+  }
 });
 
 forumForm.addEventListener("submit", async (e) => {
