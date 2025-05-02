@@ -22,8 +22,8 @@ router.use("/userSideCourses", userSideCoursesRoutes);
 router.use("/academicResources", academicResourcesRoutes);
 router.use("/tags", tagsRoutes);
 router.use("/report", reportRoutes);
-router.use(/(.*)/, (req, res) => {
-console.log("404 error");
-  res.status(404).render("notFound", { title: "404" });
-});
+// router.use(/(.*)/, (req, res) => {
+// console.log("404 error");
+//   res.status(404).render("notFound", { title: "404" });
+// });
 export default router;

@@ -1,40 +1,48 @@
 <div class="forum-header-bar">
   <form action="/forums" method="get" class="controls-form">
-    <!-- SEARCH -->
-    <div class="search-section">
-      <input
-        type="text"
-        name="search"
-        id="searchInput"
-        placeholder="Search posts..."
-        value="{{search}}"
-      />
-      <button type="submit" class="search-button">🔍</button>
+
+    <!-- SEARCH WRAPPER -->
+    <div class="search-wrapper">
+      <div class="search-section">
+        <input
+          type="text"
+          name="search"
+          id="searchInput"
+          placeholder="Search posts..."
+          value="{{search}}"
+        />
+        <button type="submit" class="search-button">🔍</button>
+      </div>
     </div>
 
-    <!-- FILTER -->
-    <div class="filter-section">
-      <button type="submit" name="type" value="forums" class="toggle-button">
-        Forums
-      </button>
-      <button type="submit" name="type" value="polls" class="toggle-button">
-        Polls
-      </button>
+    <!-- FILTER WRAPPER (Forums vs Polls) -->
+    <div class="filter-wrapper">
+      <div class="filter-section">
+        <button type="submit" name="type" value="forums" class="toggle-button">
+          Forums
+        </button>
+        <button type="submit" name="type" value="polls" class="toggle-button">
+          Polls
+        </button>
+      </div>
     </div>
 
-    <!-- SORT -->
-    <div class="sort-section">
-      <label for="sortSelect">Sort by:</label>
-      <select name="sort" id="sortSelect" onchange="this.form.submit()">
-        <option value="createdAt">Latest</option>
-        <option value="upVotes">Most UpVoted</option>
-        <option value="downVotes">Most DownVoted</option>
-      </select>
-      <select name="order" id="orderSelect" onchange="this.form.submit()">
-        <option value="desc">Desc</option>
-        <option value="asc">Asc</option>
-      </select>
+    <!-- SORT WRAPPER -->
+    <div class="sort-wrapper">
+      <div class="sort-section">
+        <label for="sortSelect">Sort by:</label>
+        <select name="sort" id="sortSelect" onchange="this.form.submit()">
+          <option value="createdAt">Latest</option>
+          <option value="upVotes">Most UpVoted</option>
+          <option value="downVotes">Most DownVoted</option>
+        </select>
+        <select name="order" id="orderSelect" onchange="this.form.submit()">
+          <option value="desc">Desc</option>
+          <option value="asc">Asc</option>
+        </select>
+      </div>
     </div>
+
   </form>
 </div>
 
