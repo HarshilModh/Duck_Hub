@@ -1,0 +1,38 @@
+{{!-- views/404.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg flex items-center justify-center px-4">
+  <div class="max-w-xl text-center space-y-8">
+    
+    <!-- Big 404 code -->
+    <h1 class="text-8xl font-heading text-stevensMaroon">404</h1>
+    
+    <!-- Brief title -->
+    <h2 class="text-2xl font-semibold text-gray-800">
+      Oops! Page Not Found
+    </h2>
+    
+    <!-- Explanation -->
+    <p class="text-gray-700">
+      The page you’re looking for doesn’t exist or has been moved.
+      Check the URL for typos, or return to the homepage.
+    </p>
+    
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <a
+        href="/forums"
+        class="inline-flex items-center justify-center bg-stevensMaroon text-stevensWhite px-6 py-3 rounded-lg hover:bg-stevensMaroon/90 transition"
+      >
+        Go to Home
+      </a>
+      <a
+        href="javascript:history.back()"
+        class="inline-flex items-center justify-center bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition"
+      >
+        Go Back
+      </a>
+    </div>
+    
+   
+  </div>
+</div>

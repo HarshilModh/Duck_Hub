@@ -1,0 +1,73 @@
+{{!-- views/adminRequests.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg font-body text-stevensMaroon">
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-heading mb-6">Missing Item Requests</h1>
+
+    {{#if missingRequests.length}}
+      <ul class="space-y-6">
+        {{#each missingRequests}}
+          <li>
+            <article class="bg-stevensWhite rounded-2xl shadow p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+              
+              <!-- Request Details -->
+              <div class="flex-1 mb-4 sm:mb-0">
+                <p class="text-sm text-stevensGray mb-1">
+                  <strong>Type:</strong> {{this.itemType}}
+                </p>
+                <p class="text-lg font-semibold text-gray-800 mb-2">
+                  {{this.itemName}}
+                </p>
+                {{#if this.description}}
+                  <p class="text-gray-700 mb-2">{{this.description}}</p>
+                {{/if}}
+                <p class="text-sm text-gray-500">
+                  Requested by {{this.userId.firstName}} {{this.userId.lastName}}
+                </p>
+                <p class="text-sm text-gray-500">
+                  On {{this.createdAt}}
+                </p>
+              </div>
+
+              <!-- Actions / Status -->
+              <div class="flex items-center space-x-2">
+                {{#if (eq this.status "Pending")}}
+                  <form action="/users/missingRequest/update/{{this._id}}" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <input type="hidden" name="status" value="Approved">
+                    <button 
+                      type="submit" 
+                      class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+                    >
+                      Approve
+                    </button>
+                  </form>
+                  <form action="/users/missingRequest/update/{{this._id}}" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <input type="hidden" name="status" value="Rejected">
+                    <button 
+                      type="submit" 
+                      class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                      Reject
+                    </button>
+                  </form>
+                {{else}}
+                  <span 
+                    class="px-3 py-1 rounded-full text-sm 
+                      {{#if (eq this.status "Approved")}}bg-green-100 text-green-800{{else}}bg-red-100 text-red-800{{/if}}"
+                  >
+                    {{this.status}}
+                  </span>
+                {{/if}}
+              </div>
+
+            </article>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="text-stevensGray italic">No requests at the moment.</p>
+    {{/if}}
+  </main>
+</div>

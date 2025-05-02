@@ -1,9 +1,11 @@
 import express from "express";
 import User from "../models/user.model.js";
+import MissingRequest from "../models/MissingRequest.model.js";
 import {
   isValidEmail,
   isValidID,
   isValidPassword,
+  isValidString,
 } from "../utils/validation.utils.js";
 import { isValidObjectId, mongo } from "mongoose";
 import bcrypt from "bcrypt";
@@ -53,8 +55,14 @@ export const createUser = async (
   if (password.trim().length === 0) {
     throw new Error("Password cannot be empty");
   }
+  if(!isValidPassword(password)){
+    throw new Error("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+  }
   if (confirmPassword.trim().length === 0) {
     throw new Error("Confirm password cannot be empty");
+  }
+  if(!isValidPassword(confirmPassword)){
+    throw new Error("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
   }
   if (password !== confirmPassword) {
     throw new Error("Passwords do not match");
@@ -218,6 +226,11 @@ export const loginUser = async (email, password) => {
   if (password.trim().length === 0) {
     throw new Error("Password cannot be empty");
   }
+  if (!isValidPassword(password)) {
+    throw new Error(
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    );
+  }
   const user = await User.findOne({ email });
   if (!user) {
     throw new Error("User not found");
@@ -268,41 +281,81 @@ export const generateTokens = async (userId) => {
 };
 //update user password
 //David
-export const updatePassword = async (userId, newPassword1, newPassword2) => {
+export const updatePassword = async (userId, currentPassword, newPassword2) => {
   //Assuming it works like forgot password
-  if (newPassword1 !== newPassword2) {
-    throw new Error("Passwords don't match");
+
+  if(!userId || !currentPassword || !newPassword2) {
+    throw new Error("Please provide all required fields");
   }
+  try {
+    userId = isValidID(userId, "userId");
+  }
+  catch (e) {
+    throw new Error(e.message);
+  }
+
   //Check for > 8 chars
-  if (newPassword1.length < 8) {
+  if (currentPassword.length < 8) {
     throw new Error("Password must be at least 8 characters long");
   }
   //Check for < 1024 chars
-  if (newPassword1.length > 1024) {
+  if (currentPassword.length > 1024) {
     throw new Error("Password must be less than 1024 characters long");
   }
   //Check for empty passwords
-  if (newPassword1.trim().length === 0) {
+  if (currentPassword.trim().length === 0) {
+    throw new Error("Password cannot be empty");
+  
+  }
+ 
+  //Check for empty passwords
+  if (newPassword2.trim().length === 0) {
     throw new Error("Password cannot be empty");
   }
-  //Regex check
-  if (!isValidPassword(newPassword1)) {
-    throw new Error("Invalid Password");
+  //Check for > 8 chars
+  if (newPassword2.length < 8) {
+    throw new Error("Password must be at least 8 characters long");
   }
-  //Update password
+  //Check for < 1024 chars
+  if (newPassword2.length > 1024) {
+    throw new Error("Password must be less than 1024 characters long");
+  }
+  //Check for empty passwords
+  if (newPassword2.trim().length === 0) {
+    throw new Error("Password cannot be empty");
+  }
+  //Check for same password
+  if (currentPassword === newPassword2) {
+    throw new Error("New password cannot be same as current password");
+  }
+  
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const isPasswordCorrect = await user.isPasswordCorrect(currentPassword);
+  if (!isPasswordCorrect) {
+    throw new Error("Incorrect password");
+  }
   const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(newPassword1, salt);
-  const updatePassword = await User.findByIdAndUpdate(
-    userId,
-    { $set: { password: hashedPassword } },
-    { new: true }
-  );
-  if (!updatePassword) {
-    throw new Error("Update password failed");
+  const hashedPassword = await bcrypt.hash(newPassword2, salt);
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true }
+    );
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+    return updatedUser;
   }
-  await updatePassword.save();
-  //Password update successful
-  return updatePassword;
+  catch (error) {
+    if (error.code === 11000) {
+      throw new Error("Email already exists");
+    }
+    throw new Error("Internal server error" + error);
+  }
 };
 //Update user Role
 //David
@@ -333,3 +386,138 @@ export const searchUserByName = async (req, res) => {};
 //Get all users by role
 //Akbar
 export const getUsersByRole = async (req, res) => {};
+
+
+export const addMissingRequest = async (userId, itemType, itemName, description) => {
+  try{
+      if (!userId || !itemType || !itemName) {
+          throw new Error("Please provide all required fields");
+      }
+      try {
+          userId = isValidID(userId, "userId");
+      }
+      catch (e) {
+          throw new Error(e.message);
+      }
+      try {
+          itemType=isValidString(itemType, "itemType");
+      }
+      catch (e) {
+          throw new Error(e.message);
+      }
+      try {
+          itemName=isValidString(itemName, "itemName");
+      }
+      catch (e) {
+          throw new Error(e.message);
+      }
+
+      if(typeof itemType !== 'string' || typeof itemName !== 'string'){
+        throw new Error("Item type and item name must be strings");
+      } 
+      if(itemType.trim().length === 0 || itemName.trim().length === 0){
+          throw new Error("Item type and item name cannot be empty");
+      }
+      itemType = itemType.trim();
+      itemName = itemName.trim();
+      
+      if(typeof description !== 'string'){
+          throw new Error("Description must be a string");
+      }
+      if(description.trim().length === 0){
+          description = null;
+      }
+
+      const missingRequest = await MissingRequest.create({
+          userId,
+          itemType,
+          itemName,
+          description
+      });
+      if (!missingRequest) {
+          throw new Error("Missing request not created");
+      }
+      return missingRequest;
+  }
+  catch (e) {
+    throw new Error(e.message);
+  }
+}
+export const getMissingRequests = async (userId) => {
+  try {
+    if (!userId) {
+      throw new Error("Please provide all required fields");
+    }
+    try {
+      userId = isValidID(userId, "userId");
+    } catch (e) {
+      throw new Error(e.message);
+    }
+    const missingRequests = await MissingRequest.find({ userId }).lean();
+    if (!missingRequests || missingRequests.length === 0) {
+      throw new Error("No missing requests found");
+    }
+    return missingRequests;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+export const getAllMissingRequests = async () => {
+  try {
+    const missingRequests = await MissingRequest.find({}).populate("userId", "firstName lastName").lean();
+    console.log(missingRequests);
+    
+    if (!missingRequests ) {
+      throw new Error("No missing requests found");
+    }
+    return missingRequests;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
+export const updateMissingRequest = async (requestId, status) => {
+  try {
+    if (!requestId || !status) {
+      throw new Error("Please provide all required fields");
+    }
+    try {
+      requestId = isValidID(requestId, "requestId");
+    } catch (e) {
+      throw new Error(e.message);
+    }
+    if (status !== "Approved" && status !== "Rejected") {
+      throw new Error("Invalid status");
+    }
+    const missingRequest = await MissingRequest.findByIdAndUpdate(
+      requestId,
+      { status },
+      { new: true }
+    );
+    if (!missingRequest) {
+      throw new Error("Missing request not found");
+    }
+    return missingRequest;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+export const getMissingRequestByUserId = async (userid) => {
+  try {
+    if (!userid) {
+      throw new Error("Please provide all required fields");
+    }
+    try {
+      userid = isValidID(userid, "userId");
+    } catch (e) {
+      throw new Error(e.message);
+    }
+    const missingRequest = await MissingRequest.find({ userId: userid }).populate("userId", "firstName lastName").lean();
+    
+    if (!missingRequest ) {
+      throw new Error("No missing requests found");
+    }
+    return missingRequest;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
