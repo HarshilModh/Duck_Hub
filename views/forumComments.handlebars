@@ -1,22 +1,65 @@
-<div class="forum-post-card">
-  <h3 class="forum-title">{{forum.title}}</h3>
-  <p class="forum-posted-by">Posted by:
-    {{forum.userId.firstName}}_{{forum.userId.lastName}}</p>
-  <p class="forum-content">{{forum.content}}</p>
+{{! forumComments.handlebars }}
 
-  {{#if forum.imageURLs.length}}
-    <div class="forum-images">
-      {{#each forum.imageURLs}}
-        <img src="{{this}}" alt="Forum Image" class="forum-image" />
+{{! 1) Post Header: show forum or poll based on isPoll }}
+{{#if isPoll}}
+  <!-- Poll header -->
+  <div class="poll-post-card">
+    <h3 class="poll-question">{{forum.question}}</h3>
+    <p class="poll-created-by">
+      Created by:
+      {{forum.createdBy.firstName}}_{{forum.createdBy.lastName}}
+    </p>
+    {{#if forum.imageURLs.length}}
+      <div class="poll-images">
+        {{#each forum.imageURLs}}
+          <img src="{{this}}" alt="Poll Image" class="poll-image" />
+        {{/each}}
+      </div>
+    {{/if}}
+
+    <ul class="poll-options-list">
+      {{#each forum.options}}
+        <li>
+          {{this.answer}}
+          &ndash;
+          {{this.voterId.length}}
+          votes
+        </li>
       {{/each}}
-    </div>
-  {{/if}}
-</div>
+    </ul>
+
+  </div>
+{{else}}
+  <!-- Forum header -->
+  <div class="forum-post-card">
+    <h3 class="forum-title">{{forum.title}}</h3>
+    <p class="forum-posted-by">
+      Posted by:
+      {{forum.userId.firstName}}_{{forum.userId.lastName}}
+    </p>
+    <p class="forum-content">{{forum.content}}</p>
+
+    {{#if forum.imageURLs.length}}
+      <div class="forum-images">
+        {{#each forum.imageURLs}}
+          <img src="{{this}}" alt="Forum Image" class="forum-image" />
+        {{/each}}
+      </div>
+    {{/if}}
+  </div>
+{{/if}}
 
 <div class="comments-header">
   <h2 class="comments-title">Comments</h2>
-  <a href="/forums/comments/add/{{forum._id}}" class="add-comment-button">Add
-    Comment</a>
+  {{#if isPoll}}
+    <a href="/forums/comments/add/{{forum._id}}" class="add-comment-button">
+      Add Comment
+    </a>
+  {{else}}
+    <a href="/forums/comments/add/{{forum._id}}" class="add-comment-button">
+      Add Comment
+    </a>
+  {{/if}}
 </div>
 
 <div class="comments-list">
@@ -29,7 +72,6 @@
 
         <p class="comment-content">{{this.content}}</p>
 
-        {{! NEW: show any images attached to this comment }}
         {{#if this.imageURLs.length}}
           <div class="comment-images">
             {{#each this.imageURLs}}

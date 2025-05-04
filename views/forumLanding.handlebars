@@ -1,29 +1,29 @@
 <div class="forum-header-bar">
-  <form action="/forums" method="get" class="controls-form">
+  <form id="searchForm" action="/forums/search" method="get" class="controls-form">
 
     <!-- SEARCH WRAPPER -->
     <div class="search-wrapper">
       <div class="search-section">
         <input
           type="text"
-          name="search"
+          name="text"
           id="searchInput"
           placeholder="Search posts..."
-          value="{{search}}"
+          value="{{text}}"
         />
         <button type="submit" class="search-button">🔍</button>
       </div>
     </div>
 
-    <!-- FILTER WRAPPER (Forums vs Polls) -->
+    <!-- FILTER WRAPPER (Select Forums vs Polls) -->
     <div class="filter-wrapper">
       <div class="filter-section">
-        <button type="submit" name="type" value="forums" class="toggle-button">
-          Forums
-        </button>
-        <button type="submit" name="type" value="polls" class="toggle-button">
-          Polls
-        </button>
+        <label for="postTypeSelect">Type:</label>
+        <select name="postType" id="postTypeSelect">
+          <option value=""   {{#unless postType}}selected{{/unless}}>All</option>
+          <option value="forums" {{#if (eq postType "forums")}}selected{{/if}}>Forums</option>
+          <option value="polls"  {{#if (eq postType "polls")}}selected{{/if}}>Polls</option>
+        </select>
       </div>
     </div>
 
@@ -31,14 +31,20 @@
     <div class="sort-wrapper">
       <div class="sort-section">
         <label for="sortSelect">Sort by:</label>
-        <select name="sort" id="sortSelect" onchange="this.form.submit()">
-          <option value="createdAt">Latest</option>
-          <option value="upVotes">Most UpVoted</option>
-          <option value="downVotes">Most DownVoted</option>
+        <select name="sort" id="sortSelect">
+          <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>
+            Latest
+          </option>
+          <option value="upVotes" {{#if (eq sort "upVotes")}}selected{{/if}}>
+            Most UpVoted
+          </option>
+          <option value="downVotes" {{#if (eq sort "downVotes")}}selected{{/if}}>
+            Most DownVoted
+          </option>
         </select>
-        <select name="order" id="orderSelect" onchange="this.form.submit()">
-          <option value="desc">Desc</option>
-          <option value="asc">Asc</option>
+        <select name="order" id="orderSelect">
+          <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
+          <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
         </select>
       </div>
     </div>
@@ -47,65 +53,99 @@
 </div>
 
 <div class="section-heading-bar">
-  <h2 id="sectionHeading">Forum Posts</h2>
-
+  <h2 id="sectionHeading">
+    {{#if (eq postType "polls")}}Polls{{else}}Forum Posts{{/if}}
+  </h2>
   <a href="/forums/create" class="create-post-button">Create Post</a>
 </div>
 
-<!-- List of forum posts -->
-<div class="forum-posts-list">
+<!-- Combined Forum & Poll List -->
+<div class="combined-posts-list">
   {{#each forumPosts}}
     <div class="forum-post-card">
-      <!-- Forum Title -->
-      <h3 class="forum-title">{{title}}</h3>
-
-      <!-- Posted By (firstName_lastName) -->
+      <h3 class="forum-title">{{this.title}}</h3>
       <p class="forum-posted-by">
-        Posted by:
-        {{userId.firstName}}_{{userId.lastName}}
+        Posted by: {{this.userId.firstName}}_{{this.userId.lastName}}
       </p>
-
-      <!-- Content -->
-      <p class="forum-content">{{content}}</p>
-
-      {{! NEED TO IMPLEMENT THE TAGS PART }}
-
-      <!-- If images exist -->
-      {{#if imageURLs.length}}
+      <p class="forum-content">{{this.content}}</p>
+      {{#if this.imageURLs.length}}
         <div class="forum-images">
-          {{#each imageURLs}}
+          {{#each this.imageURLs}}
             <img src="{{this}}" alt="Forum Image" class="forum-image" />
           {{/each}}
         </div>
       {{/if}}
-
-      <!-- Upvote, Downvote, Comment buttons -->
       <div class="forum-buttons">
-        <button class="vote-button upvote-button" data-id="{{_id}}">
-          <img
-            src="/public/images/icons/upVote.png"
-            alt="Upvote"
-            class="vote-icon"
-          />
-          <span>{{upVotes}}</span>
+        <button class="vote-button upvote-button" data-id="{{this._id}}">
+          <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{this.upVotes}}</span>
         </button>
-        <button class="vote-button downvote-button" data-id="{{_id}}">
-          <img
-            src="/public/images/icons/downVote.png"
-            alt="Downvote"
-            class="vote-icon"
-          />
-          <span>{{downVotes}}</span>
+        <button class="vote-button downvote-button" data-id="{{this._id}}">
+          <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{this.downVotes}}</span>
         </button>
-        <button class="comment-button" data-id="{{_id}}">
-          💬 Comment
-        </button>
+        <button class="comment-button" data-id="{{this._id}}">💬 Comment</button>
       </div>
     </div>
+
+    {{#with (lookup ../pollPosts @index) as |poll|}}
+      {{#if poll}}
+        <div class="poll-post-card">
+          <h3 class="poll-question">{{poll.question}}</h3>
+          <p class="poll-created-by">
+            Created by: {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}
+          </p>
+          {{#if poll.imageURLs.length}}
+            <div class="poll-images">
+              {{#each poll.imageURLs}}
+                <img src="{{this}}" alt="Poll Image" class="poll-image" />
+              {{/each}}
+            </div>
+          {{/if}}
+          <ul class="poll-options-list">
+            {{#each poll.options}}
+              <li>{{this.answer}} &ndash; {{this.voterId.length}} votes</li>
+            {{/each}}
+          </ul>
+          <div class="poll-buttons">
+            <button class="vote-button upvote-button" data-id="{{poll._id}}">
+              <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{poll.upVotes}}</span>
+            </button>
+            <button class="vote-button downvote-button" data-id="{{poll._id}}">
+              <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{poll.downVotes}}</span>
+            </button>
+            <button class="comment-button" data-id="{{poll._id}}">💬 Comment</button>
+          </div>
+        </div>
+      {{/if}}
+    {{/with}}
+  {{/each}}
+
+  {{#each pollPosts}}
+    {{#unless (lookup ../forumPosts @index)}}
+      <div class="poll-post-card">
+        <h3 class="poll-question">{{this.question}}</h3>
+        <ul class="poll-options-list">
+          {{#each this.options}}
+            <li class="poll-option-item">
+              <span class="poll-option-text">{{this.answer}}</span>
+              <span class="poll-option-votes">{{this.voterId.length}}</span>
+            </li>
+          {{/each}}
+        </ul>
+        <p class="poll-created-by">
+          Created by: {{this.createdBy.firstName}}_{{this.createdBy.lastName}}
+        </p>
+        <div class="poll-buttons">
+          <button class="vote-button upvote-button" data-id="{{this._id}}">
+            <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{this.upVotes}}</span>
+          </button>
+          <button class="vote-button downvote-button" data-id="{{this._id}}">
+            <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{this.downVotes}}</span>
+          </button>
+          <button class="comment-button" data-id="{{this._id}}">💬 Comment</button>
+        </div>
+      </div>
+    {{/unless}}
   {{/each}}
 </div>
 
-<script>
-  const loggedInUserId = "{{loggedUserId}}";
-</script>
 <script src="/public/js/forumLanding.js"></script>

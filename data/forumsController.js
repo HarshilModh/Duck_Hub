@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Forum from "../models/forums.model.js";
+import Poll from "../models/polls.model.js";
 import ForumVotes from "../models/forumVotes.model.js";
 import { getUserById } from "./userController.js";
 import {
@@ -79,7 +80,9 @@ export const getAllForumPosts = async () => {
 // Get a forum post by ID
 export const getForumPostById = async (id) => {
   id = isValidID(id, "Forum ID");
-  const forumPost = await Forum.findById(id).lean();
+  const forumPost = await Forum.findById(id)
+    .populate("userId", "firstName lastName")
+    .lean();
   if (!forumPost) {
     throw new Error("Forum post not found");
   }
@@ -170,9 +173,6 @@ export const getForumPostsByUserId = async (userId) => {
       .lean();
   } catch (error) {
     throw new Error("Failed to fetch forum posts: " + error.message);
-  }
-  if (!posts || posts.length === 0) {
-    throw new Error("Sorry, you haven't created any forums yet!!");
   }
   return posts;
 };
@@ -367,3 +367,41 @@ export const changeForumPostStatus = async (req, res) => {};
 // Probably not necessary
 // Delete a forum post image
 // export const deleteForumPostImage = async (req, res) => {};
+
+export async function searchFilterSort({
+  text = "",
+  postType,
+  sort = "createdAt", // can be "createdAt", "upVotes" or "downVotes"
+  order = "desc", // "asc" or "desc"
+}) {
+  const sortOption = { [sort]: order === "asc" ? 1 : -1 };
+
+  const regex = text.trim() ? new RegExp(text.trim(), "i") : null;
+
+  const forumFilter = {};
+  const pollFilter = {};
+
+  if (regex) {
+    forumFilter.$or = [{ title: regex }, { content: regex }];
+    pollFilter.question = regex;
+  }
+
+  let forumPosts = [];
+  let pollPosts = [];
+
+  if (!postType || postType === "forums") {
+    forumPosts = await Forum.find(forumFilter)
+      .sort(sortOption)
+      .populate("userId tags reportedBy")
+      .lean();
+  }
+
+  if (!postType || postType === "polls") {
+    pollPosts = await Poll.find(pollFilter)
+      .sort(sortOption)
+      .populate("createdBy options.voterId reportedBy")
+      .lean();
+  }
+
+  return { forumPosts, pollPosts };
+}

@@ -78,11 +78,68 @@
   background-color: #002f5b;
 }
 
-.forum-body #pollFormContainer {
-  text-align: center;
-  font-size: 18px;
-  padding: 20px;
+/* Poll Form Container override */
+.forum-body .create-post-page #pollFormContainer {
   background-color: #e7f2fb;
+  padding: 20px;
   border-radius: 8px;
   margin-top: 20px;
+}
+
+/* Poll form elements spacing */
+.forum-body .create-post-page #pollFormContainer .form-group {
+  margin-bottom: 20px;
+}
+
+/* Poll Options Styling */
+.forum-body .create-post-page #options-wrapper {
+  margin-bottom: 20px;
+}
+
+.forum-body .create-post-page .option-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.forum-body .create-post-page .option-row input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.forum-body .create-post-page .option-row .remove-option {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: #a32638;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.forum-body .create-post-page .option-row .remove-option:hover {
+  color: #7a1b2b;
+}
+
+.forum-body .create-post-page #add-option {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #004380;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.forum-body .create-post-page #add-option:hover {
+  color: #002f5b;
+}
+
+/* Poll submit button override */
+.forum-body .create-post-page #pollFormContainer .submit-post-button {
+  background-color: #004380;
 }

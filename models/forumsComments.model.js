@@ -28,18 +28,23 @@ const commentsSchema = new mongoose.Schema(
     },
     // saw the note that this should be a string not array
     imageURLs: {
-      type: [String], 
-      default: [],  // empty string as default
+      type: [String],
+      default: [], // empty string as default
     },
     upVotes: {
       type: Number,
-      default: 0,   // starting with 0 upvotes
-      min: 0,       // can't have negative upvotes
+      default: 0, // starting with 0 upvotes
+      min: 0, // can't have negative upvotes
     },
     downVotes: {
       type: Number,
-      default: 0,   // starting with 0 downvotes
-      min: 0,       // can't have negative downvotes
+      default: 0, // starting with 0 downvotes
+      min: 0, // can't have negative downvotes
+    },
+    commentFor: {
+      type: String,
+      enum: ["poll", "forum"],
+      required: true,
     },
     // didn't add status since the other models have it but not sure if comments need it
     // leaving commented out just in case we need it later

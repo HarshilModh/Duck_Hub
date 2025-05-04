@@ -8,6 +8,7 @@ import userSideCoursesRoutes from "./userSideCourses.routes.js";
 import academicResourcesRoutes from "./academicResources.routes.js";
 import tagsRoutes from "./tags.routes.js";
 import reportRoutes from "./report.routes.js";
+import pollRoutes from "./poll.routes.js";
 const router = express.Router();
 
 router.use("/users", userRoutes);
@@ -19,7 +20,7 @@ router.use("/userSideCourses", userSideCoursesRoutes);
 router.use("/academicResources", academicResourcesRoutes);
 router.use("/tags", tagsRoutes);
 router.use("/report", reportRoutes);
-
+router.use("/polls", pollRoutes);
 
 // ← Catch-all for any route not handled above
 // router.all(/(.*)/, (req, res) => {

@@ -2,9 +2,11 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import Forum from "../models/forums.model.js";
+import ForumVotes from "../models/forumVotes.model.js";
 import { userImage } from "../middlewares/cloudinary.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Tags from "../models/tags.model.js";
+import Poll from "../models/polls.model.js";
 const router = express.Router();
 import {
   getForumPostById,
@@ -18,6 +20,7 @@ import {
   deleteForumPostById,
   updateForumPostById,
   filterForumPosts,
+  searchFilterSort,
   getReportedForumPosts,
 } from "../data/forumsController.js";
 
@@ -44,40 +47,42 @@ if (!fs.existsSync(uploadDir)) {
 const upload = multer({ dest: "uploads/" });
 
 //TODO: Implement Router Checks
-router.route("/").post(upload.array("images", 5), async (req, res) => {
-  try {
-    const { userId, title, content, tags } = req.body;
-    let imageURLs = [];
+router
+  .route("/")
+  .post(isLoggedIn, upload.array("images", 5), async (req, res) => {
+    try {
+      const { userId, title, content, tags } = req.body;
+      let imageURLs = [];
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const cloudinaryUrl = await userImage(file.path);
-        imageURLs.push(cloudinaryUrl);
-        fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          const cloudinaryUrl = await userImage(file.path);
+          imageURLs.push(cloudinaryUrl);
+          fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+        }
       }
-    }
 
-    let tagsArray;
-    if (!tags) {
-      tagsArray = [];
-    } else if (!Array.isArray(tags)) {
-      tagsArray = [tags.trim()];
-    } else {
-      tagsArray = tags.map((t) => t.trim());
-    }
+      let tagsArray;
+      if (!tags) {
+        tagsArray = [];
+      } else if (!Array.isArray(tags)) {
+        tagsArray = [tags.trim()];
+      } else {
+        tagsArray = tags.map((t) => t.trim());
+      }
 
-    const post = await createForumPost(
-      userId,
-      title,
-      content,
-      imageURLs,
-      tagsArray
-    );
-    return res.status(201).json(post);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
+      const post = await createForumPost(
+        userId,
+        title,
+        content,
+        imageURLs,
+        tagsArray
+      );
+      return res.status(201).json(post);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
 
 router.get("/create", isLoggedIn, async (req, res) => {
   try {
@@ -96,12 +101,60 @@ router.get("/create", isLoggedIn, async (req, res) => {
 
 router.route("/").get(isLoggedIn, async (req, res) => {
   const forumPosts = await getAllForumPosts();
+  const polls = await Poll.find()
+    .populate("createdBy", "firstName lastName")
+    .lean();
   const loggedUserId = req.session.user?.user?._id || null;
   res.render("forumLanding", {
     forumPosts,
+    pollPosts: polls,
     loggedUserId,
     customStyles: '<link rel="stylesheet" href="/public/css/forumLanding.css">',
   });
+});
+
+router.get("/search", isLoggedIn, async (req, res, next) => {
+  try {
+    const {
+      text = "",
+      postType,
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
+
+    if (!postType || (postType !== "forums" && postType !== "polls")) {
+      req.session.toast = {
+        type: "error",
+        message: "Please select a valid post type.",
+      };
+      return res.redirect("/forums");
+    }
+
+    const { forumPosts, pollPosts } = await searchFilterSort({
+      text,
+      postType,
+      sort,
+      order,
+    });
+
+    return res.render("forumLanding", {
+      forumPosts,
+      pollPosts,
+      text,
+      postType,
+      sort,
+      order,
+      loggedInUserId: req.session.user?.user?._id ?? null,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/forumLanding.css">',
+    });
+  } catch (err) {
+    req.session.toast = {
+      type: "error",
+      message: "Failed to search posts. Please try again.",
+    };
+    return res.redirect("/forums");
+  }
 });
 
 // GET /forums/:id — Get a forum post by ID
@@ -128,21 +181,72 @@ router.route("/status/:status").get(async (req, res) => {
   return res.json(posts);
 });
 
-router.route("/upvote/:id").put(async (req, res) => {
+// routes/forum.routes.js
+
+router.put("/upvote/:id", async (req, res) => {
   const userId = req.body.userId;
-  const forumPosts = await upvoteForumPost(req.params.id, userId);
-  const loggedUserId = req.session.user?.user?._id || null;
-  res.render("forumLanding", {
-    forumPosts,
-    loggedUserId,
-    customStyles: '<link rel="stylesheet" href="/public/css/forumLanding.css">',
+
+  // check duplicate
+  const existing = await ForumVotes.findOne({
+    forumId: req.params.id,
+    voterId: userId,
   });
+
+  if (existing?.voteType === "UP") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't upvote a post twice.",
+    };
+    return res.status(400).json({ error: "Duplicate upvote" });
+  }
+
+  try {
+    const updated = await upvoteForumPost(req.params.id, userId);
+    req.session.toast = {
+      type: "success",
+      message: "Upvoted successfully!",
+    };
+    return res.json({ upVotes: updated.upVotes });
+  } catch (error) {
+    console.error("Upvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to upvote the post. Please try again.",
+    };
+    return res.status(500).json({ error: "Upvote failed" });
+  }
 });
 
-router.route("/downvote/:id").put(async (req, res) => {
+router.put("/downvote/:id", async (req, res) => {
   const userId = req.body.userId;
-  const updatedPost = await downvoteForumPost(req.params.id, userId);
-  return res.json(updatedPost);
+
+  const existing = await ForumVotes.findOne({
+    forumId: req.params.id,
+    voterId: userId,
+  });
+  if (existing?.voteType === "DOWN") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't downvote a post twice.",
+    };
+    return res.status(400).json({ error: "Duplicate downvote" });
+  }
+
+  try {
+    const updatedPost = await downvoteForumPost(req.params.id, userId);
+    req.session.toast = {
+      type: "success",
+      message: "Downvoted successfully!",
+    };
+    return res.json({ downVotes: updatedPost.downVotes });
+  } catch (error) {
+    console.error("Downvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to downvote the post. Please try again.",
+    };
+    return res.status(500).json({ error: "Downvote failed" });
+  }
 });
 
 // DELETE /forums/:id
@@ -152,8 +256,6 @@ router.route("/:id").delete(async (req, res) => {
 });
 
 router.route("/:id").put(upload.array("images", 5), async (req, res) => {
-  // TODO: This will update all the existing images. Even though they upload the same pic, it will generate a new URL
-  // TODO: Discuss this with the professor in next meeting.
   let forumId;
   try {
     forumId = isValidID(req.params.id, "Forum Post ID");
@@ -178,7 +280,6 @@ router.route("/:id").put(upload.array("images", 5), async (req, res) => {
 
     title = isValidString(title, "Title");
     content = isValidString(content, "Content");
-    // If we give only one array, it was taking it as a string instead of array. So casted it to array
     if (tags && !Array.isArray(tags)) {
       tags = [tags];
     }
@@ -197,15 +298,15 @@ router.route("/:id").put(upload.array("images", 5), async (req, res) => {
   }
 });
 
-router.route("/search").get(async (req, res) => {
-  const { keyword } = req.query;
-  try {
-    const filteredPosts = await filterForumPosts(keyword);
-    return res.status(200).json(filteredPosts);
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
+// router.route("/search").get(async (req, res) => {
+//   const { keyword } = req.query;
+//   try {
+//     const filteredPosts = await filterForumPosts(keyword);
+//     return res.status(200).json(filteredPosts);
+//   } catch (error) {
+//     return res.status(400).json({ error: error.message });
+//   }
+// });
 
 router.route("/reported").get(async (req, res) => {
   try {
@@ -231,7 +332,18 @@ router.route("/comments/:forumId").get(async (req, res) => {
 router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
   try {
     const forumId = req.params.forumId;
-    const forum = await getForumPostById(forumId);
+    let forum;
+    let isPoll = false;
+    const exists = await Forum.exists({ _id: forumId });
+    if (!exists) {
+      forum = await Poll.findById(forumId)
+        .populate("createdBy", "firstName lastName")
+        .lean();
+      isPoll = true;
+    } else {
+      forum = await getForumPostById(forumId);
+    }
+
     const comments = await getCommentsByForumId(forumId);
     const loggedUserId = req.session.user?.user?._id || null;
 
@@ -239,6 +351,7 @@ router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
       forum,
       comments,
       loggedUserId,
+      isPoll,
       customStyles:
         '<link rel="stylesheet" href="/public/css/forumComments.css">',
     });
@@ -271,6 +384,8 @@ router.route("/comments").post(upload.array("images", 5), async (req, res) => {
     const { forumId, userId, content } = req.body;
     let imageURLs = [];
 
+    let commentFor = "forum";
+
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const cloudinaryUrl = await userImage(file.path);
@@ -278,11 +393,18 @@ router.route("/comments").post(upload.array("images", 5), async (req, res) => {
         fs.unlinkSync(file.path); // deletes the reference from the uploads folder
       }
     }
+
+    const exists = await Forum.exists({ _id: forumId });
+    if (!exists) {
+      commentFor = "poll";
+    }
+
     const newComment = await createForumComment(
       forumId,
       userId,
       content,
-      imageURLs
+      imageURLs,
+      commentFor
     );
 
     return res.redirect(`/forums/comments/view/${forumId}`);
