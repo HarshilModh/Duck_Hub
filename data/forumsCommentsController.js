@@ -8,17 +8,14 @@ export const createForumComment = async (
   forumId,
   userId,
   content,
-  imageURLs
+  imageURLs,
+  commentFor
 ) => {
-  // Check if the required fields are passed
-  if (!forumId || !userId || !content) {
-    throw new Error("forumId, userId, and content are required.");
+  if (!forumId || !userId || !content || !commentFor) {
+    throw new Error("forumId, userId, commentFor, and content are required.");
   }
-  // Validate Content
   content = isValidString(content, "Comment Content");
-  // Validate forumID
   forumId = isValidID(forumId, "forumId");
-  // Validate userID
   userId = isValidID(userId, "userId");
 
   const newComment = new forumCommentsModel({
@@ -26,6 +23,7 @@ export const createForumComment = async (
     userId,
     content,
     imageURLs: imageURLs || [],
+    commentFor,
     upVotes: 0,
     downVotes: 0,
   });

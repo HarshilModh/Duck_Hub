@@ -1,68 +1,73 @@
 <div class="forum-body">
   <div class="forum-posts-list">
-    {{#each forumPosts}}
-      <div class="forum-post-card">
+    {{#if forumPosts.length}}
+      {{#each forumPosts}}
+        <div class="forum-post-card">
 
-        <!-- top-right action icons -->
-        <div class="post-actions">
-          <!-- Edit button -->
-          <button
-            type="button"
-            class="edit-button"
-            data-id="{{_id}}"
-            title="Edit this post"
-            aria-label="Edit this post"
-          >
-            <img
-              src="/public/images/icons/compose.png"
-              alt="Edit icon"
-              class="action-icon"
-            />
-          </button>
+          <!-- top-right action icons -->
+          <div class="post-actions">
+            <!-- Edit button -->
+            <button
+              type="button"
+              class="edit-button"
+              data-id="{{_id}}"
+              title="Edit this post"
+              aria-label="Edit this post"
+            >
+              <img
+                src="/public/images/icons/compose.png"
+                alt="Edit icon"
+                class="action-icon"
+              />
+            </button>
 
-          <!-- Delete button -->
-          <button
-            type="button"
-            class="delete-button"
-            data-id="{{_id}}"
-            title="Delete this post"
-            aria-label="Delete this post"
-          >
-            <img
-              src="/images/icons/bin.png"
-              alt="Trash bin icon"
-              class="action-icon"
-            />
-          </button>
-        </div>
-
-        <h3 class="forum-title">{{title}}</h3>
-
-        <p class="forum-posted-by">
-          Posted by:
-          {{userId.firstName}}_{{userId.lastName}}
-        </p>
-
-        <p class="forum-content">{{content}}</p>
-
-        {{#if imageURLs.length}}
-          <div class="forum-images">
-            {{#each imageURLs}}
-              <img src="{{this}}" alt="Forum Image" class="forum-image" />
-            {{/each}}
+            <!-- Delete button -->
+            <button
+              type="button"
+              class="delete-button"
+              data-id="{{_id}}"
+              title="Delete this post"
+              aria-label="Delete this post"
+            >
+              <img
+                src="/images/icons/bin.png"
+                alt="Trash bin icon"
+                class="action-icon"
+              />
+            </button>
           </div>
-        {{/if}}
 
-        <a
-          href="/forums/user/comments/view/{{_id}}"
-          class="comments-button"
-          title="View comments for this post"
-        >
-          COMMENTS
-        </a>
+          <h3 class="forum-title">{{title}}</h3>
 
-      </div>
-    {{/each}}
+          <p class="forum-posted-by">
+            Posted by:
+            {{userId.firstName}}_{{userId.lastName}}
+          </p>
+
+          <p class="forum-content">{{content}}</p>
+
+          {{#if imageURLs.length}}
+            <div class="forum-images">
+              {{#each imageURLs}}
+                <img src="{{this}}" alt="Forum Image" class="forum-image" />
+              {{/each}}
+            </div>
+          {{/if}}
+
+          <a
+            href="/forums/user/comments/view/{{_id}}"
+            class="comments-button"
+            title="View comments for this post"
+          >
+            COMMENTS
+          </a>
+
+        </div>
+      {{/each}}
+    {{else}}
+      <p class="no-posts-message">Currently, you haven't created any posts.
+        Created ones will be displayed here.</p>
+    {{/if}}
   </div>
 </div>
 

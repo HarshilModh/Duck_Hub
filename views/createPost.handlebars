@@ -6,8 +6,10 @@
     <button id="createPollBtn" type="button">Create Poll</button>
   </div>
 
+  <!-- ── FORUM FORM ───────────────────────────────────── -->
   <div id="forumFormContainer" style="display: none;">
     <form id="forumForm" enctype="multipart/form-data">
+      <!-- Logged-in user -->
       <input type="hidden" id="userId" name="userId" value="{{loggedUserId}}" />
 
       <div class="form-group">
@@ -30,7 +32,8 @@
         <button type="button" id="addTagBtn">Add New Tag</button>
       </div>
 
-      <div class="form-group" id="newTagDiv" style="display: none;">
+      <!-- New‑tag input, hidden until “Add New Tag” clicked -->
+      <div id="newTagDiv" style="display: none;">
         <input type="text" id="newTagName" placeholder="Enter new tag name" />
         <button type="button" id="saveNewTag">Save</button>
       </div>
@@ -46,12 +49,64 @@
         />
       </div>
 
-      <button type="submit" class="submit-post-button">Submit Forum Post</button>
+      <button type="submit" class="submit-post-button">
+        Submit Forum Post
+      </button>
     </form>
   </div>
 
+  <!-- ── POLL FORM ────────────────────────────────────── -->
   <div id="pollFormContainer" style="display: none;">
-    <p>Poll creation coming soon!</p>
+    <form
+      id="pollForm"
+      enctype="multipart/form-data"
+      action="/polls"
+      method="POST"
+    >
+      <input type="hidden" name="createdBy" value="{{loggedUserId}}" />
+
+      <div class="form-group">
+        <label for="question">Question:</label>
+        <input id="question" name="question" type="text" required />
+      </div>
+
+      <div id="options-wrapper" class="form-group">
+        <label>Options:</label>
+        <div class="option-row flex gap-2 mb-2">
+          <input name="options" type="text" required placeholder="Option 1" />
+          <button type="button" class="remove-option">✕</button>
+        </div>
+        <div class="option-row flex gap-2 mb-2">
+          <input name="options" type="text" required placeholder="Option 2" />
+          <button type="button" class="remove-option">✕</button>
+        </div>
+        <button type="button" id="add-option" class="text-sm underline">
+          + Add option
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label for="pollTags">Select Tags:</label>
+        <select id="pollTags" name="tags" multiple>
+          {{#each tags}}
+            <option value="{{this._id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="pollImages">Upload Images:</label>
+        <input
+          id="pollImages"
+          name="images"
+          type="file"
+          accept="image/*"
+          multiple
+        />
+      </div>
+
+      <button type="submit" class="submit-post-button">Create Poll</button>
+    </form>
   </div>
 </div>
 

@@ -14,34 +14,22 @@ commentButtons.forEach((button) => {
 upvoteButtons.forEach((button) => {
   button.addEventListener("click", async (e) => {
     const forumId = e.currentTarget.dataset.id;
-
-    if (!loggedInUserId) {
-      console.log("User ID is mandatory");
-      return;
-    }
+    if (!loggedInUserId) return alert("Please log in to vote.");
 
     try {
-      console.log(forumId);
-      const response = await fetch(
-        `http://localhost:3000/forums/upvote/${forumId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: loggedInUserId }),
-        }
-      );
+      const response = await fetch(`/forums/upvote/${forumId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: loggedInUserId }),
+      });
 
-      if (response.ok) {
-        const updatedPost = await response.json();
-        const countSpan = button.querySelector("span");
-        if (countSpan) {
-          countSpan.textContent = updatedPost.upVotes;
-        }
+      if (response.ok || response.status === 400) {
+        // API set the session.toast for us – now reload to show it
         window.location.reload();
       } else {
-        console.error("Failed to upvote:", response.status);
+        // show the error toast immediately if you like
+        const { error } = await response.json();
+        alert(error);
       }
     } catch (err) {
       console.error("Error while upvoting:", err);
@@ -80,34 +68,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 downvoteButtons.forEach((button) => {
   button.addEventListener("click", async (e) => {
-    const forumId = e.currentTarget.dataset.id;
-
+    const forumId = button.dataset.id;
     if (!loggedInUserId) {
-      console.error("No logged-in user. Cannot downvote.");
-      return;
+      return alert("Please log in to vote.");
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/forums/downvote/${forumId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: loggedInUserId }),
-        }
-      );
+      const response = await fetch(`/forums/downvote/${forumId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: loggedInUserId }),
+      });
 
-      if (response.ok) {
-        const updatedPost = await response.json();
-        const countSpan = button.querySelector("span");
-        if (countSpan) {
-          countSpan.textContent = updatedPost.downVotes;
-        }
+      if (response.ok || response.status === 400) {
         window.location.reload();
       } else {
-        console.error("Failed to downvote:", response.status);
+        const { error } = await response.json();
+        alert(error);
       }
     } catch (err) {
       console.error("Error while downvoting:", err);

@@ -1,80 +1,128 @@
-const createForumBtn = document.getElementById("createForumBtn");
-const createPollBtn = document.getElementById("createPollBtn");
-const forumFormContainer = document.getElementById("forumFormContainer");
-const pollFormContainer = document.getElementById("pollFormContainer");
-const forumForm = document.getElementById("forumForm");
+// public/js/createPost.js
+document.addEventListener("DOMContentLoaded", () => {
+  const createForumBtn = document.getElementById("createForumBtn");
+  const createPollBtn = document.getElementById("createPollBtn");
+  const forumFormContainer = document.getElementById("forumFormContainer");
+  const pollFormContainer = document.getElementById("pollFormContainer");
+  const forumForm = document.getElementById("forumForm");
+  const pollForm = document.getElementById("pollForm");
 
-const addNewTagBtn = document.getElementById("addTagBtn");
-const newTagDiv = document.getElementById("newTagDiv");
-const newTagName = document.getElementById("newTagName");
-const saveTagBtn = document.getElementById("saveNewTag");
-const userId = document.getElementById("userId");
+  const addNewTagBtn = document.getElementById("addTagBtn");
+  const newTagDiv = document.getElementById("newTagDiv");
+  const newTagInput = document.getElementById("newTagName");
+  const saveTagBtn = document.getElementById("saveNewTag");
 
-createForumBtn.addEventListener("click", () => {
-  forumFormContainer.style.display = "block";
-  pollFormContainer.style.display = "none";
-});
+  const forumSelect = document.getElementById("tags");
+  const pollSelect = document.getElementById("pollTags");
+  const userId = document.getElementById("userId").value;
 
-createPollBtn.addEventListener("click", () => {
-  forumFormContainer.style.display = "none";
-  pollFormContainer.style.display = "block";
-});
+  // Toggle between Forum vs Poll
+  createForumBtn.addEventListener("click", () => {
+    forumFormContainer.style.display = "block";
+    pollFormContainer.style.display = "none";
+  });
+  createPollBtn.addEventListener("click", () => {
+    forumFormContainer.style.display = "none";
+    pollFormContainer.style.display = "block";
+  });
 
-addNewTagBtn.addEventListener("click", () => {
-  newTagDiv.style.display = "block";
-});
+  // Show the "Add New Tag" input
+  addNewTagBtn.addEventListener("click", () => {
+    newTagDiv.style.display = "block";
+    newTagInput.focus();
+  });
 
-saveTagBtn.addEventListener("click", async () => {
-  const tagValue = newTagName.value.trim().toUpperCase();
-  const userIdValue = userId.value;
-
-  if (!tagValue) {
-    throw new Error("Tag name can't be empty");
-  }
-
-  if (!userIdValue) {
-    throw new Error("Cannot create a tag with logging in");
-  }
-  try {
-    const res = await fetch("/tags", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: tagValue, userId: userIdValue }),
-    });
-
-    const newTag = await res.json();
-    if (!res.ok) {
-      throw new Error(newTag.error || "Duplicate Tags");
-    }
-    window.location.reload();
-  } catch (e) {
-    console.error("Error submitting forum:", e);
-    alert(e.message || "Failed to create forum.");
-  }
-});
-
-forumForm.addEventListener("submit", async (e) => {
-  e.preventDefault(); // stop default submit behavior
-
-  const formData = new FormData(forumForm);
-
-  try {
-    const response = await fetch("/forums", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Something went wrong.");
+  // Save new tag via AJAX and insert into selects
+  saveTagBtn.addEventListener("click", async () => {
+    const tagValue = newTagInput.value.trim().toUpperCase();
+    if (!tagValue) {
+      return alert("Please enter a tag name.");
     }
 
-    alert("Forum post created successfully!");
-    window.location.href = "/forums";
-  } catch (err) {
-    console.error("Error submitting forum:", err);
-    alert(err.message || "Failed to create forum.");
-  }
+    try {
+      const res = await fetch("/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: tagValue }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create tag");
+      }
+
+      // Create option for each select and mark selected
+      [forumSelect, pollSelect].forEach((selectEl) => {
+        const opt = document.createElement("option");
+        opt.value = data._id;
+        opt.textContent = data.name;
+        opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+
+      // Hide & reset the new-tag input
+      newTagInput.value = "";
+      newTagDiv.style.display = "none";
+    } catch (err) {
+      console.error("Error creating tag:", err);
+      alert("Error creating tag: " + err.message);
+    }
+  });
+
+  // Submit forum form
+  forumForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(forumForm);
+    try {
+      const response = await fetch("/forums", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Something went wrong.");
+      }
+      alert("Forum post created successfully!");
+      window.location.href = "/forums";
+    } catch (err) {
+      console.error("Error submitting forum:", err);
+      alert(err.message || "Failed to create forum.");
+    }
+  });
+
+  // Add/remove poll options
+  document.getElementById("add-option").addEventListener("click", () => {
+    const wrapper = document.getElementById("options-wrapper");
+    const idx = wrapper.querySelectorAll(".option-row").length + 1;
+    const row = document.createElement("div");
+    row.className = "option-row flex gap-2 mb-2";
+    row.innerHTML = `
+      <input name="options" type="text" required placeholder="Option ${idx}" />
+      <button type="button" class="remove-option">✕</button>
+    `;
+    wrapper.insertBefore(row, document.getElementById("add-option"));
+  });
+  document.getElementById("options-wrapper").addEventListener("click", (e) => {
+    if (e.target.matches(".remove-option")) {
+      const rows = document.querySelectorAll(".option-row");
+      if (rows.length > 2) e.target.closest(".option-row").remove();
+    }
+  });
+
+  // Submit poll form
+  pollForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(pollForm);
+    try {
+      const res = await fetch("/polls", { method: "POST", body: formData });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to create poll");
+      }
+      alert("Poll created!");
+      window.location.href = "/forums";
+    } catch (err) {
+      console.error("Error submitting poll:", err);
+      alert(err.message);
+    }
+  });
 });

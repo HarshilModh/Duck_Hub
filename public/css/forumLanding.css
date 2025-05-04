@@ -139,17 +139,18 @@
   background: #002f5b;
 }
 
-/* ————————————— Forum Posts List ————————————— */
-.forum-posts-list {
+/* ————————————— Combined Posts List ————————————— */
+.combined-posts-list {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
   padding: 0 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
+/* ————————————— Forum Post Card ————————————— */
 .forum-post-card {
   background: #fff;
   border: 1px solid #ccc;
@@ -216,7 +217,78 @@
   border-radius: 4px;
   cursor: pointer;
 }
-.forum-comment-button:hover {
+
+.comment-button:hover {
   background: #a32638;
   color: #fff;
+}
+
+/* ————————————— Poll Post Card (matches forum styling) ————————————— */
+.poll-post-card {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.poll-question {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.poll-created-by {
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.poll-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.poll-image {
+  width: 100px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.poll-options-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0.75rem;
+}
+
+.poll-options-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ccc; /* light grey border */
+  border-radius: 4px; /* rounded corners */
+  padding: 0.75rem 1rem; /* space inside the box */
+  margin-bottom: 0.5rem; /* gap between boxes */
+  background: #fff; /* white background */
+  font-size: 1rem;
+}
+.poll-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ————————————— Responsive Tweaks ————————————— */
+@media (max-width: 600px) {
+  .search-section input {
+    width: 150px;
+  }
+  .filter-wrapper,
+  .sort-wrapper {
+    display: none; /* simplify on small screens */
+  }
+  .forum-header-bar .controls-form {
+    justify-content: space-between;
+  }
 }

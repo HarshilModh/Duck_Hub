@@ -1,32 +1,29 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import User from "./user.model.js";
 import Tags from "./tags.model.js";
-// import User from "./user.model";
-dotenv.config();
-const forumSchema = new mongoose.Schema(
+
+const pollSchema = new mongoose.Schema(
   {
-    userId: {
+    question: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    options: [
+      {
+        answer: { type: String, required: true, trim: true },
+        voterId: [
+          { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
+        ],
+      },
+    ],
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User.modelName,
       required: true,
-      trim: true,
-      maxLength: 50,
-    },
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-      uppercase: true,
-      maxLength: 50,
-    },
-    content: {
-      type: String,
-      required: true,
-      trim: true,
     },
     imageURLs: {
-      type: [String], // Array of Cloudinary image URLs
+      type: [String],
       default: [],
     },
     upVotes: {
@@ -39,14 +36,6 @@ const forumSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
-    // createdAt: {
-    //     type: Date,
-    //     default: Date.now,
-    // },
-    // updatedAt: {
-    //     type: Date,
-    //     default: Date.now,
-    // },
     status: {
       type: String,
       enum: ["active", "reported", "removed"],
@@ -65,9 +54,11 @@ const forumSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-const Forum = mongoose.model("Forum", forumSchema);
+const Poll = mongoose.model("Poll", pollSchema);
 
-export default Forum;
+export default Poll;
