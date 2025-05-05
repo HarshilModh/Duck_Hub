@@ -439,7 +439,10 @@ router
   .all(isLoggedIn, checkRole("admin"))
   .get(async (req, res) => {
     try {
-      const users = await getUsers();
+      let users = await getUsers();
+      let userId = req.session.user.user._id;
+      users= users.filter((user) => user._id.toString() !== userId.toString());
+     
       if (users) {
         res.render("userDashboard", { title: "Admin Dashboard", users });
       } else {

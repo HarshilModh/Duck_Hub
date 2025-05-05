@@ -1,0 +1,50 @@
+{{!-- views/editDepartment.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg px-4 py-12">
+  <div class="max-w-md mx-auto bg-stevensWhite rounded-2xl shadow-lg p-8">
+
+    <!-- Page Title -->
+    <h2 class="text-2xl font-heading text-stevensMaroon mb-6 text-center">
+      Edit Department
+    </h2>
+
+    {{!-- Optional error message --}}
+    {{#if error}}
+      <p class="text-red-600 text-sm mb-4 text-center">{{error}}</p>
+    {{/if}}
+
+    <!-- Form -->
+    <form action="/departments/editDepartment/{{department._id}}" method="POST" class="space-y-4">
+        <input type="hidden" name="_method" value="PUT" />
+
+      <div>
+        <label for="departmentName" class="block text-stevensGray font-medium mb-1">
+          Department Name
+        </label>
+        <input
+          type="text"
+          id="departmentName"
+          name="departmentName"
+          value="{{department.departmentName}}"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
+
+      <div class="flex justify-between">
+        <a
+          href="/departments"
+          class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

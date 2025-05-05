@@ -1,37 +1,45 @@
 {{!-- views/courses.handlebars --}}
 <div class="container mx-auto px-4 py-8">
-  <h1 class="font-heading text-3xl text-stevensMaroon mb-6">
-    Courses
-  </h1>
+  <h1 class="font-heading text-3xl text-stevensMaroon mb-6">Courses</h1>
 
   {{#if courses.length}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {{#each courses}}
-    {{!-- on hover change mouse pointer and click to go to course details page--}}
-    <a href="/userSideCourses/course/{{this._id}}" class="block">
-        {{!-- Course Card --}}
-        <div class="bg-stevensWhite rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 cursor-pointer">
-          <div class="p-6 flex flex-col h-full">
-            <!-- Header -->
-            <p class="font-heading text-stevensMaroon text-lg mb-2">
-              {{this.courseCode}}
-            </p>
-            <!-- Title -->
-            <h2 class="font-semibold text-gray-800 text-xl mb-3 capitalize">
-              {{this.courseName}}
-            </h2>
-            <!-- Description -->
-            <p class="text-stevensGray text-sm flex-1 mb-4 line-clamp-4">
-              {{this.courseDescription}}
-            </p>
-            
-          </div>
+        <div class="relative bg-stevensWhite rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transform hover:-translate-y-1 transition duration-300">
+
+          {{!-- Entire card is clickable --}}
+          <a href="/userSideCourses/course/{{this._id}}"
+             class="block p-6 flex flex-col h-full cursor-pointer">
+            <p class="font-heading text-stevensMaroon text-lg mb-2">{{this.courseCode}}</p>
+            <h2 class="font-semibold text-gray-800 text-xl mb-3 capitalize">{{this.courseName}}</h2>
+            <p class="text-stevensGray text-sm flex-1 mb-4 line-clamp-4">{{this.courseDescription}}</p>
+          </a>
+
+          {{!-- Admin edit/delete controls --}}
+          {{#if ../user}}
+            {{#if (eq ../user.role "admin")}}
+              <div class="absolute bottom-4 right-4 flex space-x-2">
+                <a href="/courses/{{this._id}}"
+                   class="bg-stevensMaroon text-stevensWhite px-3 py-1 rounded hover:bg-stevensMaroon/90 transition text-sm">
+                  Edit
+                </a>
+                <form action="/courses/{{this._id}}"
+                      method="POST"
+                      onsubmit="return confirm('Delete “{{this.courseName}}”?');">
+                  <input type="hidden" name="_method" value="DELETE">
+                  <button type="submit"
+                          class="bg-red-600 text-stevensWhite px-3 py-1 rounded hover:bg-red-700 transition text-sm">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            {{/if}}
+          {{/if}}
+
         </div>
       {{/each}}
     </div>
   {{else}}
-    <p class="text-center italic text-stevensGray">
-      No courses found.
-    </p>
+    <p class="text-center italic text-stevensGray">No courses found.</p>
   {{/if}}
 </div>
