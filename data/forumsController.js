@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Forum from "../models/forums.model.js";
 import Poll from "../models/polls.model.js";
+import Tag from "../models/tags.model.js";
 import ForumVotes from "../models/forumVotes.model.js";
 import { getUserById } from "./userController.js";
 import {
@@ -63,9 +64,9 @@ export const getAllForumPosts = async () => {
   try {
     //TODO: Populate the tag names after tags collection is created.
     const allPosts = await Forum.find()
-      .populate("userId", "firstName lastName")
+      .populate("userId tags", "firstName lastName name")
       .select("-reportedBy")
-      .lean(); //.populate("tags", "name -_id");
+      .lean();
     if (!allPosts) {
       throw new Error(
         "Sorry, no discussion forums available right now to be displayed"
@@ -371,35 +372,46 @@ export const changeForumPostStatus = async (req, res) => {};
 export async function searchFilterSort({
   text = "",
   postType,
-  sort = "createdAt", // can be "createdAt", "upVotes" or "downVotes"
-  order = "desc", // "asc" or "desc"
+  sort = "createdAt",
+  order = "desc",
 }) {
   const sortOption = { [sort]: order === "asc" ? 1 : -1 };
-
-  const regex = text.trim() ? new RegExp(text.trim(), "i") : null;
+  const trimmed = text.trim();
+  const regex = trimmed ? new RegExp(trimmed, "i") : null;
 
   const forumFilter = {};
   const pollFilter = {};
 
+  let tagIds = [];
   if (regex) {
-    forumFilter.$or = [{ title: regex }, { content: regex }];
-    pollFilter.question = regex;
+    const matchingTags = await Tag.find({ name: regex }).select("_id").lean();
+    tagIds = matchingTags.map((t) => t._id);
+
+    forumFilter.$or = [
+      { title: regex },
+      { content: regex },
+      ...(tagIds.length ? [{ tags: { $in: tagIds } }] : []),
+    ];
+
+    pollFilter.$or = [
+      { question: regex },
+      ...(tagIds.length ? [{ tags: { $in: tagIds } }] : []),
+    ];
   }
 
-  let forumPosts = [];
-  let pollPosts = [];
+  let [forumPosts, pollPosts] = [[], []];
 
   if (!postType || postType === "forums") {
     forumPosts = await Forum.find(forumFilter)
       .sort(sortOption)
-      .populate("userId tags reportedBy")
+      .populate("userId tags", "firstName lastName name -_id")
       .lean();
   }
 
   if (!postType || postType === "polls") {
     pollPosts = await Poll.find(pollFilter)
       .sort(sortOption)
-      .populate("createdBy options.voterId reportedBy")
+      .populate("createdBy tags", "firstName lastName name -_id")
       .lean();
   }
 
