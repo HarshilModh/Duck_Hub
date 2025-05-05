@@ -20,9 +20,9 @@
       <div class="filter-section">
         <label for="postTypeSelect">Type:</label>
         <select name="postType" id="postTypeSelect">
-          <option value=""   {{#unless postType}}selected{{/unless}}>All</option>
+          <option value="" {{#unless postType}}selected{{/unless}}>All</option>
           <option value="forums" {{#if (eq postType "forums")}}selected{{/if}}>Forums</option>
-          <option value="polls"  {{#if (eq postType "polls")}}selected{{/if}}>Polls</option>
+          <option value="polls" {{#if (eq postType "polls")}}selected{{/if}}>Polls</option>
         </select>
       </div>
     </div>
@@ -32,19 +32,13 @@
       <div class="sort-section">
         <label for="sortSelect">Sort by:</label>
         <select name="sort" id="sortSelect">
-          <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>
-            Latest
-          </option>
-          <option value="upVotes" {{#if (eq sort "upVotes")}}selected{{/if}}>
-            Most UpVoted
-          </option>
-          <option value="downVotes" {{#if (eq sort "downVotes")}}selected{{/if}}>
-            Most DownVoted
-          </option>
+          <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Latest</option>
+          <option value="upVotes" {{#if (eq sort "upVotes")}}selected{{/if}}>Most UpVoted</option>
+          <option value="downVotes" {{#if (eq sort "downVotes")}}selected{{/if}}>Most DownVoted</option>
         </select>
         <select name="order" id="orderSelect">
           <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
-          <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
+          <option value="asc" {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
         </select>
       </div>
     </div>
@@ -63,10 +57,25 @@
 <div class="combined-posts-list">
   {{#each forumPosts}}
     <div class="forum-post-card">
+      <!-- Report option -->
+      <div class="post-actions report-action">
+        <button class="report-button" data-id="{{this._id}}" title="Report">
+          <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
+        </button>
+      </div>
+
       <h3 class="forum-title">{{this.title}}</h3>
-      <p class="forum-posted-by">
-        Posted by: {{this.userId.firstName}}_{{this.userId.lastName}}
-      </p>
+      <p class="forum-posted-by">Posted by: {{this.userId.firstName}}_{{this.userId.lastName}}</p>
+
+      <!-- Render forum tags -->
+      {{#if this.tags.length}}
+        <div class="forum-tags">
+          {{#each this.tags}}
+            <span class="tag">{{this.name}}</span>
+          {{/each}}
+        </div>
+      {{/if}}
+
       <p class="forum-content">{{this.content}}</p>
       {{#if this.imageURLs.length}}
         <div class="forum-images">
@@ -89,10 +98,26 @@
     {{#with (lookup ../pollPosts @index) as |poll|}}
       {{#if poll}}
         <div class="poll-post-card">
+          <!-- Report option -->
+          <div class="post-actions report-action">
+            <button class="report-button" data-id="{{poll._id}}" title="Report">
+              <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
+            </button>
+          </div>
+
           <h3 class="poll-question">{{poll.question}}</h3>
-          <p class="poll-created-by">
-            Created by: {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}
-          </p>
+          <p class="poll-created-by">Created by: {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}</p>
+
+          <!-- Render poll tags -->
+          {{#if poll.tags.length}}
+            <div class="poll-tags">
+              {{#each poll.tags}}
+                <span class="tag">{{this.name}}</span>
+              {{/each}}
+            </div>
+          {{/if}}
+
+          <!-- Poll images -->
           {{#if poll.imageURLs.length}}
             <div class="poll-images">
               {{#each poll.imageURLs}}
@@ -100,18 +125,15 @@
               {{/each}}
             </div>
           {{/if}}
+
           <ul class="poll-options-list">
             {{#each poll.options}}
               <li>{{this.answer}} &ndash; {{this.voterId.length}} votes</li>
             {{/each}}
           </ul>
+
+          <!-- Only comment button for polls -->
           <div class="poll-buttons">
-            <button class="vote-button upvote-button" data-id="{{poll._id}}">
-              <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{poll.upVotes}}</span>
-            </button>
-            <button class="vote-button downvote-button" data-id="{{poll._id}}">
-              <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{poll.downVotes}}</span>
-            </button>
             <button class="comment-button" data-id="{{poll._id}}">💬 Comment</button>
           </div>
         </div>
@@ -122,7 +144,24 @@
   {{#each pollPosts}}
     {{#unless (lookup ../forumPosts @index)}}
       <div class="poll-post-card">
+        <!-- Report option -->
+        <div class="post-actions report-action">
+          <button class="report-button" data-id="{{this._id}}" title="Report">
+            <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
+          </button>
+        </div>
+
         <h3 class="poll-question">{{this.question}}</h3>
+
+        <!-- Render poll tags -->
+        {{#if this.tags.length}}
+          <div class="poll-tags">
+            {{#each this.tags}}
+              <span class="tag">{{this.name}}</span>
+            {{/each}}
+          </div>
+        {{/if}}
+
         <ul class="poll-options-list">
           {{#each this.options}}
             <li class="poll-option-item">
@@ -131,21 +170,44 @@
             </li>
           {{/each}}
         </ul>
-        <p class="poll-created-by">
-          Created by: {{this.createdBy.firstName}}_{{this.createdBy.lastName}}
-        </p>
+        <p class="poll-created-by">Created by: {{this.createdBy.firstName}}_{{this.createdBy.lastName}}</p>
+
+        <!-- Only comment button for polls -->
         <div class="poll-buttons">
-          <button class="vote-button upvote-button" data-id="{{this._id}}">
-            <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{this.upVotes}}</span>
-          </button>
-          <button class="vote-button downvote-button" data-id="{{this._id}}">
-            <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{this.downVotes}}</span>
-          </button>
           <button class="comment-button" data-id="{{this._id}}">💬 Comment</button>
         </div>
       </div>
     {{/unless}}
   {{/each}}
 </div>
+
+<!-- REPORT MODAL -->
+<div id="reportModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2>Report Content</h2>
+    <form id="reportForm" action="/report" method="post">
+      <input type="hidden" name="contentId" id="reportContentId" />
+      <input type="hidden" name="userId" value="{{loggedUserId}}" />
+
+      <label for="reportReason">Reason:</label>
+      <textarea
+        name="reason"
+        id="reportReason"
+        rows="4"
+        required
+        placeholder="Describe why you're reporting this…"
+      ></textarea>
+
+      <div class="modal-buttons">
+        <button type="button" id="reportCancel">Cancel</button>
+        <button type="submit">Submit Report</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const loggedInUserId = "{{loggedUserId}}";
+</script>
 
 <script src="/public/js/forumLanding.js"></script>

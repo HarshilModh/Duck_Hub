@@ -1,4 +1,4 @@
-// userForums.js
+// public/js/userForums.js
 
 // ----- DELETE POST -----
 document.querySelectorAll(".delete-button").forEach((button) => {
@@ -13,15 +13,12 @@ document.querySelectorAll(".delete-button").forEach((button) => {
     try {
       const response = await fetch(`/forums/${forumId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (response.ok) {
         const postCard = button.closest(".forum-post-card");
         postCard.remove();
-        console.log(`Post ${forumId} deleted successfully.`);
       } else {
         const error = await response.json();
         alert("Failed to delete post: " + (error.error || response.statusText));
@@ -33,118 +30,104 @@ document.querySelectorAll(".delete-button").forEach((button) => {
   });
 });
 
-// ----- EDIT POST -----
-document.querySelectorAll(".edit-button").forEach((button) => {
-  button.addEventListener("click", (e) => {
-    e.preventDefault();
-    enterEditMode(button.getAttribute("data-id"));
+// ----- EDIT POST (Modal) -----
+document.addEventListener("DOMContentLoaded", () => {
+  const editModal = document.getElementById("editModal");
+  const editForm = document.getElementById("editPostForm");
+  const titleInput = document.getElementById("editTitle");
+  const contentInput = document.getElementById("editContent");
+  const existingImagesContainer = document.getElementById(
+    "existingImagesContainer"
+  );
+  const newImagesInput = document.getElementById("editImages"); // your file‑input
+  const closeBtn = document.getElementById("editModalClose");
+  const cancelBtn = document.getElementById("editModalCancel");
+
+  let imagesToDelete = [];
+
+  // Create (or grab) hidden input to send deleted image URLs
+  let deleteInput = document.getElementById("deleteImagesInput");
+  if (!deleteInput) {
+    deleteInput = document.createElement("input");
+    deleteInput.type = "hidden";
+    deleteInput.name = "deleteImages";
+    deleteInput.id = "deleteImagesInput";
+    editForm.appendChild(deleteInput);
+  }
+  // On form submit, store the deletion list
+  editForm.addEventListener("submit", () => {
+    deleteInput.value = JSON.stringify(imagesToDelete);
+  });
+
+  function openModal() {
+    editModal.classList.remove("hidden");
+  }
+  function closeModal() {
+    editModal.classList.add("hidden");
+    imagesToDelete = []; // reset on close
+  }
+
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  document.querySelectorAll(".edit-button").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const postId = button.getAttribute("data-id");
+
+      try {
+        const res = await fetch(`/forums/${postId}`);
+        if (!res.ok) throw new Error("Network response was not ok");
+        const post = await res.json();
+
+        // Populate title & content
+        titleInput.value = post.title;
+        contentInput.value = post.content;
+
+        // Show existing images with a '×' to remove
+        existingImagesContainer.innerHTML = "";
+        imagesToDelete = [];
+        if (post.imageURLs && post.imageURLs.length) {
+          post.imageURLs.forEach((url) => {
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("existing-image-wrapper");
+            wrapper.dataset.url = url;
+            wrapper.style.position = "relative";
+
+            // Remove button
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.classList.add("remove-existing-image");
+            removeBtn.textContent = "×";
+            removeBtn.style.position = "absolute";
+            removeBtn.style.top = "4px";
+            removeBtn.style.right = "4px";
+            removeBtn.addEventListener("click", () => {
+              imagesToDelete.push(url);
+              wrapper.remove();
+            });
+
+            // Thumbnail
+            const img = document.createElement("img");
+            img.src = url;
+            img.classList.add("modal-preview-image");
+
+            wrapper.append(removeBtn, img);
+            existingImagesContainer.appendChild(wrapper);
+          });
+        }
+
+        // Clear any previously selected new files
+        if (newImagesInput) newImagesInput.value = "";
+
+        // Set form action to PUT route
+        editForm.action = `/forums/${postId}?_method=PUT`;
+
+        openModal();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load post data for editing.");
+      }
+    });
   });
 });
-
-function enterEditMode(id) {
-  const card = document.getElementById(`forumPost-${id}`);
-  const titleEl = card.querySelector(".forum-title");
-  const contentEl = card.querySelector(".forum-content");
-  const tagsEl = card.querySelector(".forum-tags");
-
-  // grab existing values
-  const currentTitle = titleEl.textContent.trim();
-  const currentContent = contentEl.textContent.trim();
-  const existingTags = tagsEl ? tagsEl.textContent.trim() : "";
-
-  // hide display elements
-  titleEl.style.display = "none";
-  contentEl.style.display = "none";
-  if (tagsEl) tagsEl.style.display = "none";
-  card.querySelector(".post-actions").style.display = "none";
-
-  // build inputs
-  const titleInput = document.createElement("input");
-  titleInput.type = "text";
-  titleInput.value = currentTitle;
-  titleInput.classList.add("edit-input-title");
-
-  const contentInput = document.createElement("textarea");
-  contentInput.rows = 4;
-  contentInput.value = currentContent;
-  contentInput.classList.add("edit-input-content");
-
-  const tagsInput = document.createElement("input");
-  tagsInput.type = "text";
-  tagsInput.placeholder = "comma‑separated tags";
-  tagsInput.value = existingTags;
-  tagsInput.classList.add("edit-input-tags");
-
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.multiple = true;
-  fileInput.accept = "image/*";
-  fileInput.classList.add("edit-input-images");
-
-  // action buttons
-  const btnUpdate = document.createElement("button");
-  btnUpdate.textContent = "Update";
-  btnUpdate.addEventListener("click", () => submitUpdate(id));
-
-  const btnCancel = document.createElement("button");
-  btnCancel.textContent = "Cancel";
-  btnCancel.addEventListener("click", () => window.location.reload());
-
-  // wrapper for form fields
-  const formWrapper = document.createElement("div");
-  formWrapper.classList.add("edit-form-wrapper");
-  formWrapper.style.marginTop = "1rem";
-  formWrapper.append(
-    labeledField("Title:", titleInput),
-    labeledField("Content:", contentInput),
-    labeledField("Tags:", tagsInput),
-    labeledField("Add Images:", fileInput),
-    btnUpdate,
-    btnCancel
-  );
-
-  card.appendChild(formWrapper);
-}
-
-function labeledField(labelText, inputEl) {
-  const wrapper = document.createElement("div");
-  wrapper.style.margin = "0.5rem 0";
-  const lbl = document.createElement("label");
-  lbl.textContent = labelText;
-  wrapper.append(lbl, inputEl);
-  return wrapper;
-}
-
-async function submitUpdate(id) {
-  const card = document.getElementById(`forumPost-${id}`);
-  const title = card.querySelector(".edit-input-title").value;
-  const content = card.querySelector(".edit-input-content").value;
-  const tagsCsv = card.querySelector(".edit-input-tags").value;
-  const tags = tagsCsv
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
-  const files = card.querySelector(".edit-input-images").files;
-
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("content", content);
-  tags.forEach((tag) => formData.append("tags", tag));
-  Array.from(files).forEach((file) => formData.append("images", file));
-
-  try {
-    const res = await fetch(`/forums/${id}`, {
-      method: "PUT",
-      body: formData,
-      credentials: "same-origin",
-    });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const updated = await res.json();
-
-    // update UI or reload to reflect changes
-    window.location.reload();
-  } catch (err) {
-    console.error("Update failed:", err);
-    alert("Failed to update post: " + err.message);
-  }
-}

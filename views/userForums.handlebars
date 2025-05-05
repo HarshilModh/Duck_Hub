@@ -1,16 +1,17 @@
+{{! userForums.hbs }}
+
 <div class="forum-body">
   <div class="forum-posts-list">
     {{#if forumPosts.length}}
       {{#each forumPosts}}
         <div class="forum-post-card">
 
-          <!-- top-right action icons -->
+          <!-- top‑right action icons -->
           <div class="post-actions">
-            <!-- Edit button -->
-            <button
-              type="button"
+            <!-- Edit link -->
+            <a
+              href="/forums/{{_id}}/edit-choice"
               class="edit-button"
-              data-id="{{_id}}"
               title="Edit this post"
               aria-label="Edit this post"
             >
@@ -19,7 +20,7 @@
                 alt="Edit icon"
                 class="action-icon"
               />
-            </button>
+            </a>
 
             <!-- Delete button -->
             <button
@@ -65,8 +66,10 @@
         </div>
       {{/each}}
     {{else}}
-      <p class="no-posts-message">Currently, you haven't created any posts.
-        Created ones will be displayed here.</p>
+      <p class="no-posts-message">
+        Currently, you haven't created any posts. Created ones will be displayed
+        here.
+      </p>
     {{/if}}
   </div>
 </div>

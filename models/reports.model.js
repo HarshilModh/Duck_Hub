@@ -1,21 +1,48 @@
 import mongoose from "mongoose";
+import Forum from "./forums.model.js";
+import Review from "./courseReviews.model.js";
+import AcademicResource from "./academicResources.model.js";
+import Poll from "./polls.model.js";
+import User from "./user.model.js";
 
 const reportsSchema = new mongoose.Schema(
   {
+<<<<<<< Updated upstream
     reportedContentId: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "",// "Forum", "Review", "AcademicResource"
       required: true,
       trim: true,
+=======
+    forumId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: Forum.modelName,
+      default: null,
+    },
+    pollId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: Poll.modelName,
+      default: null,
+    },
+    reviewId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: Review.modelName,
+      default: null,
+    },
+    academicResourceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: AcademicResource.modelName,
+      default: null,
+>>>>>>> Stashed changes
     },
     reportedContentType: {
       type: String,
       required: true,
-      enum: ["Forum", "Review", "AcademicResource"],
+      enum: ["Forum", "Poll", "Review", "AcademicResource"],
     },
     reportedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: User.modelName,
       required: true,
       trim: true,
     },
@@ -28,6 +55,7 @@ const reportsSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["under review", "resolved"],
+      default: "under review",
     },
     resolvedAt: {
       type: Date,

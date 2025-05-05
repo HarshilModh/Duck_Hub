@@ -150,20 +150,24 @@
   gap: 1.5rem;
 }
 
-/* ————————————— Forum Post Card ————————————— */
-.forum-post-card {
+/* ————————————— Forum & Poll Post Cards ————————————— */
+.forum-post-card,
+.poll-post-card {
   background: #fff;
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 8px;
+  position: relative; /* for action icons */
 }
 
-.forum-title {
+.forum-title,
+.poll-question {
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-.forum-posted-by {
+.forum-posted-by,
+.poll-created-by {
   font-style: italic;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
@@ -174,19 +178,47 @@
   margin-bottom: 0.5rem;
 }
 
-.forum-images {
+.forum-images,
+.poll-images {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
-.forum-image {
+.forum-image,
+.poll-image {
   width: 100px;
   height: auto;
   border-radius: 4px;
 }
 
+/* Action icons container */
+.post-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.report-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.report-button:hover .action-icon {
+  opacity: 0.7;
+}
+
+.action-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Forum Buttons */
 .forum-buttons {
   display: flex;
   gap: 0.5rem;
@@ -223,40 +255,7 @@
   color: #fff;
 }
 
-/* ————————————— Poll Post Card (matches forum styling) ————————————— */
-.poll-post-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-.poll-question {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-}
-
-.poll-created-by {
-  font-style: italic;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-.poll-images {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.poll-image {
-  width: 100px;
-  height: auto;
-  border-radius: 4px;
-}
-
+/* Poll Options List */
 .poll-options-list {
   list-style: none;
   padding-left: 0;
@@ -267,16 +266,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #ccc; /* light grey border */
-  border-radius: 4px; /* rounded corners */
-  padding: 0.75rem 1rem; /* space inside the box */
-  margin-bottom: 0.5rem; /* gap between boxes */
-  background: #fff; /* white background */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
   font-size: 1rem;
 }
+
+/* Poll Buttons */
 .poll-buttons {
   display: flex;
   gap: 0.5rem;
+}
+
+/* Tags Styling */
+.tag {
+  display: inline-block;
+  background-color: limegreen;
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-right: 0.3rem;
+  font-size: 0.875rem;
 }
 
 /* ————————————— Responsive Tweaks ————————————— */
@@ -291,4 +303,66 @@
   .forum-header-bar .controls-form {
     justify-content: space-between;
   }
+}
+
+/* ————————————— Report Modal Styles ————————————— */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: none; /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card h2 {
+  margin-top: 0;
+}
+
+.modal-card textarea {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-buttons button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#reportCancel {
+  background: #ccc;
+}
+
+#reportForm button[type="submit"] {
+  background: #a32638;
+  color: #fff;
+}
+
+/* Show the modal when active */
+.modal-overlay.active {
+  display: flex;
 }
