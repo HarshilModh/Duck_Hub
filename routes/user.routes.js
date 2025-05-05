@@ -218,8 +218,7 @@ router.route("/missingRequestDashboard").get(async (req, res) => {
     };
     return res.redirect("/users/userProfile");
   }
-}
-);
+});
 // Middleware to check if user is logged in
 router.use(isLoggedIn);
 // Get all users
@@ -376,63 +375,64 @@ router.get("/search/:name", searchUserByName);
 router.get("/role/:role", getUsersByRole);
 
 //Update user profile
-router.route("/editProfile").get(async (req, res) => {
-  const userId = req.session.user.user._id;
-  try {
-    const user = await getUserById(userId);
-    if (user) {
-      console.log("user", user);
-      
-      res.render("editUserProfie", { title: "Edit Profile", user });
-    } else {
+router
+  .route("/editProfile")
+  .get(async (req, res) => {
+    const userId = req.session.user.user._id;
+    try {
+      const user = await getUserById(userId);
+      if (user) {
+        console.log("user", user);
+
+        res.render("editUserProfie", { title: "Edit Profile", user });
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "User not found",
+        };
+        return res.redirect("/users/userProfile");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
-        message: "User not found",
+        message: "Error fetching user",
       };
       return res.redirect("/users/userProfile");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error fetching user",
-    };
-    return res.redirect("/users/userProfile");
-  }
-}).put(async (req, res) => {
-  const userId = req.session.user.user._id;
-  const { firstName, lastName, email } = req.body;
-  try {
-    const updatedUser = await updateUser(userId,firstName, lastName, email);
-    console.log(updatedUser);
-    
-    req.session.user.user.firstName = updatedUser.firstName;
-    req.session.user.user.lastName = updatedUser.lastName;
-    req.session.user.user.email = updatedUser.email;
-    if (updatedUser) {
-      req.session.toast = {
-        type: "success",
-        message: "Profile updated successfully",
-      };
-      return res.redirect("/users/userProfile");
-    } else {
+  })
+  .put(async (req, res) => {
+    const userId = req.session.user.user._id;
+    const { firstName, lastName, email } = req.body;
+    try {
+      const updatedUser = await updateUser(userId, firstName, lastName, email);
+      console.log(updatedUser);
+
+      req.session.user.user.firstName = updatedUser.firstName;
+      req.session.user.user.lastName = updatedUser.lastName;
+      req.session.user.user.email = updatedUser.email;
+      if (updatedUser) {
+        req.session.toast = {
+          type: "success",
+          message: "Profile updated successfully",
+        };
+        return res.redirect("/users/userProfile");
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Error updating profile",
+        };
+        return res.redirect("/users/editProfile");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
         message: "Error updating profile",
       };
       return res.redirect("/users/editProfile");
     }
-    
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error updating profile",
-    };
-    return res.redirect("/users/editProfile");
-  }
-}
-);
+  });
 //Admin dashboard for user management
 router
   .route("/adminDashboard")
@@ -457,7 +457,8 @@ router
       };
       return res.redirect("/users/userProfile");
     }
-  }).get(async (req, res) => {
+  })
+  .get(async (req, res) => {
     try {
       const users = await getUsers();
       if (!users || users.length === 0) {
@@ -477,41 +478,45 @@ router
     }
   });
 //Delete user
-router.
-route("/deleteUser/:id").all(isLoggedIn, checkRole("admin"))
-.delete(async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const deletedUser = await deleteUser(userId);
-    if (deletedUser) {
-      req.session.toast = {
-        type: "success",
-        message: "User deleted successfully",
-      };
-      return res.redirect("/users/adminDashboard");
-    } else {
+router
+  .route("/deleteUser/:id")
+  .all(isLoggedIn, checkRole("admin"))
+  .delete(async (req, res) => {
+    const userId = req.params.id;
+    try {
+      const deletedUser = await deleteUser(userId);
+      if (deletedUser) {
+        req.session.toast = {
+          type: "success",
+          message: "User deleted successfully",
+        };
+        return res.redirect("/users/adminDashboard");
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Error deleting user",
+        };
+        return res.redirect("/users/adminDashboard");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
         message: "Error deleting user",
       };
       return res.redirect("/users/adminDashboard");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error deleting user",
-    };
-    return res.redirect("/users/adminDashboard");
-  }
-});
+  });
 //missing request
-router.route("/missingRequest").get(async (req, res) => {
+router
+  .route("/missingRequest")
+  .get(async (req, res) => {
     return res.render("missingRequest", {
       title: "Missing Request",
       error: null,
     });
-}).post(async (req, res) => {
+  })
+  .post(async (req, res) => {
     let itemType = req.body.itemType;
     let itemName = req.body.itemName;
     let description = req.body.description;
@@ -523,40 +528,36 @@ router.route("/missingRequest").get(async (req, res) => {
       };
       return res.redirect("/users/missingRequest");
     }
-    try{
+    try {
       userId = isValidID(userId, "userId");
-    }
-    catch (e) {
+    } catch (e) {
       req.session.toast = {
         type: "error",
         message: "Invalid user ID",
       };
       return res.redirect("/users/missingRequest");
     }
-    try{
+    try {
       itemType = isValidString(itemType, "itemType");
-    }
-    catch (e) {
+    } catch (e) {
       req.session.toast = {
         type: "error",
         message: "Invalid item type",
       };
       return res.redirect("/users/missingRequest");
     }
-    try{
+    try {
       itemName = isValidString(itemName, "itemName");
-    }
-    catch (e) {
+    } catch (e) {
       req.session.toast = {
         type: "error",
         message: "Invalid item name",
       };
       return res.redirect("/users/missingRequest");
     }
-    try{
+    try {
       description = isValidString(description, "description");
-    }
-    catch (e) {
+    } catch (e) {
       req.session.toast = {
         type: "error",
         message: "Invalid description",
@@ -591,250 +592,256 @@ router.route("/missingRequest").get(async (req, res) => {
       };
       return res.redirect("/users/missingRequest");
     }
-  }
-);
-router.route("/missingRequest/:id").all(isLoggedIn, checkRole("admin"))
-.get(async (req, res) => {
-  const missingRequestId = req.params.id;
-  try {
-    const missingRequest = await getAllMissingRequests(missingRequestId);
-    if (missingRequest) {
-      res.render("missingRequestDetails", {
-        title: "Missing Request Details",
-        missingRequest,
-      });
-    } else {
+  });
+router
+  .route("/missingRequest/:id")
+  .all(isLoggedIn, checkRole("admin"))
+  .get(async (req, res) => {
+    const missingRequestId = req.params.id;
+    try {
+      const missingRequest = await getAllMissingRequests(missingRequestId);
+      if (missingRequest) {
+        res.render("missingRequestDetails", {
+          title: "Missing Request Details",
+          missingRequest,
+        });
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Missing request not found",
+        };
+        return res.redirect("/users/missingRequestDashboard");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
-        message: "Missing request not found",
+        message: "Error fetching missing request",
       };
       return res.redirect("/users/missingRequestDashboard");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error fetching missing request",
-    };
-    return res.redirect("/users/missingRequestDashboard");
-  }
-});
-router.route("/missingRequest/update/:id").all(isLoggedIn, checkRole("admin"))
-.put(async (req, res) => {
-  const missingRequestId = req.params.id;
-  const { status } = req.body;
-  try {
-    const updatedMissingRequest = await updateMissingRequest(
-      missingRequestId,
-      status
-    );
-    if (updatedMissingRequest) {
-      req.session.toast = {
-        type: "success",
-        message: "Missing request updated successfully",
-      };
-      return res.redirect("/users/missingRequestDashboard");
-    } else {
+  });
+router
+  .route("/missingRequest/update/:id")
+  .all(isLoggedIn, checkRole("admin"))
+  .put(async (req, res) => {
+    const missingRequestId = req.params.id;
+    const { status } = req.body;
+    try {
+      const updatedMissingRequest = await updateMissingRequest(
+        missingRequestId,
+        status
+      );
+      if (updatedMissingRequest) {
+        req.session.toast = {
+          type: "success",
+          message: "Missing request updated successfully",
+        };
+        return res.redirect("/users/missingRequestDashboard");
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Error updating missing request",
+        };
+        return res.redirect("/users/missingRequestDashboard");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
         message: "Error updating missing request",
       };
       return res.redirect("/users/missingRequestDashboard");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error updating missing request",
-    };
-    return res.redirect("/users/missingRequestDashboard");
-  }
-});
+  });
 //get request by user id
-router.route("/missingRequestuser").all(isLoggedIn)
-.get(async (req, res) => {
-  const userId = req.session.user.user._id;
-  try {
-    const missingRequests = await getMissingRequestByUserId(userId);
-    if (missingRequests) {
-      res.render("missingRequestUser", {
-        title: "User Missing Requests",
-        missingRequests,
-      });
-    } else {
+router
+  .route("/missingRequestuser")
+  .all(isLoggedIn)
+  .get(async (req, res) => {
+    const userId = req.session.user.user._id;
+    try {
+      const missingRequests = await getMissingRequestByUserId(userId);
+      if (missingRequests) {
+        res.render("missingRequestUser", {
+          title: "User Missing Requests",
+          missingRequests,
+        });
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "No missing requests found",
+        };
+        return res.redirect("/users/userProfile");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
-        message: "No missing requests found",
+        message: "Error fetching missing requests",
       };
       return res.redirect("/users/userProfile");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error fetching missing requests",
-    };
-    return res.redirect("/users/userProfile");
-  }
-});
+  });
 //delete account if user is logged in and it's their own account
-router.route("/deleteAccount").all(isLoggedIn).delete(async (req, res) => {
-  const userId = req.session.user.user._id;
-  try {
-    const deletedUser = await deleteUser(userId);
-    if (deletedUser) {
-      req.session.toast = {
-        type: "success",
-        message: "Account deleted successfully",
-      };
-      return res.redirect("/users/logout");
-    } else {
+router
+  .route("/deleteAccount")
+  .all(isLoggedIn)
+  .delete(async (req, res) => {
+    const userId = req.session.user.user._id;
+    try {
+      const deletedUser = await deleteUser(userId);
+      if (deletedUser) {
+        req.session.toast = {
+          type: "success",
+          message: "Account deleted successfully",
+        };
+        return res.redirect("/users/logout");
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Error deleting account",
+        };
+        return res.redirect("/users/userProfile");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
         message: "Error deleting account",
       };
       return res.redirect("/users/userProfile");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error deleting account",
-    };
-    return res.redirect("/users/userProfile");
-  }
-});
+  });
 //changePassword
-router.route("/changePassword").all(isLoggedIn).get(async (req, res) => {
-  res.render("changePassword", { title: "Change Password" });
-}).put(async (req, res) => {
-  let userId = req.session.user.user._id;
-  let oldPassword = req.body.currentPassword;
-  let newPassword1 = req.body.newPassword;
-  let newPassword2 = req.body.confirmPassword;
-  if (!oldPassword || !newPassword1 || !newPassword2) {
-    req.session.toast = {
-      type: "error",
-      message: "Please fill all the fields",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  // Trimmed validations
-  oldPassword = oldPassword.trim();
-  newPassword1 = newPassword1.trim();
-  newPassword2 = newPassword2.trim();
-  if(oldPassword === "" || newPassword1 === "" || newPassword2 === "") {
-    req.session.toast = {
-      type: "error",
-      message: "Password fields cannot be empty",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  if (oldPassword.length==0) {
-    req.session.toast = {
-      type: "error",
-      message: "Old password cannot be empty",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  if (newPassword1.length==0) {
-    req.session.toast = {
-      type: "error",
-      message: "New password cannot be empty",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  if (newPassword2.length==0) {
-    req.session.toast = {
-      type: "error",
-      message: "Confirm password cannot be empty",
-    };
-    return res.redirect("/users/changePassword");
-  }
-
-
-  try{
-    userId = isValidID(userId, "userId");
-  }
-  catch (e) {
-    req.session.toast = {
-      type: "error",
-      message: "Invalid user ID",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  try{
-    oldPassword = isValidString(oldPassword, "oldPassword");
-  }
-  catch (e) {
-    req.session.toast = {
-      type: "error",
-      message: "Invalid old password",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  try{
-    newPassword1 = isValidString(newPassword1, "newPassword1");
-  }
-  catch (e) {
-    req.session.toast = {
-      type: "error",
-      message: "Invalid new password",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  if (newPassword1.length < 8) {
-    req.session.toast = {
-      type: "error",
-      message: "Password must be at least 6 characters long",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  if (newPassword1.length > 1024) {
-    req.session.toast = {
-      type: "error",
-      message: "Password must be less than 1024 characters",
-    };
-    return res.redirect("/users/changePassword");
-  }
-  if(newPassword1 !== newPassword2){
-    req.session.toast = {
-      type: "error",
-      message: "New passwords do not match",
-    };
-    return res.redirect("/users/changePassword");
-  }
-
-  try {
-    const updatedPassword = await updatePassword(
-      userId,
-      oldPassword,
-      newPassword1,
-      newPassword2
-    );
-    if (updatedPassword) {
+router
+  .route("/changePassword")
+  .all(isLoggedIn)
+  .get(async (req, res) => {
+    res.render("changePassword", { title: "Change Password" });
+  })
+  .put(async (req, res) => {
+    let userId = req.session.user.user._id;
+    let oldPassword = req.body.currentPassword;
+    let newPassword1 = req.body.newPassword;
+    let newPassword2 = req.body.confirmPassword;
+    if (!oldPassword || !newPassword1 || !newPassword2) {
       req.session.toast = {
-        type: "success",
-        message: "Password changed successfully",
+        type: "error",
+        message: "Please fill all the fields",
       };
-      return res.redirect("/users/userProfile");
-    } else {
+      return res.redirect("/users/changePassword");
+    }
+    // Trimmed validations
+    oldPassword = oldPassword.trim();
+    newPassword1 = newPassword1.trim();
+    newPassword2 = newPassword2.trim();
+    if (oldPassword === "" || newPassword1 === "" || newPassword2 === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Password fields cannot be empty",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if (oldPassword.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "Old password cannot be empty",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if (newPassword1.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "New password cannot be empty",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if (newPassword2.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "Confirm password cannot be empty",
+      };
+      return res.redirect("/users/changePassword");
+    }
+
+    try {
+      userId = isValidID(userId, "userId");
+    } catch (e) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid user ID",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    try {
+      oldPassword = isValidString(oldPassword, "oldPassword");
+    } catch (e) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid old password",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    try {
+      newPassword1 = isValidString(newPassword1, "newPassword1");
+    } catch (e) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid new password",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if (newPassword1.length < 8) {
+      req.session.toast = {
+        type: "error",
+        message: "Password must be at least 6 characters long",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if (newPassword1.length > 1024) {
+      req.session.toast = {
+        type: "error",
+        message: "Password must be less than 1024 characters",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if (newPassword1 !== newPassword2) {
+      req.session.toast = {
+        type: "error",
+        message: "New passwords do not match",
+      };
+      return res.redirect("/users/changePassword");
+    }
+
+    try {
+      const updatedPassword = await updatePassword(
+        userId,
+        oldPassword,
+        newPassword1,
+        newPassword2
+      );
+      if (updatedPassword) {
+        req.session.toast = {
+          type: "success",
+          message: "Password changed successfully",
+        };
+        return res.redirect("/users/userProfile");
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Error changing password",
+        };
+        return res.redirect("/users/changePassword");
+      }
+    } catch (e) {
+      console.error(e);
       req.session.toast = {
         type: "error",
         message: "Error changing password",
       };
       return res.redirect("/users/changePassword");
     }
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: "Error changing password",
-    };
-    return res.redirect("/users/changePassword");
-  }
-});
-// Export the router
-
+  });
 
 export default router;

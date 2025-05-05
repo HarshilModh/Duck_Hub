@@ -102,7 +102,7 @@ router.get("/create", isLoggedIn, async (req, res) => {
 router.route("/").get(isLoggedIn, async (req, res) => {
   const forumPosts = await getAllForumPosts();
   const polls = await Poll.find()
-    .populate("createdBy", "firstName lastName")
+    .populate("createdBy tags", "firstName lastName name")
     .lean();
   const loggedUserId = req.session.user?.user?._id || null;
   res.render("forumLanding", {
@@ -122,6 +122,7 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       order = "desc",
     } = req.query;
 
+    // Validate postType
     if (!postType || (postType !== "forums" && postType !== "polls")) {
       req.session.toast = {
         type: "error",
@@ -130,6 +131,7 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       return res.redirect("/forums");
     }
 
+    // Perform search/filter/sort
     const { forumPosts, pollPosts } = await searchFilterSort({
       text,
       postType,
@@ -137,6 +139,17 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       order,
     });
 
+    // No results
+    if (forumPosts.length === 0 && pollPosts.length === 0) {
+      req.session.toast = {
+        type: "error",
+        message:
+          "The given search did not return any results. Please try again with a different keyword.",
+      };
+      return res.redirect("/forums");
+    }
+
+    // Render results
     return res.render("forumLanding", {
       forumPosts,
       pollPosts,
@@ -149,6 +162,7 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
         '<link rel="stylesheet" href="/public/css/forumLanding.css">',
     });
   } catch (err) {
+    // Search error
     req.session.toast = {
       type: "error",
       message: "Failed to search posts. Please try again.",
@@ -159,16 +173,29 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
 
 // GET /forums/:id — Get a forum post by ID
 router.route("/:id").get(async (req, res) => {
-  const post = await getForumPostById(req, res);
+  const post = await getForumPostById(req.params.id);
   return res.status(200).json(post);
 });
 
-router.route("/user/:userId").get(isLoggedIn, async (req, res) => {
-  const posts = await getForumPostsByUserId(req.params.userId);
-  res.render("userForums", {
-    forumPosts: posts,
-    customStyles: '<link rel="stylesheet" href="/public/css/userForums.css">',
-  });
+router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
+  const { userId } = req.params;
+  const { postType } = req.query; // "forums" | "polls" | undefined → ALL POSTS
+
+  try {
+    // fetch only this user's forums & polls
+    const forumPosts = await getForumPostsByUserId(userId);
+    const pollPosts = await Poll.find({ createdBy: userId }).lean();
+    const loggedUserId = req.session.user?.user?._id || null;
+    res.render("userForums", {
+      forumPosts,
+      pollPosts,
+      postType,
+      loggedUserId,
+      customStyles: '<link rel="stylesheet" href="/public/css/userForums.css">',
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.route("/tag/:tagId").get(async (req, res) => {

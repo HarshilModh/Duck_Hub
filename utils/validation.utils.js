@@ -6,8 +6,9 @@ export const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 export const isValidPassword = (password) => {
- //password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  //password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return passwordRegex.test(password);
 };
 
@@ -223,7 +224,7 @@ export const courseValidation = async (
 };
 
 export const reportTypeValidation = (type) => {
-  const validTypes = ["Forum", "Review", "AcademicResource"];
+  const validTypes = ["Forum", "Poll", "Review", "AcademicResource"];
   if (!validTypes.includes(type)) {
     throw new Error("Not a valid report type");
   }
