@@ -1,31 +1,77 @@
-<div class="container mx-auto px-4 py-8">
-  <h1 class="font-heading text-3xl text-stevensMaroon mb-6">
-    Departments
-  </h1>
+{{!-- views/departments.handlebars --}}
 
-  {{#if departments.length}}
-    <div class="space-y-4">
-      {{#each departments}}
-        <div class="flex items-center justify-between bg-stevensWhite rounded-2xl shadow p-4">
-          <span class="text-stevensMaroon font-heading">
-            {{this.departmentName}}
-          </span>
-          <div class="flex space-x-2">
-         
-            <form action="/departments/{{this._id}}?_method=DELETE" method="POST">
-              <button
-                type="submit"
-                class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
-                onclick="return confirm('Delete “{{this.departmentName}}”?');"
-              >
-                Delete
-              </button>
-            </form>
+<div class="min-h-screen bg-stevensBg font-body text-stevensMaroon">
+  <main class="max-w-6xl mx-auto px-6 py-10">
+
+    <!-- Header with Add button -->
+    {{#if user}}
+      {{#if (eq user.role "admin")}}
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 mb-8">
+          <h1 class="font-heading text-3xl">Departments</h1>
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="/departments/addDepartment"
+              class="bg-stevensMaroon text-stevensWhite px-5 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+            >
+              Add Department
+            </a>
+            <a
+              href="/courses/addCourse"
+              class="bg-stevensMaroon text-stevensWhite px-5 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+            >
+              Add Course
+            </a>
           </div>
         </div>
-      {{/each}}
-    </div>
-  {{else}}
-    <p class="text-center italic text-stevensGray">No departments found.</p>
-  {{/if}}
+      {{/if}}
+    {{/if}}
+
+    {{#if departments.length}}
+      <div class="space-y-4">
+        {{#each departments}}
+          <div class="flex items-center justify-between bg-stevensWhite rounded-2xl shadow p-4">
+            <span class="text-stevensMaroon font-heading">
+              {{this.departmentName}}
+            </span>
+            <div class="flex space-x-2">
+              <!-- View Courses -->
+              <a
+                href="/userSideCourses/departmentCourses/{{this._id}}"
+                class="inline-flex items-center bg-stevensMaroon text-stevensWhite px-3 py-1 rounded-full hover:bg-stevensMaroon/90 transition text-sm"
+              >
+                View Courses
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+              <!-- Edit -->
+              <a
+                href="/departments/editDepartment/{{this._id}}"
+                class="bg-stevensMaroon text-stevensWhite px-3 py-1 rounded hover:bg-stevensMaroon/90 transition text-sm"
+              >
+                Edit
+              </a>
+              <!-- Delete -->
+              <form
+                action="/departments/deleteDepartment/{{this._id}}"
+                method="POST"
+                onsubmit="return confirm('Delete “{{this.departmentName}}”?');"
+              >
+                <input type="hidden" name="_method" value="DELETE" />
+                <button
+                  type="submit"
+                  class="bg-red-600 text-stevensWhite px-3 py-1 rounded hover:bg-red-700 transition text-sm"
+                >
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="text-stevensGray italic text-center">No departments found.</p>
+    {{/if}}
+
+  </main>
 </div>

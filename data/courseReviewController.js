@@ -81,7 +81,7 @@ export const createCourseReview = async (
       throw new Error("Difficulty Rating must be a number");
     }
     
-    difficultyRating = await isValidNumber(difficultyRating, "Difficulty Rating");
+    difficultyRating = isValidNumber(difficultyRating, "Difficulty Rating");
     if (difficultyRating < 1 || difficultyRating > 3) {
       throw new Error("Difficulty Rating must be between 1 & 3");
     }
@@ -102,7 +102,7 @@ export const createCourseReview = async (
     if (typeof overallRating !== "number") {
       throw new Error("Overall Rating must be a number");
     }
-    overallRating =await isValidNumber(overallRating, "Overall Rating");
+    overallRating = isValidNumber(overallRating, "Overall Rating");
     if (overallRating < 0 || overallRating > 5) {
       throw new Error("Overall Rating must be between 0 & 5");
     }
@@ -259,13 +259,26 @@ export const updateCourseReviewById = async (reviewId, difficultyRating,overallR
       throw new Error("A review must be passed");
     }
     review = isValidString(review, "Review");
-    
-    const reviewToUpdate = await Review.findByIdAndUpdate(
+    //if isEdited is true, then the review is already updated
+    let reviewToUpdate = await Review.findById(reviewId);
+    if (!reviewToUpdate) {
+      throw new Error("Review not found");
+    }
+    if (reviewToUpdate.isEdited) {
+      throw new Error("This review has already been edited");
+    }
+    if (reviewToUpdate.status === "hidden") {
+      throw new Error(
+        "This review has been removed by the admin since it goes against the guidelines"
+      );
+    }
+     reviewToUpdate = await Review.findByIdAndUpdate(
       reviewId,
       {
         overallRating,
         difficultyRating,
         review,
+        isEdited: true,
       },
       { new: true }
     );

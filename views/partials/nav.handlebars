@@ -16,16 +16,17 @@
                <li><a href="/forums/"                   class="text-gray-700 hover:text-stevensMaroon">Forums</a></li>
             <li><a href="/departments"               class="text-gray-700 hover:text-stevensMaroon">Departments</a></li>  
             <li><a href="/courses"           class="text-gray-700 hover:text-stevensMaroon">Courses</a></li>
+            <li><a href="/users/adminDashboard"                     class="text-gray-700 hover:text-stevensMaroon">Users</a></li>
             <li><a href="/" class="text-gray-700 hover:text-stevensMaroon">My Reviews</a></li>
             <li><a href="/userSideCampusResources/categories"                    class="text-gray-700 hover:text-stevensMaroon">Campus Resources</a></li>
-            <li><a href="/users/missingRequestDashboard" class="text-gray-700 hover:text-stevensMaroon">Requests</a></li>
           {{else}}
             <li><a href="/forums"                              class="hover:text-stevensMaroon">Forums</a></li>
             <li><a href="/forums/user/{{user._id}}"             class="hover:text-stevensMaroon">My Forums</a></li>
-            <li><a href="/departments"                         class="hover:text-stevensMaroon">Departments</a></li>
+            <li><a href="/departments/userSideDepartment"                         class="hover:text-stevensMaroon">Departments</a></li>
             <li><a href="/userSideCourses"                     class="hover:text-stevensMaroon">Courses</a></li>
             <li><a href="/userSideCampusResources/categories"  class="hover:text-stevensMaroon">Campus Resources</a></li>
             <li><a href="/userSideCourses/myReviews"           class="hover:text-stevensMaroon">My Reviews</a></li>
+            <li><a href="/users/missingRequest" class="hover:text-stevensMaroon">Requests</a></li>
           {{/if}}
         {{else}}
           <li><a href="/users/login"  class="hover:text-stevensMaroon">Login</a></li>
@@ -52,6 +53,12 @@
           <ul class="absolute right-0 mt-2 w-36 bg-white border rounded shadow opacity-0 group-hover:opacity-100 transition-opacity">
             <li><a href="/users/userProfile" class="block px-4 py-2 hover:bg-stevensBg">Profile</a></li>
             <li><a href="/users/logout"      class="block px-4 py-2 hover:bg-stevensBg">Logout</a></li>
+            {{#if (eq user.role "admin")}}
+              <li><a href="/users/missingRequestDashboard" class="block px-4 py-2 hover:bg-stevensBg">Requests</a></li>
+            {{else}}
+              <li><a href="/users/missingRequestuser" class="block px-4 py-2 hover:bg-stevensBg">My Requests</a></li>
+            {{/if}}
+
           </ul>
         </div>
       {{/if}}
