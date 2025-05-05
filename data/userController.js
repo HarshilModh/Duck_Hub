@@ -1,5 +1,7 @@
 import express from "express";
 import User from "../models/user.model.js";
+import { randomInt } from "crypto";
+import { sendMail } from "./mailTriggerController.js";
 import MissingRequest from "../models/MissingRequest.model.js";
 import {
   isValidEmail,
@@ -10,6 +12,7 @@ import {
 import { isValidObjectId, mongo } from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import Otp from "../models/otp.model.js";
 
 // Create a new user
 //Harshil
@@ -55,14 +58,18 @@ export const createUser = async (
   if (password.trim().length === 0) {
     throw new Error("Password cannot be empty");
   }
-  if(!isValidPassword(password)){
-    throw new Error("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+  if (!isValidPassword(password)) {
+    throw new Error(
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    );
   }
   if (confirmPassword.trim().length === 0) {
     throw new Error("Confirm password cannot be empty");
   }
-  if(!isValidPassword(confirmPassword)){
-    throw new Error("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+  if (!isValidPassword(confirmPassword)) {
+    throw new Error(
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    );
   }
   if (password !== confirmPassword) {
     throw new Error("Passwords do not match");
@@ -122,63 +129,63 @@ export const getUserById = async (userId) => {
 // Update a user by ID
 // Vamshi
 // TODO: Maybe create a seperate API for password updation.
-export const updateUser = async (userId,firstName,lastName,email) => {
+export const updateUser = async (userId, firstName, lastName, email) => {
   try {
-    if(!mongo.ObjectId.isValid(userId)){
+    if (!mongo.ObjectId.isValid(userId)) {
       throw new Error("Invalid userId");
     }
 
-  if (!firstName || !lastName || !email) {
-    throw new Error("Please provide all required fields");
-  }
-  firstName = firstName.trim();
-  lastName = lastName.trim();
-  email = email.trim();
-  if (firstName.length < 2) {
-    throw new Error("First name must be at least 2 characters long");
-  }
-  if (firstName.length > 50) {
-    throw new Error("First name must be less than 50 characters long");
-  }
-  if (lastName.length < 2) {
-    throw new Error("Last name must be at least 2 characters long");
-  }
-  if (lastName.length > 50) {
-    throw new Error("Last name must be less than 50 characters long");
-  }
-  if (firstName.trim().length === 0 || lastName.trim().length === 0) {
-    throw new Error("First name and last name cannot be empty");
-  }
-  if (email.trim().length === 0) {
-    throw new Error("Email cannot be empty");
-  }
-  if (!isValidEmail(email)) {
-    throw new Error("Invalid email format");
-  }
-  if (email.length < 5) {
-    throw new Error("Email must be at least 5 characters long");
-  }
-  if (email.length > 50) {
-    throw new Error("Email must be less than 50 characters long");
-  }
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { firstName, lastName, email },
-    { new: true }
-  );
-  if (!updatedUser) {
-    throw new Error("User not found");
-  }
-  console.log("Updated user: ", updatedUser);
-  
-  return updatedUser;
+    if (!firstName || !lastName || !email) {
+      throw new Error("Please provide all required fields");
+    }
+    firstName = firstName.trim();
+    lastName = lastName.trim();
+    email = email.trim();
+    if (firstName.length < 2) {
+      throw new Error("First name must be at least 2 characters long");
+    }
+    if (firstName.length > 50) {
+      throw new Error("First name must be less than 50 characters long");
+    }
+    if (lastName.length < 2) {
+      throw new Error("Last name must be at least 2 characters long");
+    }
+    if (lastName.length > 50) {
+      throw new Error("Last name must be less than 50 characters long");
+    }
+    if (firstName.trim().length === 0 || lastName.trim().length === 0) {
+      throw new Error("First name and last name cannot be empty");
+    }
+    if (email.trim().length === 0) {
+      throw new Error("Email cannot be empty");
+    }
+    if (!isValidEmail(email)) {
+      throw new Error("Invalid email format");
+    }
+    if (email.length < 5) {
+      throw new Error("Email must be at least 5 characters long");
+    }
+    if (email.length > 50) {
+      throw new Error("Email must be less than 50 characters long");
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { firstName, lastName, email },
+      { new: true }
+    );
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+    console.log("Updated user: ", updatedUser);
+
+    return updatedUser;
   } catch (e) {
     console.log(e);
-    
+
     throw new Error(e.message);
   }
 };
@@ -284,13 +291,12 @@ export const generateTokens = async (userId) => {
 export const updatePassword = async (userId, currentPassword, newPassword2) => {
   //Assuming it works like forgot password
 
-  if(!userId || !currentPassword || !newPassword2) {
+  if (!userId || !currentPassword || !newPassword2) {
     throw new Error("Please provide all required fields");
   }
   try {
     userId = isValidID(userId, "userId");
-  }
-  catch (e) {
+  } catch (e) {
     throw new Error(e.message);
   }
 
@@ -305,9 +311,8 @@ export const updatePassword = async (userId, currentPassword, newPassword2) => {
   //Check for empty passwords
   if (currentPassword.trim().length === 0) {
     throw new Error("Password cannot be empty");
-  
   }
- 
+
   //Check for empty passwords
   if (newPassword2.trim().length === 0) {
     throw new Error("Password cannot be empty");
@@ -328,7 +333,7 @@ export const updatePassword = async (userId, currentPassword, newPassword2) => {
   if (currentPassword === newPassword2) {
     throw new Error("New password cannot be same as current password");
   }
-  
+
   const user = await User.findById(userId);
   if (!user) {
     throw new Error("User not found");
@@ -349,8 +354,7 @@ export const updatePassword = async (userId, currentPassword, newPassword2) => {
       throw new Error("User not found");
     }
     return updatedUser;
-  }
-  catch (error) {
+  } catch (error) {
     if (error.code === 11000) {
       throw new Error("Email already exists");
     }
@@ -387,62 +391,62 @@ export const searchUserByName = async (req, res) => {};
 //Akbar
 export const getUsersByRole = async (req, res) => {};
 
+export const addMissingRequest = async (
+  userId,
+  itemType,
+  itemName,
+  description
+) => {
+  try {
+    if (!userId || !itemType || !itemName) {
+      throw new Error("Please provide all required fields");
+    }
+    try {
+      userId = isValidID(userId, "userId");
+    } catch (e) {
+      throw new Error(e.message);
+    }
+    try {
+      itemType = isValidString(itemType, "itemType");
+    } catch (e) {
+      throw new Error(e.message);
+    }
+    try {
+      itemName = isValidString(itemName, "itemName");
+    } catch (e) {
+      throw new Error(e.message);
+    }
 
-export const addMissingRequest = async (userId, itemType, itemName, description) => {
-  try{
-      if (!userId || !itemType || !itemName) {
-          throw new Error("Please provide all required fields");
-      }
-      try {
-          userId = isValidID(userId, "userId");
-      }
-      catch (e) {
-          throw new Error(e.message);
-      }
-      try {
-          itemType=isValidString(itemType, "itemType");
-      }
-      catch (e) {
-          throw new Error(e.message);
-      }
-      try {
-          itemName=isValidString(itemName, "itemName");
-      }
-      catch (e) {
-          throw new Error(e.message);
-      }
+    if (typeof itemType !== "string" || typeof itemName !== "string") {
+      throw new Error("Item type and item name must be strings");
+    }
+    if (itemType.trim().length === 0 || itemName.trim().length === 0) {
+      throw new Error("Item type and item name cannot be empty");
+    }
+    itemType = itemType.trim();
+    itemName = itemName.trim();
 
-      if(typeof itemType !== 'string' || typeof itemName !== 'string'){
-        throw new Error("Item type and item name must be strings");
-      } 
-      if(itemType.trim().length === 0 || itemName.trim().length === 0){
-          throw new Error("Item type and item name cannot be empty");
-      }
-      itemType = itemType.trim();
-      itemName = itemName.trim();
-      
-      if(typeof description !== 'string'){
-          throw new Error("Description must be a string");
-      }
-      if(description.trim().length === 0){
-          description = null;
-      }
+    if (typeof description !== "string") {
+      throw new Error("Description must be a string");
+    }
+    if (description.trim().length === 0) {
+      description = null;
+    }
 
-      const missingRequest = await MissingRequest.create({
-          userId,
-          itemType,
-          itemName,
-          description
-      });
-      if (!missingRequest) {
-          throw new Error("Missing request not created");
-      }
-      return missingRequest;
-  }
-  catch (e) {
+    const missingRequest = await MissingRequest.create({
+      userId,
+      itemType,
+      itemName,
+      description,
+    });
+    if (!missingRequest) {
+      throw new Error("Missing request not created");
+    }
+    return missingRequest;
+  } catch (e) {
     throw new Error(e.message);
   }
-}
+};
 export const getMissingRequests = async (userId) => {
   try {
     if (!userId) {
@@ -461,13 +465,15 @@ export const getMissingRequests = async (userId) => {
   } catch (e) {
     throw new Error(e.message);
   }
-}
+};
 export const getAllMissingRequests = async () => {
   try {
-    const missingRequests = await MissingRequest.find({}).populate("userId", "firstName lastName").lean();
+    const missingRequests = await MissingRequest.find({})
+      .populate("userId", "firstName lastName")
+      .lean();
     console.log(missingRequests);
-    
-    if (!missingRequests ) {
+
+    if (!missingRequests) {
       throw new Error("No missing requests found");
     }
     return missingRequests;
@@ -500,7 +506,7 @@ export const updateMissingRequest = async (requestId, status) => {
   } catch (e) {
     throw new Error(e.message);
   }
-}
+};
 export const getMissingRequestByUserId = async (userid) => {
   try {
     if (!userid) {
@@ -511,13 +517,51 @@ export const getMissingRequestByUserId = async (userid) => {
     } catch (e) {
       throw new Error(e.message);
     }
-    const missingRequest = await MissingRequest.find({ userId: userid }).populate("userId", "firstName lastName").lean();
-    
-    if (!missingRequest ) {
+    const missingRequest = await MissingRequest.find({ userId: userid })
+      .populate("userId", "firstName lastName")
+      .lean();
+
+    if (!missingRequest) {
       throw new Error("No missing requests found");
     }
     return missingRequest;
   } catch (e) {
     throw new Error(e.message);
   }
-}
+};
+
+export const forgotPassword = async (email) => {
+  if (!email) {
+    throw new Error("Please provide all required fields");
+  }
+  email = isValidString(email, "email");
+  if (!isValidEmail(email)) {
+    throw new Error("Invalid email format");
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const otp = await randomInt(100000, 999999).toString();
+  const newOtp = await Otp.create({
+    userId: user._id,
+    code: otp,
+  });
+  if (!newOtp) {
+    throw new Error("Failed to create OTP");
+  }
+
+  const mailOptions = {
+    to: email,
+    subject: "Password Reset OTP",
+    text: `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`,
+    html: `<p>Your OTP for password reset is <strong>${otp}</strong>. It is valid for 10 minutes.</p>`,
+  };
+
+  try {
+    await sendMail(mailOptions);
+  } catch (err) {
+    throw new Error("Failed to send OTP email:", err);
+  }
+  return { success: true, userId: user._id };
+};

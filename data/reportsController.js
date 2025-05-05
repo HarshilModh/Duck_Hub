@@ -4,21 +4,30 @@ import {
   isValidString,
   reportTypeValidation,
 } from "../utils/validation.utils.js";
-export const createReport = async (type, userId, reason, contentId) => {
+export const createReport = async (
+  forumId,
+  pollId,
+  reviewId,
+  academicResourceId,
+  type,
+  userId,
+  reason
+) => {
   if (!type || !userId || !reason) {
     throw new Error("userId, type, reason are required");
   }
   type = reportTypeValidation(type);
   userId = isValidID(userId);
   reason = isValidString(reason);
-  contentId = isValidID(contentId);
 
   const newReport = new Reports({
-    reportedContentId: contentId,
+    forumId,
+    pollId,
+    reviewId,
+    academicResourceId,
     reportedContentType: type,
     reportedBy: userId,
-    reason: reason,
-    status: "under review",
+    reason,
   });
 
   try {
