@@ -1,0 +1,57 @@
+{{!-- views/addReport.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md bg-stevensWhite rounded-2xl shadow-lg p-8 space-y-6">
+    
+    <h2 class="text-2xl font-heading text-stevensMaroon text-center">
+      Report {{reportedContentType}}
+    </h2>
+
+    <form action="/report" method="POST" class="space-y-6">
+      <!-- Hidden identifiers -->
+      <input type="hidden" name="reportedContentId" value="{{reportedContentId}}">
+      <input type="hidden" name="reportedContentType" value="{{reportedContentType}}">
+
+      <p class="text-gray-700">
+        You are reporting a <strong>{{reportedContentType}}</strong> with ID  
+        <span class="font-medium">{{reportedContentId}}</span>.
+      </p>
+
+      <!-- Reason -->
+      <div>
+        <label for="reason" class="block text-stevensGray font-medium mb-2">
+          Reason for Reporting
+        </label>
+        <textarea
+          id="reason"
+          name="reason"
+          rows="4"
+          required
+          placeholder="Please describe why you’re reporting this…"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        ></textarea>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-right">
+        <button
+          type="submit"
+          class="bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-lg hover:bg-stevensMaroon/90 transition focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >
+          Submit Report
+        </button>
+      </div>
+    </form>
+
+    <!-- Cancel link -->
+    <div class="text-center">
+      <a
+        href="javascript:history.back()"
+        class="text-stevensGray hover:underline"
+      >
+        Cancel
+      </a>
+    </div>
+
+  </div>
+</div>

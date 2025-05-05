@@ -5,8 +5,8 @@ import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { checkRole } from '../middlewares/roleCheck.middleware.js';
 const router = express.Router();
 //render department page and print all departments
-router.use(isLoggedIn,checkRole('admin'));
-router.route('/').get(async (req, res) => {
+
+router.route('/').get(isLoggedIn,checkRole("admin"),async (req, res) => {
     console.log('Fetching all departments');
     
     try {

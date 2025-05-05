@@ -11,12 +11,7 @@
             {{this.departmentName}}
           </span>
           <div class="flex space-x-2">
-            <a
-              href="/departments/{{this._id}}/edit"
-              class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
-            >
-              Edit
-            </a>
+         
             <form action="/departments/{{this._id}}?_method=DELETE" method="POST">
               <button
                 type="submit"

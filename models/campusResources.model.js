@@ -9,13 +9,56 @@ const campusResourceSchema = new mongoose.Schema(
       trim: true,
     },
     resourceType: {
-      type: [String], // array of strings
-      default: [],
+      type: String, 
+      enum: [
+        "library",
+        "gym",
+        'Dining Hall',
+        'Academic Building',
+        'Student Center',
+        'Health Center',
+        'Recreational Facility',
+        'Parking Lot',
+        'Dorms',
+        'Event Space',
+        'Study Room',
+        'Computer Lab',
+        'Auditorium',
+        'Classroom',
+        'Laboratory',
+        'Office Space',
+        'Sports Field',
+        'Theater',
+        'Art Studio',
+        'Music Room',
+        'Conference Room',
+        'Workshop',
+        'Outdoor Space',
+        'Playground',
+        'Fitness Center',
+        'Swimming Pool',
+        'Cafeteria',
+        'Bookstore',
+        'Counseling Center',
+        'Career Services',
+        'International Student Office',
+        'Student Union',
+        'Campus Security',
+        "other",
+      ],
+      required: true,
+      default: "other",
+      trim: true,
     },
     location: {
-      type: String,
-      trim: true,
-      required: true,
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point"
+      },
+      coordinates: {
+        type: [Number],      // [ longitude, latitude ]
+      }
     },
     description: {
       type: String,
@@ -32,7 +75,7 @@ const campusResourceSchema = new mongoose.Schema(
       },
     },
     operatingHours: {
-      type: [String], // will store like "Mon-Fri: 8am - 10pm"
+      type: [String], 
       default: [],
     },
     status: {

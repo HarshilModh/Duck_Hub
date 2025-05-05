@@ -1,89 +1,93 @@
-<div class="resource-details-container">
-  <div class="resource-header">
-    <h2 class="resource-title">{{resource.resourceName}}</h2>
-    
-    {{#if isAdmin}}
-      <div class="admin-actions">
-        <a href="/campus-resources/{{resource._id}}/edit" class="edit-button">Edit</a>
-        <button class="delete-button" data-id="{{resource._id}}">Delete</button>
-      </div>
-    {{/if}}
-  </div>
+{{!-- views/showCampusResource.handlebars --}}
 
-  <div class="resource-info-card">
-    <div class="resource-type-section">
-      <h3>Resource Type:</h3>
-      <div class="resource-types">
-        {{#each resource.resourceType}}
-          <span class="resource-type-tag">{{this}}</span>
-        {{else}}
-          <span class="no-types">No types specified</span>
-        {{/each}}
-      </div>
+<div class="min-h-screen bg-stevensBg px-4 py-12 font-body text-stevensMaroon">
+  <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Map Panel -->
+    <div class="bg-stevensWhite rounded-2xl shadow overflow-hidden">
+      <div id="map" class="h-96 w-full"></div>
     </div>
 
-    <div class="resource-location-section">
-      <h3>Location:</h3>
-      <p>{{resource.location}}</p>
-    </div>
+    <!-- Details Panel -->
+    <div class="flex flex-col bg-stevensWhite rounded-2xl shadow p-8 space-y-6">
+      <!-- Header -->
+      <header class="space-y-2">
+        <h1 class="text-3xl font-heading">{{resource.resourceName}}</h1>
+        <span class="inline-block bg-stevensMaroon text-stevensWhite text-sm px-3 py-1 rounded-full">
+          {{resource.resourceType}}
+        </span>
+      </header>
 
-    <div class="resource-description-section">
-      <h3>Description:</h3>
-      <p>{{resource.description}}</p>
-    </div>
-    
-    {{#if resource.contactDetails}}
-      <div class="resource-contact-section">
-        <h3>Contact Information:</h3>
-        <p>Email: <a href="mailto:{{resource.contactDetails.email}}">{{resource.contactDetails.email}}</a></p>
-        {{#if resource.contactDetails.contactNumber}}
-          <p>Phone: {{resource.contactDetails.contactNumber}}</p>
+      <!-- Description -->
+      <p class="text-gray-700 leading-relaxed">{{resource.description}}</p>
+
+      <!-- Details Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+
+        <!-- Coordinates -->
+        <div>
+          <p class="font-medium">📍 Coordinates</p>
+          <p>{{resource.location.coordinates.[1]}}, {{resource.location.coordinates.[0]}}</p>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <p class="font-medium">📧 Contact</p>
+          <p>{{resource.contactDetails.email}}
+            {{#if resource.contactDetails.contactNumber}}
+              | 📞 {{resource.contactDetails.contactNumber}}
+            {{/if}}
+          </p>
+        </div>
+
+        <!-- Operating Hours -->
+        {{#if resource.operatingHours.length}}
+        <div class="sm:col-span-2">
+          <p class="font-medium">⏰ Operating Hours</p>
+          <ul class="list-disc list-inside text-gray-700">
+            {{#each resource.operatingHours}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
         {{/if}}
+
+        <!-- Status -->
+        <div class="sm:col-span-2">
+          <p class="font-medium">✔️ Status</p>
+          <span
+            class="inline-block capitalize px-2 py-1 rounded-full text-xs font-medium
+              {{#if (eq resource.status 'active')}}
+                bg-green-100 text-green-800
+              {{else}}
+                bg-red-100 text-red-800
+              {{/if}}">
+            {{resource.status}}
+          </span>
+        </div>
+
       </div>
-    {{/if}}
-    
-    {{#if resource.operatingHours.length}}
-      <div class="resource-hours-section">
-        <h3>Operating Hours:</h3>
-        <ul class="hours-list">
-          {{#each resource.operatingHours}}
-            <li>{{this}}</li>
-          {{/each}}
-        </ul>
-      </div>
-    {{/if}}
-    
-    {{#if resource.imageURL}}
-      <div class="resource-image-section">
-        <img src="{{resource.imageURL}}" alt="{{resource.resourceName}}" class="resource-image" />
-      </div>
-    {{/if}}
+
+      <!-- Footer Timestamps -->
+      <p class="text-xs text-stevensGray pt-4 border-t border-gray-200">
+        Created: {{formatDate resource.createdAt "MMM D, YYYY h:mm a"}} |
+        Updated: {{formatDate resource.updatedAt "MMM D, YYYY h:mm a"}}
+      </p>
+    </div>
+
   </div>
 </div>
 
 <script>
-  // Delete confirmation
-  const deleteBtn = document.querySelector('.delete-button');
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', function() {
-      const resourceId = this.getAttribute('data-id');
-      // ask for confirmation
-      if (confirm('Are you sure you want to delete this resource?')) {
-        // if yes, submit delete request
-        fetch(`/campus-resources/${resourceId}`, {
-          method: 'DELETE',
-        })
-        .then(response => {
-          if (response.ok) {
-            window.location.href = '/campus-resources';
-          } else {
-            alert('Failed to delete resource');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      }
+  function initMap() {
+    const [lng, lat] = {{json resource.location.coordinates}};
+    const map = new google.maps.Map(document.getElementById('map'), {
+      center: { lat, lng },
+      zoom: 14
     });
+    new google.maps.Marker({ position: { lat, lng }, map });
   }
+</script>
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeKpbOe7Jq5qdUgf_xVIG3NecQMBbPNjo&callback=initMap">
 </script>

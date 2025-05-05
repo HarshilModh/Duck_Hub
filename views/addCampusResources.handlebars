@@ -1,0 +1,221 @@
+{{! views/addCampusResource.handlebars }}
+
+<div
+  class="min-h-screen bg-stevensBg flex items-start justify-center px-4 py-12"
+>
+  <div
+    class="w-full max-w-lg bg-stevensWhite rounded-2xl shadow-lg p-8 space-y-6"
+  >
+    <h2 class="text-2xl font-heading text-stevensMaroon text-center">
+      Add Campus Resource
+    </h2>
+
+    <form
+      action="/campusresources"
+      method="POST"
+      id="addCampusResourceForm"
+      class="space-y-6"
+    >
+      <!-- Resource Name -->
+      <div>
+        <label
+          for="resourceName"
+          class="block text-stevensGray font-medium mb-2"
+        >
+          Resource Name
+        </label>
+        <input
+          type="text"
+          id="resourceName"
+          name="resourceName"
+          
+          placeholder="e.g. Main Library"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
+
+      <!-- Resource Type -->
+      <div>
+        <label
+          for="resourceType"
+          class="block text-stevensGray font-medium mb-2"
+        >
+          Resource Type
+        </label>
+        <select
+          id="resourceType"
+          name="resourceType"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >
+          <option value="" disabled selected>Select a type</option>
+          <option value="library">Library</option>
+          <option value="gym">Gym</option>
+          <option value="Dining Hall">Dining Hall</option>
+          <option value="Academic Building">Academic Building</option>
+          <option value="Student Center">Student Center</option>
+          <option value="Health Center">Health Center</option>
+          <option value="Recreational Facility">Recreational Facility</option>
+          <option value="Parking Lot">Parking Lot</option>
+          <option value="Dorms">Dorms</option>
+          <option value="Event Space">Event Space</option>
+          <option value="Study Room">Study Room</option>
+          <option value="Computer Lab">Computer Lab</option>
+          <option value="Auditorium">Auditorium</option>
+          <option value="Classroom">Classroom</option>
+          <option value="Laboratory">Laboratory</option>
+          <option value="Office Space">Office Space</option>
+          <option value="Sports Field">Sports Field</option>
+          <option value="Theater">Theater</option>
+          <option value="Art Studio">Art Studio</option>
+          <option value="Music Room">Music Room</option>
+          <option value="Conference Room">Conference Room</option>
+          <option value="Workshop">Workshop</option>
+          <option value="Outdoor Space">Outdoor Space</option>
+          <option value="Playground">Playground</option>
+          <option value="Fitness Center">Fitness Center</option>
+          <option value="Swimming Pool">Swimming Pool</option>
+          <option value="Cafeteria">Cafeteria</option>
+          <option value="Bookstore">Bookstore</option>
+          <option value="Counseling Center">Counseling Center</option>
+          <option value="Career Services">Career Services</option>
+          <option value="International Student Office">International Student
+            Office</option>
+          <option value="Student Union">Student Union</option>
+          <option value="Campus Security">Campus Security</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Map for picking location -->
+      <div>
+        <label class="block text-stevensGray font-medium mb-2">Pick Location</label>
+        <div id="map" class="h-64 w-full rounded-lg border"></div>
+        <p class="text-sm text-stevensGray mt-2">
+          Click on the map to drop a pin and choose coordinates.
+        </p>
+      </div>
+
+      <!-- Hidden latitude/longitude fields -->
+      <input type="hidden" id="latitude" name="latitude" />
+      <input type="hidden" id="longitude" name="longitude" />
+
+      <!-- Show selected coords -->
+      <div class="flex space-x-4 text-sm text-gray-700">
+        <div>Lat: <span id="latVal" class="font-medium">—</span></div>
+        <div>Lng: <span id="lngVal" class="font-medium">—</span></div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label
+          for="description"
+          class="block text-stevensGray font-medium mb-2"
+        >
+          Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows="3"
+          placeholder="A brief description…"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        ></textarea>
+      </div>
+
+      <!-- Contact Details -->
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label
+            for="contactEmail"
+            class="block text-stevensGray font-medium mb-2"
+          >
+            Contact Email
+          </label>
+          <input
+            type="text"
+            id="contactEmail"
+            name="email"
+            placeholder="email@example.com"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          />
+        </div>
+        <div>
+          <label
+            for="contactNumber"
+            class="block text-stevensGray font-medium mb-2"
+          >
+            Contact Number
+          </label>
+          <input
+            type="text"
+            id="contactNumber"
+            name="contactNumber"
+            placeholder="(123) 456-7890"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          />
+        </div>
+      </div>
+
+      <!-- Operating Hours -->
+      <div>
+        <label
+          for="operatingHours"
+          class="block text-stevensGray font-medium mb-2"
+        >
+          Operating Hours
+        </label>
+        <textarea
+          id="operatingHours"
+          name="operatingHours"
+          rows="2"
+          placeholder="Coma separated list of hours (e.g. Mon: 9:00 - 17:00,Tue: 10:00 - 18:00)"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        ></textarea>
+      </div>
+
+      {{! <!-- Status -->
+      <div>
+        <label for="status" class="block text-stevensGray font-medium mb-2">Status</label>
+        <select
+          id="status"
+          name="status"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >
+          <option value="active" selected>Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div> }}
+
+      <!-- Submit -->
+      <div class="text-right">
+        <button
+          type="submit"
+          class="bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-full hover:bg-stevensMaroon/90 transition focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >
+          Add Resource
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Google Maps JS API (replace YOUR_API_KEY) -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeKpbOe7Jq5qdUgf_xVIG3NecQMBbPNjo"
+  defer
+></script>
+<script>
+  function initMap() { const defaultCenter = { lat: 40.7464, lng: -74.0265 };
+  const map = new google.maps.Map(document.getElementById("map"), { center:
+  defaultCenter, zoom: 15, }); let marker; map.addListener("click", (e) => {
+  const lat = e.latLng.lat(); const lng = e.latLng.lng(); if (marker)
+  marker.setMap(null); marker = new google.maps.Marker({ position: { lat, lng },
+  map }); document.getElementById("latitude").value = lat;
+  document.getElementById("longitude").value = lng;
+  document.getElementById("latVal").textContent = lat.toFixed(6);
+  document.getElementById("lngVal").textContent = lng.toFixed(6); }); }
+  window.addEventListener("load", () => { if (window.google && google.maps)
+  initMap(); else { const script =
+  document.querySelector('script[src*="googleapis"]');
+  script.addEventListener("load", initMap); } });
+</script>

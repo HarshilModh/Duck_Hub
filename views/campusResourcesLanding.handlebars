@@ -1,48 +1,64 @@
-<div class="section-heading-bar">
-  <h2 id="sectionHeading">Campus Resources</h2>
+{{!-- views/campusResourcesLanding.handlebars --}}
 
-  <a href="/campus-resources/create" class="create-post-button">Add Campus Resource</a>
-</div>
+<div class="min-h-screen bg-stevensBg font-body text-stevensMaroon py-12 px-4">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Page Header -->
+    <header class="mb-8 text-center">
+      <h1 class="text-4xl font-heading">Campus Resources</h1>
+      <p class="text-stevensGray mt-2">Browse and manage campus resources below.</p>
+    </header>
 
-<div class="forum-posts-list">
-  {{#each campusResources}}
-    <div class="forum-post-card">
-      <h3 class="forum-title">{{resourceName}}</h3>
-      <p class="resource-type">
-        Type: 
-        {{#each resourceType}}
-          <span class="resource-type-tag">{{this}}</span>
+    {{#if campusResources.length}}
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {{#each campusResources}}
+          <div class="relative bg-stevensWhite rounded-2xl shadow hover:shadow-lg transition flex flex-col overflow-hidden">
+
+            <!-- Card Content -->
+            <a
+              href="/userSideCampusResources/getDetails/{{this._id}}"
+              class="flex-1 p-6 flex flex-col"
+            >
+              <h3 class="text-2xl font-semibold mb-2">{{this.resourceName}}</h3>
+              <span class="text-sm text-stevensGray uppercase tracking-wide mb-4">{{this.resourceType}}</span>
+              <p class="text-gray-700 flex-1 overflow-hidden" style="max-height: 4.5rem;">
+                {{this.description}}
+              </p>
+            </a>
+
+            {{!-- Admin Actions --}}
+            {{#if ../isAdmin}}
+              <div class="px-6 py-4 bg-gray-50 flex justify-end gap-2">
+                <a
+                  href="/campusresources/edit/{{this._id}}"
+                  class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition text-sm"
+                >
+                  Edit
+                </a>
+                <form
+                  action="/campusresources/delete/{{this._id}}"
+                  method="POST"
+                  onsubmit="return confirm('Delete “{{this.resourceName}}”?');"
+                >
+                  <input type="hidden" name="_method" value="DELETE" />
+                  <button
+                    type="submit"
+                    class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm"
+                  >
+                    Delete
+                  </button>
+                </form>
+              </div>
+            {{/if}}
+
+          </div>
         {{/each}}
-      </p>
-      <p class="resource-location">Location: {{location}}</p>
-      <p class="resource-description">{{description}}</p>
-      
-      {{#if contactDetails}}
-        <div class="contact-details">
-          <p>Contact: {{contactDetails.email}} {{#if contactDetails.contactNumber}} | {{contactDetails.contactNumber}} {{/if}}</p>
-        </div>
-      {{/if}}
-      
-      {{#if operatingHours.length}}
-        <div class="operating-hours">
-          <p>Hours:</p>
-          <ul>
-            {{#each operatingHours}}
-              <li>{{this}}</li>
-            {{/each}}
-          </ul>
-        </div>
-      {{/if}}
-      
-      <div class="resource-buttons">
-        <a href="/campus-resources/{{_id}}" class="view-details-button">View Details</a>
       </div>
-    </div>
-  {{else}}
-    <p class="no-resources-message">No campus resources available yet.</p>
-  {{/each}}
-</div>
+    {{else}}
+      <p class="text-center text-stevensGray italic">
+        No campus resources available yet.
+      </p>
+    {{/if}}
 
-<script>
-  const loggedInUserId = "{{loggedUserId}}";
-</script>
+  </div>
+</div>
