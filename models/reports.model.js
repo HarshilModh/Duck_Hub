@@ -7,13 +7,6 @@ import User from "./user.model.js";
 
 const reportsSchema = new mongoose.Schema(
   {
-<<<<<<< Updated upstream
-    reportedContentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "",// "Forum", "Review", "AcademicResource"
-      required: true,
-      trim: true,
-=======
     forumId: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: Forum.modelName,
@@ -33,7 +26,6 @@ const reportsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       refPath: AcademicResource.modelName,
       default: null,
->>>>>>> Stashed changes
     },
     reportedContentType: {
       type: String,

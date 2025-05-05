@@ -13,8 +13,6 @@ router.route("/").get(isNotLoggedIn, async (req, res) => {
 
 router.post("/otp", isNotLoggedIn, async (req, res) => {
   let { email } = req.body;
-
-  //  ➤ Validate email
   if (!email || typeof email !== "string" || !(email = email.trim())) {
     req.session.toast = {
       type: "error",
