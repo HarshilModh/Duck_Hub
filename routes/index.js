@@ -10,8 +10,6 @@ import tagsRoutes from "./tags.routes.js";
 import reportRoutes from "./report.routes.js";
 import CampusResourceRoutes from "./campusResource.routes.js"; // Assuming you have a campusResource.routes.js file
 import userSideCampusResourcesRoutes from "./userSideCampusResources.routes.js"; // Assuming you have a userSideCampusResources.routes.js file
-import tagsRoutes from "./tags.routes.js";
-import reportRoutes from "./report.routes.js";
 import pollRoutes from "./poll.routes.js";
 const app = express();
 const router = express.Router();

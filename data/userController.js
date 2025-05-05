@@ -12,7 +12,7 @@ import {
 import { isValidObjectId, mongo } from "mongoose";
 import bcrypt from "bcrypt";
 import session from "express-session";
-import Otp from "../models/otp.model.js";
+// import Otp from "../models/otp.model.js";
 
 // Create a new user
 //Harshil
