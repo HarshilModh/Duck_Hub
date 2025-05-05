@@ -1,0 +1,199 @@
+{{!-- views/editCampusResource.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg flex items-start justify-center px-4 py-12">
+  <div class="w-full max-w-lg bg-stevensWhite rounded-2xl shadow-lg p-8 space-y-6">
+    <h2 class="text-2xl font-heading text-stevensMaroon text-center">
+      Edit Campus Resource
+    </h2>
+
+    <form
+      action="/campusresources/edit/{{resource._id}}"
+      method="POST"
+      id="editCampusResourceForm"
+      class="space-y-6"
+    >
+    <input type="hidden" name="_method" value="PUT" />
+      <!-- Resource Name -->
+      <div>
+        <label for="resourceName" class="block text-stevensGray font-medium mb-2">
+          Resource Name
+        </label>
+        <input
+          type="text"
+          id="resourceName"
+          name="resourceName"
+          
+          value="{{resource.resourceName}}"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        />
+      </div>
+
+      <!-- Resource Type -->
+      <div>
+        <label for="resourceType" class="block text-stevensGray font-medium mb-2">
+          Resource Type
+        </label>
+        <select
+          id="resourceType"
+          name="resourceType"
+          
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >
+          <option value="" disabled>Select a type</option>
+          <option value="library"             {{#if (eq resource.resourceType "library")}}selected{{/if}}>Library</option>
+          <option value="gym"                 {{#if (eq resource.resourceType "gym")}}selected{{/if}}>Gym</option>
+          <option value="Dining Hall"         {{#if (eq resource.resourceType "Dining Hall")}}selected{{/if}}>Dining Hall</option>
+          <option value="Academic Building"   {{#if (eq resource.resourceType "Academic Building")}}selected{{/if}}>Academic Building</option>
+          <option value="Student Center"      {{#if (eq resource.resourceType "Student Center")}}selected{{/if}}>Student Center</option>
+          <option value="Health Center"       {{#if (eq resource.resourceType "Health Center")}}selected{{/if}}>Health Center</option>
+          <option value="Recreational Facility" {{#if (eq resource.resourceType "Recreational Facility")}}selected{{/if}}>Recreational Facility</option>
+          <option value="Parking Lot"         {{#if (eq resource.resourceType "Parking Lot")}}selected{{/if}}>Parking Lot</option>
+          <option value="Dorms"               {{#if (eq resource.resourceType "Dorms")}}selected{{/if}}>Dorms</option>
+          <option value="Event Space"         {{#if (eq resource.resourceType "Event Space")}}selected{{/if}}>Event Space</option>
+          <option value="Study Room"          {{#if (eq resource.resourceType "Study Room")}}selected{{/if}}>Study Room</option>
+          <option value="Computer Lab"        {{#if (eq resource.resourceType "Computer Lab")}}selected{{/if}}>Computer Lab</option>
+          <option value="Other"               {{#if (eq resource.resourceType "other")}}selected{{/if}}>Other</option>
+        </select>
+      </div>
+
+      <!-- Map for picking location -->
+      <div>
+        <label class="block text-stevensGray font-medium mb-2">Pick Location</label>
+        <div id="map" class="h-64 w-full rounded-lg border"></div>
+        <p class="text-sm text-stevensGray mt-2">
+          Click on the map to move the pin and update coordinates.
+        </p>
+      </div>
+
+      <!-- Hidden latitude/longitude fields -->
+      <input type="hidden" id="latitude" name="latitude" value="{{resource.location.coordinates.[1]}}"  >
+      <input type="hidden" id="longitude" name="longitude" value="{{resource.location.coordinates.[0]}}" >
+
+      <!-- Show selected coords -->
+      <div class="flex space-x-4 text-sm text-gray-700">
+        <div>Lat: <span id="latVal" class="font-medium">{{resource.location.coordinates.[1]}}</span></div>
+        <div>Lng: <span id="lngVal" class="font-medium">{{resource.location.coordinates.[0]}}</span></div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="description" class="block text-stevensGray font-medium mb-2">
+          Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows="3"
+          
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >{{resource.description}}</textarea>
+      </div>
+
+      <!-- Contact Details -->
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label for="contactEmail" class="block text-stevensGray font-medium mb-2">
+            Contact Email
+          </label>
+          <input
+            type="text"
+            id="contactEmail"
+            name="email"
+            
+            value="{{resource.contactDetails.email}}"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          />
+        </div>
+        <div>
+          <label for="contactNumber" class="block text-stevensGray font-medium mb-2">
+            Contact Number
+          </label>
+          <input
+            type="text"
+            id="contactNumber"
+            name="contactNumber"
+            value="{{resource.contactDetails.contactNumber}}"
+            class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+          />
+        </div>
+      </div>
+
+      <!-- Operating Hours -->
+      <div>
+        <label for="operatingHours" class="block text-stevensGray font-medium mb-2">
+          Operating Hours
+        </label>
+        <textarea
+          id="operatingHours"
+          name="operatingHours"
+          rows="2"
+          placeholder="One entry per line, e.g. Mon–Fri: 8am–10pm"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >{{resource.operatingHours}}</textarea>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-right">
+        <button
+          type="submit"
+          class="bg-stevensMaroon text-stevensWhite px-6 py-2 rounded-full hover:bg-stevensMaroon/90 transition focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Google Maps JS API -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeKpbOe7Jq5qdUgf_xVIG3NecQMBbPNjo"
+  defer
+></script>
+<script>
+  function initMap() {
+    const initialLat = parseFloat(document.getElementById("latitude").value);
+    const initialLng = parseFloat(document.getElementById("longitude").value);
+    const initialPos = { lat: initialLat, lng: initialLng };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: initialPos,
+      zoom: 15,
+    });
+
+    let marker = new google.maps.Marker({
+      position: initialPos,
+      map,
+      draggable: true,
+    });
+
+    marker.addListener("dragend", (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      document.getElementById("latitude").value = lat.toFixed(6);
+      document.getElementById("longitude").value = lng.toFixed(6);
+      document.getElementById("latVal").textContent = lat.toFixed(6);
+      document.getElementById("lngVal").textContent = lng.toFixed(6);
+      map.panTo({ lat, lng });
+    });
+
+    map.addListener("click", (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      marker.setPosition(e.latLng);
+      document.getElementById("latitude").value = lat.toFixed(6);
+      document.getElementById("longitude").value = lng.toFixed(6);
+      document.getElementById("latVal").textContent = lat.toFixed(6);
+      document.getElementById("lngVal").textContent = lng.toFixed(6);
+      map.panTo({ lat, lng });
+    });
+  }
+
+  window.addEventListener("load", () => {
+    if (window.google && google.maps) initMap();
+    else {
+      const script = document.querySelector('script[src*="googleapis"]');
+      script.addEventListener("load", initMap);
+    }
+  });
+</script>

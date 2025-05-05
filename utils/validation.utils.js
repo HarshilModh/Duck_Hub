@@ -53,7 +53,7 @@ export const isValidString = (strVal, varName) => {
   return strVal;
 };
 
-export const isValidArray = async (arr, varName) => {
+export const isValidArray = (arr, varName) => {
   if (arr.length === 0) {
     throw new Error(`${varName} cannot be an empty array`);
   }
@@ -72,7 +72,7 @@ export const isValidArray = async (arr, varName) => {
   return arr;
 };
 
-export const isValidNumber = async (value, varName) => {
+export const isValidNumber =  (value, varName) => {
   if (value === undefined || value === null) {
     throw new Error(`${varName} is required.`);
   }

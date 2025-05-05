@@ -2,16 +2,9 @@ import mongoose from "mongoose";
 
 const reportsSchema = new mongoose.Schema(
   {
-    /*
-    _id: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      trim: true,
-    },
-    */
     reportedContentId: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "reportedContentType",
+      refPath: "",// "Forum", "Review", "AcademicResource"
       required: true,
       trim: true,
     },

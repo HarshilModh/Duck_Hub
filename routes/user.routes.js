@@ -33,7 +33,7 @@ router
   .all(isNotLoggedIn)
   // Show the signup form (any pending toast will display here)
   .get((req, res) => {
-    res.render("signUp", { title: "Sign Up" });
+    res.render("signUp", { title: "Sign Up" ,isLoggedIn:false});
   })
   // Handle signup submissions
   .post(async (req, res) => {
@@ -152,6 +152,7 @@ router
 
         req.session.user = user;
 
+        
         req.session.toast = {
           type: "success",
           message: `Welcome back, ${user.user.firstName}!`,
