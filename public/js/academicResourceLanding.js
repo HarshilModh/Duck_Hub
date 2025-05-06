@@ -30,7 +30,7 @@
         throw new Error("Button has no contentId");
       }
 
-      window.location.href = `/report/create/${contentId}`;
+      window.location.href = `/report/create/academicResource/${contentId}`;
     });
   });
 })();

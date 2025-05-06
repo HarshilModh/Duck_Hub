@@ -28,6 +28,7 @@ const router = express.Router();
 
 router
   .route("/")
+  .route("/create/academicResource/:contentId")
   .get(isLoggedIn, async (req, res) => {
     try {
       let forumId,
@@ -37,9 +38,11 @@ router
       const loggedUserId = req.session.user?.user?._id || null;
       const contentId = req.params.contentId;
       const isForum = await Forum.exists({ _id: contentId });
+      const type = "AcademicResource";
       res.render("createReport", {
         loggedUserId,
         contentId,
+        type,
         layout: "dashboard",
         customStyles:
           '<link rel="stylesheet" href="/public/css/createReport.css">',
@@ -153,5 +156,37 @@ router
       return res.status(500).json({ error: e.message });
     }
   });
+
+router.route("/create/forum/:contentId").get(isLoggedIn, async (req, res) => {
+  try {
+    const loggedUserId = req.session.user?.user?._id || null;
+    const contentId = req.params.contentId;
+    const type = "Forum";
+    res.render("createReport", {
+      loggedUserId,
+      contentId,
+      type,
+      layout: "dashboard",
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/createReport.css">',
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading create academic resource page");
+  }
+});
+
+router.route("/create/:contentId").post(isLoggedIn, async (req, res) => {
+  try {
+    const { contentId, type, userId, reason } = req.body;
+    const report = createReport(type, userId, reason, contentId);
+    if (!report) {
+      return res.status(500).json({ error: "Create Report Failed" });
+    }
+    return res.status(201).redirect("/report");
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
 
 export default router;

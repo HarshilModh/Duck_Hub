@@ -3,6 +3,7 @@ import Forum from "../models/forums.model.js";
 import Poll from "../models/polls.model.js";
 import Tag from "../models/tags.model.js";
 import ForumVotes from "../models/forumVotes.model.js";
+import Reports from "../models/reports.model.js";
 import { getUserById } from "./userController.js";
 import {
   isValidID,
@@ -338,7 +339,15 @@ export const downvoteForumPost = async (forumId, userId) => {
 };
 
 // Report a forum post
-export const reportForumPost = async (req, res) => {};
+export const reportForumPost = async (forumId, userId) => {
+  forumId = isValidID(forumId, "ForumID");
+  userId = isValidID(userId, "UserID");
+
+  let existingReport = await Reports.findOne({
+    reportedContentId: forumId,
+    reportedBy: userId,
+  });
+};
 
 // Unreport a forum post
 export const unreportForumPost = async (req, res) => {};

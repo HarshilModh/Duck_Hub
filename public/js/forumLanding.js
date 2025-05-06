@@ -1,3 +1,55 @@
+const upvoteButtons = document.querySelectorAll(".upvote-button");
+const downvoteButtons = document.querySelectorAll(".downvote-button");
+const commentButtons = document.querySelectorAll(".comment-button");
+const reportButtons = document.querySelectorAll(".report-button");
+
+commentButtons.forEach((button) => {
+  button.addEventListener("click", (e) => {
+    const forumId = e.currentTarget.dataset.id;
+    if (forumId) {
+      window.location.href = `/forums/comments/view/${forumId}`;
+    }
+  });
+});
+
+upvoteButtons.forEach((button) => {
+  button.addEventListener("click", async (e) => {
+    const forumId = e.currentTarget.dataset.id;
+
+    if (!loggedInUserId) {
+      console.log("User ID is mandatory");
+      return;
+    }
+
+    try {
+      console.log(forumId);
+      const response = await fetch(
+        `http://localhost:3000/forums/upvote/${forumId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: loggedInUserId }),
+        }
+      );
+
+      if (response.ok) {
+        const updatedPost = await response.json();
+        const countSpan = button.querySelector("span");
+        if (countSpan) {
+          countSpan.textContent = updatedPost.upVotes;
+        }
+        window.location.reload();
+      } else {
+        console.error("Failed to upvote:", response.status);
+      }
+    } catch (err) {
+      console.error("Error while upvoting:", err);
+    }
+  });
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   // Voting and comment navigation
   const upvoteButtons = document.querySelectorAll(".upvote-button");
@@ -113,6 +165,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === reportModal) {
       reportModal.style.display = "none";
       reportForm.reset();
+    }
+  });
+});
+
+reportButtons.forEach((button) => {
+  button.addEventListener("click", async (e) => {
+    const forumId = e.currentTarget.dataset.id;
+    if (!loggedInUserId) {
+      console.error("No logged-in user. Cannot report.");
+      return;
+    }
+    if (forumId) {
+      window.location.href = `/report/create/forum/${forumId}`;
     }
   });
 });

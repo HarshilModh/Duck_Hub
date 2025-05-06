@@ -5,15 +5,7 @@
     <form method="POST" action="/report/create/{{contentId}}" name="forumForm" id="forumForm">
       <input id="userId" name="userId" value="{{loggedUserId}}" />
       <input id="contentId" name="contentId" value="{{contentId}}" />
-
-      <div class="form-group">
-        <label for="title">Type:</label>
-        <select id="type" name="type">
-            <option value="Forum">Forum</option>
-            <option value="Review">Review</option>
-            <option value="AcademicResource">AcademicResource</option>
-        </select>
-      </div>
+      <input id="type" name="type" value="{{type}}"/>
 
       <div class="form-group">
         <label for="reason">Reason:</label>
