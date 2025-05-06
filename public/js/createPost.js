@@ -35,26 +35,32 @@ document.addEventListener("DOMContentLoaded", () => {
   // Save new tag via AJAX and insert into selects
   saveTagBtn.addEventListener("click", async () => {
     const tagValue = newTagInput.value.trim().toUpperCase();
+
     if (!tagValue) {
       return alert("Please enter a tag name.");
+    }
+
+    if (!userId) {
+      throw new Error("Cannot create a tag with logging in");
     }
 
     try {
       const res = await fetch("/tags", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: tagValue }),
+        body: JSON.stringify({ name: tagValue, userId: userId }),
       });
-      const data = await res.json();
+
+      const newTag = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to create tag");
+        throw new Error(newTag.error || "Failed to create tag");
       }
 
       // Create option for each select and mark selected
       [forumSelect, pollSelect].forEach((selectEl) => {
         const opt = document.createElement("option");
-        opt.value = data._id;
-        opt.textContent = data.name;
+        opt.value = newTag._id;
+        opt.textContent = newTag.name;
         opt.selected = true;
         selectEl.appendChild(opt);
       });

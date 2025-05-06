@@ -1,7 +1,12 @@
 (function () {
   const deleteButtons = document.querySelectorAll(".delete-button");
   const reportButtons = document.querySelectorAll(".report-button");
-  let userId = document.getElementById("userId");
+  const userId = document.getElementById("userId");
+
+  const reportModal = document.getElementById("reportModal");
+  const reportForm = document.getElementById("reportForm");
+  const reportContentIdInput = document.getElementById("reportContentId");
+  const reportCancelBtn = document.getElementById("reportCancel");
 
   deleteButtons.forEach((button) => {
     button.addEventListener("click", async () => {
@@ -24,13 +29,22 @@
   });
 
   reportButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const contentId = button.getAttribute("data-id");
-      if (!contentId) {
-        throw new Error("Button has no contentId");
-      }
-
-      window.location.href = `/report/create/${contentId}`;
+    button.addEventListener("click", (e) => {
+      const contentId = e.currentTarget.dataset.id;
+      reportContentIdInput.value = contentId;
+      reportModal.style.display = "flex";
     });
+  });
+
+  reportCancelBtn.addEventListener("click", () => {
+    reportModal.style.display = "none";
+    reportForm.reset();
+  });
+
+  reportModal.addEventListener("click", (e) => {
+    if (e.target === reportModal) {
+      reportModal.style.display = "none";
+      reportForm.reset();
+    }
   });
 })();
