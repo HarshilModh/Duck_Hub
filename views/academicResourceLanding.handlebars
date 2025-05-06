@@ -26,6 +26,12 @@
         <p class="forum-content">{{this.name}}</p>
       {{/each}}
       <div class="forum-buttons">
+        <button class="vote-button upvote-button" data-id="{{this._id}}">
+          <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{this.upVotes}}</span>
+        </button>
+        <button class="vote-button downvote-button" data-id="{{this._id}}">
+          <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{this.downVotes}}</span>
+        </button>
         <button class="vote-button delete-button" data-id="{{_id}}">Delete</button>
       </div>
     </div>

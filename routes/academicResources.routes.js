@@ -21,9 +21,10 @@ import {
 
 import { getAllTags } from "../data/tagController.js";
 import express from "express";
+import AcademicResourceVotes from "../models/academicResourceVotes.model.js";
 const router = express.Router();
 
-router.route("/").get(async (req, res) => {
+router.route("/").get(isLoggedIn, async (req, res) => {
   const academicResources = await getAllAcademicResources();
   const loggedUserId = req.session.user?.user?._id || null;
   res.render("AcademicResourceLanding", {
@@ -106,21 +107,40 @@ router.route("/status/:status").get(async (req, res) => {
 router.route("/upvote/:id").put(async (req, res) => {
   const academicResourceId = req.params.id;
   const userId = req.body.userId;
-  const upvotedResource = await upvoteAcademicResource(
-    academicResourceId,
-    userId
-  );
-  return res.json(upvotedResource);
+
+  try {
+    const upvotedResource = await upvoteAcademicResource(
+      academicResourceId,
+      userId
+    );
+    return res.json(upvotedResource);
+  } catch (error) {
+    console.error("Upvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to upvote the academic resource. Please try again.",
+    };
+    return res.status(500).json({ error: "Upvote failed" });
+  }
 });
 
 router.route("/downvote/:id").put(async (req, res) => {
   const academicResourceId = req.params.id;
   const userId = req.body.userId;
-  const downvotedResource = await downvoteAcademicResource(
-    academicResourceId,
-    userId
-  );
-  return res.json(downvotedResource);
+  try {
+    const downvotedResource = await downvoteAcademicResource(
+      academicResourceId,
+      userId
+    );
+    return res.json(downvotedResource);
+  } catch (error) {
+    console.error("Downvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to downvote the academic resource. Please try again.",
+    };
+    return res.status(500).json({ error: "Downvote failed" });
+  }
 });
 
 router.route("/:id").delete(async (req, res) => {

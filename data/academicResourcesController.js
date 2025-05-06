@@ -5,6 +5,8 @@ import {
   isValidString,
   isValidArray,
 } from "../utils/validation.utils.js";
+import AcademicResourceVotes from "../models/academicResourceVotes.model.js";
+import Reports from "../models/reports.model.js";
 
 export const createAcademicResource = async (
   userId,
@@ -210,17 +212,185 @@ export const getAcademicResourceByStatus = async (status) => {
   return academicResource;
 };
 
-export const upvoteAcademicResource = async (academicResourceId, userId) => {};
+export const upvoteAcademicResource = async (academicResourceId, userId) => {
+  academicResourceId = isValidID(academicResourceId, "AcademicResourceID");
+  userId = isValidID(userId, "UserID");
 
-export const downvoteAcademicResource = async (
+  let existingVote = await AcademicResourceVotes.findOne({
+    academicResourceId: academicResourceId,
+    voterId: userId,
+  });
+
+  if (!existingVote) {
+    let academicResource = await AcademicResource.findByIdAndUpdate(
+      academicResourceId,
+      { $inc: { upVotes: 1 } },
+      { new: true }
+    );
+
+    if (!academicResource) {
+      throw new Error("Academic Resource not found.");
+    }
+
+    const newVote = new AcademicResourceVotes({
+      voterId: userId,
+      academicResourceId: academicResourceId,
+      voteType: "UP",
+    });
+
+    const savedVote = await newVote.save();
+    if (!savedVote || !savedVote._id) {
+      throw new Error("Could not create a document for new Vote");
+    }
+    return academicResource;
+  }
+
+  if (existingVote && existingVote.voteType === "UP") {
+    throw new Error("You can't vote for an academic resource more than once !");
+  }
+
+  if (existingVote && existingVote.voteType === "DOWN") {
+    let academicResource = await AcademicResource.findByIdAndUpdate(
+      academicResourceId,
+      { $inc: { upVotes: 1, downVotes: -1 } },
+      { new: true }
+    );
+    if (!academicResource) {
+      throw new Error("Academic Resource not found.");
+    }
+
+    let updatedVote = await AcademicResourceVotes.findByIdAndUpdate(
+      existingVote._id,
+      { $set: { voteType: "UP" } },
+      { new: true }
+    );
+    if (!updatedVote) {
+      throw new Error("Could not upvote the previous downVote");
+    }
+    return academicResource;
+  }
+};
+
+export const downvoteAcademicResource = async (academicResourceId, userId) => {
+  academicResourceId = isValidID(academicResourceId, "AcademicResourceID");
+  userId = isValidID(userId, "UserID");
+
+  let existingVote = await AcademicResourceVotes.findOne({
+    academicResourceId: academicResourceId,
+    voterId: userId,
+  });
+
+  if (!existingVote) {
+    let academicResource = await AcademicResource.findByIdAndUpdate(
+      academicResourceId,
+      { $inc: { downVotes: 1 } },
+      { new: true }
+    );
+
+    if (!academicResource) {
+      throw new Error("Academic Resource not found.");
+    }
+
+    const newVote = new AcademicResourceVotes({
+      voterId: userId,
+      academicResourceId: academicResourceId,
+      voteType: "DOWN",
+    });
+
+    const savedVote = await newVote.save();
+    if (!savedVote || !savedVote._id) {
+      throw new Error("Could not create a document for new Vote");
+    }
+    return academicResource;
+  }
+
+  if (existingVote && existingVote.voteType === "DOWN") {
+    throw new Error("You can't vote for an academic resource more than once !");
+  }
+
+  if (existingVote && existingVote.voteType === "UP") {
+    let academicResource = await AcademicResource.findByIdAndUpdate(
+      academicResourceId,
+      { $inc: { upVotes: -1, downVotes: 1 } },
+      { new: true }
+    );
+
+    if (!academicResource) {
+      throw new Error("Academic Resource not found.");
+    }
+
+    let updatedVote = await AcademicResourceVotes.findByIdAndUpdate(
+      existingVote._id,
+      { $set: { voteType: "DOWN" } },
+      { new: true }
+    );
+    if (!updatedVote) {
+      throw new Error("Could not upvote the previous downVote");
+    }
+    return academicResource;
+  }
+};
+
+export const reportAcademicResource = async (academicResourceId, userId) => {
+  academicResourceId = isValidID(academicResourceId, "AcademicResourceID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let existingReport = await Reports.findOne({
+      academicResourceId: academicResourceId,
+      reportedBy: userId,
+    });
+
+    if (existingReport) {
+      throw new Error("You can't report a academic resource more than once !");
+    }
+
+    let academicResource = AcademicResource.findByIdAndUpdate(
+      academicResourceId,
+      { $set: { reportedBy: userId, status: "reported" } }
+    );
+
+    if (!academicResource) {
+      throw new Error("Academic Resource not found");
+    }
+    return academicResource;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const unreportAcademicResource = async (academicResourceId, userId) => {
+  academicResourceId = isValidID(academicResourceId, "AcademicResourceID");
+  userId = isValidID(userId, "UserID");
+  try {
+    let academicResource = AcademicResource.findByIdAndUpdate(
+      academicResourceId,
+      { $set: { reportedBy: null, status: "active" } }
+    );
+    if (!academicResource) {
+      throw new Error("Academic Resource not found");
+    }
+    return academicResource;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getReportedAcademicResources = async () => {
+  try {
+    const reportedResources = await AcademicResource.find({
+      reportedBy: { $exists: true, $not: { $size: 0 } },
+    });
+    if (!reportedResources || reportedResources.length === 0) {
+      throw new Error("No Academic Resources were Reported");
+    }
+    return reportedResources;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const changeAcademicResourceStatus = async (
   academicResourceId,
-  userId
+  status
 ) => {};
-
-export const reportAcademicResource = async () => {};
-
-export const unreportAcademicResource = async () => {};
-
-export const getReportedAcademicResources = async () => {};
-
-export const changeAcademicResourceStatus = async () => {};

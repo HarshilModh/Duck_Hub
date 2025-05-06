@@ -9,44 +9,22 @@ import AcademicResource from "../models/academicResources.model.js";
 
 const router = express.Router();
 
-// router.route("/").get(async (req, res) => {
-//   try {
-//     const reports = await getAllReports();
-//     const loggedUserId = req.session.user?.user?._id || null;
-//     res.render("reportLanding", {
-//       reports,
-//       loggedUserId,
-//       layout: "dashboard",
-//       customStyles:
-//         '<link rel="stylesheet" href="/public/css/reportLanding.css">',
-//     });
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).send("Error loading academic resource landing page");
-//   }
-// });
-
 router
   .route("/")
   .get(isLoggedIn, async (req, res) => {
     try {
-      let forumId,
-        pollId,
-        reviewId,
-        academicResourceId = null;
+      const reports = await getAllReports();
       const loggedUserId = req.session.user?.user?._id || null;
-      const contentId = req.params.contentId;
-      const isForum = await Forum.exists({ _id: contentId });
-      res.render("createReport", {
+      res.render("reportLanding", {
+        reports,
         loggedUserId,
-        contentId,
         layout: "dashboard",
         customStyles:
-          '<link rel="stylesheet" href="/public/css/createReport.css">',
+          '<link rel="stylesheet" href="/public/css/reportLanding.css">',
       });
     } catch (e) {
       console.error(e);
-      res.status(500).send("Error loading create academic resource page");
+      res.status(500).send("Error loading report page");
     }
   })
   .post(isLoggedIn, async (req, res) => {
@@ -135,20 +113,6 @@ router
         };
         return res.status(500).redirect("/forums");
       }
-
-      const report = createReport(
-        forumId,
-        pollId,
-        reviewId,
-        academicResourceId,
-        reportType,
-        userId,
-        reason
-      );
-      if (!report) {
-        return res.status(500).json({ error: "Create Report Failed" });
-      }
-      return res.status(200).redirect("/forums");
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }

@@ -1,7 +1,8 @@
 (function () {
   const deleteButtons = document.querySelectorAll(".delete-button");
   const reportButtons = document.querySelectorAll(".report-button");
-  const userId = document.getElementById("userId");
+  const upvoteButtons = document.querySelectorAll(".upvote-button");
+  const downvoteButtons = document.querySelectorAll(".downvote-button");
 
   const reportModal = document.getElementById("reportModal");
   const reportForm = document.getElementById("reportForm");
@@ -46,5 +47,61 @@
       reportModal.style.display = "none";
       reportForm.reset();
     }
+  });
+
+  upvoteButtons.forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      const academicResourceId = e.currentTarget.dataset.id;
+      if (!loggedInUserId) return alert("Please log in to vote.");
+
+      try {
+        const response = await fetch(
+          `/academicResources/upvote/${academicResourceId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: loggedInUserId }),
+          }
+        );
+
+        if (response.ok || response.status === 400) {
+          window.location.reload();
+        } else {
+          const { error } = await response.json();
+          alert(error);
+        }
+      } catch (err) {
+        console.error("Error while upvoting:", err);
+      }
+    });
+  });
+
+  downvoteButtons.forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      const academicResourceId = e.currentTarget.dataset.id;
+      if (!loggedInUserId) {
+        return alert("Please log in to vote.");
+      }
+
+      try {
+        const response = await fetch(
+          `/academicResources/downvote/${academicResourceId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: loggedInUserId }),
+          }
+        );
+
+        if (response.ok || response.status === 400) {
+          window.location.reload();
+        } else {
+          const { error } = await response.json();
+          alert(error);
+        }
+      } catch (err) {
+        console.error("Error while downvoting:", err);
+      }
+    });
   });
 })();
