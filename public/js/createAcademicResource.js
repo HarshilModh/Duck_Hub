@@ -32,7 +32,7 @@
         body: JSON.stringify({ name: tagValue, userId: userIdValue }),
       });
 
-      const newTag = res.json();
+      const newTag = await res.json();
       if (res.ok) {
         location.reload();
       } else {
