@@ -8,6 +8,13 @@
 <div class="forum-posts-list">
   {{#each academicResources}}
     <div class="forum-post-card">
+
+      <div class="post-actions report-action">
+        <button class="report-button" data-id="{{this._id}}" title="Report">
+          <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
+        </button>
+      </div>
+
       <h3 class="forum-title">{{title}}</h3>
       <p class="forum-posted-by">
         Posted by:
@@ -21,12 +28,34 @@
       <div class="forum-buttons">
         <button class="vote-button delete-button" data-id="{{_id}}">Delete</button>
       </div>
-      <div class="forum-buttons">
-        <button class="vote-button report-button" data-id="{{_id}}">Report</button>
-      </div>
     </div>
   {{/each}}
 </div>
+
+<!-- REPORT MODAL -->
+<div id="reportModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2>Report Content</h2>
+    <form id="reportForm" action="/report" method="post">
+      <input type="hidden" name="contentId" id="reportContentId" />
+      <input type="hidden" name="userId" value="{{loggedUserId}}" />
+
+      <label for="reportReason">Reason:</label>
+      <textarea
+        name="reason"
+        id="reportReason"
+        rows="4"
+        required
+        placeholder="Describe why you're reporting this…"
+      ></textarea>
+
+      <div class="modal-buttons">
+        <button type="button" id="reportCancel">Cancel</button>
+        <button type="submit">Submit Report</button>
+      </div>
+    </form>
+  </div>
+</div>      
 
 <script>
   const loggedInUserId = "{{loggedUserId}}";
