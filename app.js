@@ -6,6 +6,11 @@ import indexRoutes from "./routes/index.js";
 import { connectDB } from "./dbConfig/index.js";
 import exphbs from "express-handlebars";
 import session from "express-session";
+import passport from 'passport';
+import './config/passport.js'
+import authRoutes from './routes/googleLogin.routes.js';
+
+
 
 
 // 1️⃣ Create your app
@@ -42,15 +47,18 @@ app.use(
 // 5️⃣ Toast-middleware: expose once, then clear
 app.use((req, res, next) => {
   res.locals.toast = req.session.toast || null;
-  res.locals.user = req.session.user?.user || null;
   delete req.session.toast;
   next();
 });
-
+//add user to res.locals
+app.use((req, res, next) => {
+  res.locals.user = req.session.user?.user || null;
+  next();
+});
 // 6️⃣ Register Handlebars + `json` helper
 app.engine(
   "handlebars",
-  exphbs.engine({
+  exphbs.engine({ 
     defaultLayout: "main",
     helpers: {
       eq: (a, b) => a == b,
@@ -63,7 +71,9 @@ app.engine(
 app.set("view engine", "handlebars");
 
 // 7️⃣ Your routes
-// app.use("/", indexRoutes);
+//google login routes
+app.use('/auth', authRoutes); // Google login routes
+// app.use("/", indexRoutes)
 indexRoutes(app);
 
 

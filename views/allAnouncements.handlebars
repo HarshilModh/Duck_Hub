@@ -1,0 +1,72 @@
+{{!-- views/allAnnouncements.handlebars --}}
+
+<div class="min-h-screen bg-stevensBg font-body text-stevensMaroon px-4 py-12">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Page Header -->
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-heading">Announcements</h1>
+      {{#if user}}
+        {{#if (eq user.role "admin")}}
+          <a
+            href="/announcements/add"
+            class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+          >
+            Add Announcement
+          </a>
+        {{/if}}
+      {{/if}}
+    </div>
+
+    {{#if announcements.length}}
+      <ul class="space-y-6">
+        {{#each announcements}}
+          <li class="bg-stevensWhite rounded-2xl shadow p-6 space-y-4">
+            <!-- Title + Date + Admin Actions -->
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="text-xl font-semibold text-gray-800">{{this.title}}</h2>
+                <p class="text-sm text-stevensGray">
+                  {{formatDate this.createdAt "MMM D, YYYY"}}
+                </p>
+              </div>
+              {{!-- {{#if ../user}}
+                {{#if (eq ../user.role "admin")}}
+                  <div class="flex space-x-3">
+                    <a
+                      href="/announcements/{{this._id}}/edit"
+                      class="text-blue-500 hover:underline text-sm"
+                    >
+                      Edit
+                    </a>
+                    <form
+                      action="/announcements/{{this._id}}?_method=DELETE"
+                      method="POST"
+                      onsubmit="return confirm('Delete this announcement?');"
+                    >
+                      <button
+                        type="submit"
+                        class="text-red-500 hover:underline text-sm"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                {{/if}}
+              {{/if}} --}}
+            </div>
+            <!-- Content -->
+            <div class="text-gray-700 whitespace-pre-wrap">
+              {{this.content}}
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="text-center text-stevensGray italic">
+        No announcements available at the moment.
+      </p>
+    {{/if}}
+
+  </div>
+</div>

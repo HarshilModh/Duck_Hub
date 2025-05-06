@@ -23,6 +23,7 @@ import session from "express-session";
 import { getAllForumPosts } from "../data/forumsController.js";
 import User from "../models/user.model.js";
 import { isValidID, isValidString } from "../utils/validation.utils.js";
+import passport from "passport";
 
 // Create a new user
 // router.post("/signUp", createUser);

@@ -13,6 +13,8 @@ import userSideCampusResourcesRoutes from "./userSideCampusResources.routes.js";
 import pollRoutes from "./poll.routes.js";
 const app = express();
 import forgotPasswordRoutes from "./otp.routes.js";
+import adminAnouncementRoutes from "./adminAnouncement.routes.js";
+import googleLogin from './googleLogin.routes.js';
 const router = express.Router();
 const constructorMethods = (app) => {
   app.use("/users", userRoutes);
@@ -27,6 +29,9 @@ const constructorMethods = (app) => {
   app.use("/polls", pollRoutes);
   app.use("/campusresources", CampusResourceRoutes); // Assuming you have a campusResource.routes.js file
   app.use("/userSideCampusResources", userSideCampusResourcesRoutes); // Assuming you have a userSideCampusResources.routes.js file
+  app.use("/announcements", adminAnouncementRoutes);
+ // Google login routes
+  app.use("/auth", googleLogin); 
   app.use(/(.*)/, (req, res) => {
     res.status(404).render("notFound");
   });

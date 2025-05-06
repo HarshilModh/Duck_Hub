@@ -5,7 +5,7 @@
 
     <!-- Map Panel -->
     <div class="bg-stevensWhite rounded-2xl shadow overflow-hidden">
-      <div id="map" class="h-96 w-full"></div>
+      <div id="map" class="h-full w-full"></div>
     </div>
 
     <!-- Details Panel -->
@@ -80,12 +80,47 @@
 
 <script>
   function initMap() {
+    // Resource location
     const [lng, lat] = {{json resource.location.coordinates}};
     const map = new google.maps.Map(document.getElementById('map'), {
       center: { lat, lng },
       zoom: 14
     });
-    new google.maps.Marker({ position: { lat, lng }, map });
+
+    // Resource marker
+    new google.maps.Marker({
+      position: { lat, lng },
+      map,
+      title: '{{resource.resourceName}}'
+    });
+
+    // Try to get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const userPos = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+          new google.maps.Marker({
+            position: userPos,
+            map,
+            title: 'You are here',
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: '#4285F4',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+              scale: 6
+            }
+          });
+        },
+        err => {
+          console.warn('Geolocation failed:', err.message);
+        }
+      );
+    }
   }
 </script>
 <script async
