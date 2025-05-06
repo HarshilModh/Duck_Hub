@@ -9,6 +9,7 @@ import {
   isValidArray,
   isValidString,
 } from "../utils/validation.utils.js";
+import Reports from "../models/reports.model.js";
 
 // Create a new forum post
 export const createForumPost = async (
@@ -338,10 +339,49 @@ export const downvoteForumPost = async (forumId, userId) => {
 };
 
 // Report a forum post
-export const reportForumPost = async (req, res) => {};
+export const reportForumPost = async (forumId, userId) => {
+  forumId = isValidID(forumId, "ForumID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let existingReport = await Reports.findOne({
+      forumId: forumId,
+      reportedBy: userId,
+    });
+
+    if (existingReport) {
+      throw new Error("You can't report a forum more than once !");
+    }
+
+    let forum = Forum.findByIdAndUpdate(forumId, {
+      $set: { reportedBy: userId, status: "reported" },
+    });
+
+    if (!forumId) {
+      throw new Error("Forum not found");
+    }
+    return forum;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 // Unreport a forum post
-export const unreportForumPost = async (req, res) => {};
+export const unreportForumPost = async (forumId, userId) => {
+  forumId = isValidID(forumId, "Forum ID");
+  userId = isValidID(userId, "UserID");
+  try {
+    let forum = Forum.findByIdAndUpdate(forumId, {
+      $set: { reportedBy: null, status: "active" },
+    });
+    if (!forum) {
+      throw new Error("Forum not found");
+    }
+    return forum;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 // Get reported forum posts
 export const getReportedForumPosts = async () => {
