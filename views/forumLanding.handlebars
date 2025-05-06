@@ -1,6 +1,5 @@
 <div class="forum-header-bar">
   <form id="searchForm" action="/forums/search" method="get" class="controls-form">
-
     <!-- SEARCH WRAPPER -->
     <div class="search-wrapper">
       <div class="search-section">
@@ -20,9 +19,9 @@
       <div class="filter-section">
         <label for="postTypeSelect">Type:</label>
         <select name="postType" id="postTypeSelect">
-          <option value="" {{#unless postType}}selected{{/unless}}>All</option>
+          <option value="" {{#unless postType}}selected{{/unless}}>None</option>
           <option value="forums" {{#if (eq postType "forums")}}selected{{/if}}>Forums</option>
-          <option value="polls" {{#if (eq postType "polls")}}selected{{/if}}>Polls</option>
+          <option value="polls"  {{#if (eq postType "polls")}}selected{{/if}}>Polls</option>
         </select>
       </div>
     </div>
@@ -33,16 +32,15 @@
         <label for="sortSelect">Sort by:</label>
         <select name="sort" id="sortSelect">
           <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Latest</option>
-          <option value="upVotes" {{#if (eq sort "upVotes")}}selected{{/if}}>Most UpVoted</option>
+          <option value="upVotes"   {{#if (eq sort "upVotes")}}selected{{/if}}>Most UpVoted</option>
           <option value="downVotes" {{#if (eq sort "downVotes")}}selected{{/if}}>Most DownVoted</option>
         </select>
         <select name="order" id="orderSelect">
           <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
-          <option value="asc" {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
+          <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
         </select>
       </div>
     </div>
-
   </form>
 </div>
 
@@ -53,21 +51,18 @@
   <a href="/forums/create" class="create-post-button">Create Post</a>
 </div>
 
-<!-- Combined Forum & Poll List -->
 <div class="combined-posts-list">
+  {{!-- Interleave forumPosts and their matching poll (by index) --}}
   {{#each forumPosts}}
     <div class="forum-post-card">
-      <!-- Report option -->
       <div class="post-actions report-action">
         <button class="report-button" data-id="{{this._id}}" title="Report">
           <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
         </button>
       </div>
-
       <h3 class="forum-title">{{this.title}}</h3>
-      <p class="forum-posted-by">Posted by: {{this.userId.firstName}}_{{this.userId.lastName}}</p>
+      <p class="forum-posted-by">Posted by: {{this.userId.firstName}} {{this.userId.lastName}}</p>
 
-      <!-- Render forum tags -->
       {{#if this.tags.length}}
         <div class="forum-tags">
           {{#each this.tags}}
@@ -84,6 +79,7 @@
           {{/each}}
         </div>
       {{/if}}
+
       <div class="forum-buttons">
         <button class="vote-button upvote-button" data-id="{{this._id}}">
           <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{this.upVotes}}</span>
@@ -95,20 +91,20 @@
       </div>
     </div>
 
+    {{!-- If there’s a matching poll at the same index, render it: --}}
     {{#with (lookup ../pollPosts @index) as |poll|}}
       {{#if poll}}
-        <div class="poll-post-card">
-          <!-- Report option -->
+        <div class="poll-post-card" data-poll-id="{{poll._id}}">
           <div class="post-actions report-action">
             <button class="report-button" data-id="{{poll._id}}" title="Report">
               <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
             </button>
           </div>
-
           <h3 class="poll-question">{{poll.question}}</h3>
-          <p class="poll-created-by">Created by: {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}</p>
+          <p class="poll-created-by">
+            Created by: {{poll.createdBy.firstName}} {{poll.createdBy.lastName}}
+          </p>
 
-          <!-- Render poll tags -->
           {{#if poll.tags.length}}
             <div class="poll-tags">
               {{#each poll.tags}}
@@ -117,7 +113,6 @@
             </div>
           {{/if}}
 
-          <!-- Poll images -->
           {{#if poll.imageURLs.length}}
             <div class="poll-images">
               {{#each poll.imageURLs}}
@@ -128,11 +123,18 @@
 
           <ul class="poll-options-list">
             {{#each poll.options}}
-              <li>{{this.answer}} &ndash; {{this.voterId.length}} votes</li>
+              <li>
+                <form action="/polls/{{poll._id}}/vote" method="POST" class="option-vote-form">
+                  <input type="hidden" name="optionId" value="{{this._id}}" />
+                  <input type="hidden" name="userId" value="{{loggedUserId}}" />
+                  <button type="submit">
+                    {{this.answer}} &ndash; {{this.voterId.length}} votes
+                  </button>
+                </form>
+              </li>
             {{/each}}
           </ul>
 
-          <!-- Only comment button for polls -->
           <div class="poll-buttons">
             <button class="comment-button" data-id="{{poll._id}}">💬 Comment</button>
           </div>
@@ -143,17 +145,14 @@
 
   {{#each pollPosts}}
     {{#unless (lookup ../forumPosts @index)}}
-      <div class="poll-post-card">
-        <!-- Report option -->
+      <div class="poll-post-card" data-poll-id="{{this._id}}">
         <div class="post-actions report-action">
           <button class="report-button" data-id="{{this._id}}" title="Report">
             <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
           </button>
         </div>
-
         <h3 class="poll-question">{{this.question}}</h3>
 
-        <!-- Render poll tags -->
         {{#if this.tags.length}}
           <div class="poll-tags">
             {{#each this.tags}}
@@ -162,17 +161,31 @@
           </div>
         {{/if}}
 
+        {{#if this.imageURLs.length}}
+          <div class="poll-images">
+            {{#each this.imageURLs}}
+              <img src="{{this}}" alt="Poll Image" class="poll-image" />
+            {{/each}}
+          </div>
+        {{/if}}
+
         <ul class="poll-options-list">
           {{#each this.options}}
-            <li class="poll-option-item">
-              <span class="poll-option-text">{{this.answer}}</span>
-              <span class="poll-option-votes">{{this.voterId.length}}</span>
+            <li>
+              <form action="/polls/{{../_id}}/vote" method="POST" class="option-vote-form">
+                <input type="hidden" name="optionId" value="{{this._id}}" />
+                <input type="hidden" name="userId" value="{{loggedUserId}}" />
+                <button type="submit">
+                  {{this.answer}} &ndash; {{this.voterId.length}} votes
+                </button>
+              </form>
             </li>
           {{/each}}
         </ul>
-        <p class="poll-created-by">Created by: {{this.createdBy.firstName}}_{{this.createdBy.lastName}}</p>
 
-        <!-- Only comment button for polls -->
+        <p class="poll-created-by">
+          Created by: {{this.createdBy.firstName}} {{this.createdBy.lastName}}
+        </p>
         <div class="poll-buttons">
           <button class="comment-button" data-id="{{this._id}}">💬 Comment</button>
         </div>
@@ -181,15 +194,15 @@
   {{/each}}
 </div>
 
-<!-- REPORT MODAL -->
+{{!-- REPORT MODAL --}}
 <div id="reportModal" class="modal-overlay" style="display:none;">
   <div class="modal-card">
-    <h2>Report Content</h2>
+    <h2>Reason For Reporting : </h2>
     <form id="reportForm" action="/report" method="post">
       <input type="hidden" name="contentId" id="reportContentId" />
-      <input type="hidden" name="userId" value="{{loggedUserId}}" />
+      <input type="hidden" name="userId"  value="{{loggedUserId}}" />
 
-      <label for="reportReason">Reason:</label>
+      <label for="reportReason"></label>
       <textarea
         name="reason"
         id="reportReason"
@@ -209,5 +222,4 @@
 <script>
   const loggedInUserId = "{{loggedUserId}}";
 </script>
-
 <script src="/public/js/forumLanding.js"></script>

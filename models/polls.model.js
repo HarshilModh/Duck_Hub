@@ -12,6 +12,11 @@ const pollSchema = new mongoose.Schema(
     options: [
       {
         answer: { type: String, required: true, trim: true },
+        votes: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
         voterId: [
           { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
         ],

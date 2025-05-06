@@ -1,7 +1,8 @@
 import express from "express";
 import multer from "multer";
 import fs from "fs";
-import { createPoll } from "../data/pollController.js";
+import Poll from "../models/polls.model.js";
+import { createPoll, voteOnPoll } from "../data/pollController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import { userImage } from "../middlewares/cloudinary.js";
 
@@ -27,8 +28,16 @@ router
         for (const file of req.files) {
           const cloudinaryUrl = await userImage(file.path);
           imageURLs.push(cloudinaryUrl);
-          fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+          fs.unlinkSync(file.path);
         }
+      }
+
+      if (req.files && req.files.length > 5) {
+        req.session.toast = {
+          type: "error",
+          message: "You can upload a maximum of 5 images.",
+        };
+        return res.status(400).redirect("/polls");
       }
 
       if (!createdBy) {
@@ -61,5 +70,64 @@ router
       return res.status(500).json({ error: "Internal server error." });
     }
   });
+
+router.post("/:pollId/vote", isLoggedIn, async (req, res) => {
+  const { pollId } = req.params;
+  const { optionId } = req.body;
+  const { user } = req.session;
+  const userId = req.session.user.user._id;
+
+  if (!optionId) {
+    req.session.toast = {
+      type: "error",
+      message: "Please select an option to vote.",
+    };
+    return res.status(400).redirect("/forums");
+  }
+
+  const poll = await Poll.findById(pollId);
+  if (!poll) {
+    req.session.toast = {
+      type: "error",
+      message: "Poll not found.",
+    };
+    return res.status(404).redirect("/forums");
+  }
+
+  const prevOpt = poll.options.find((opt) =>
+    opt.voterId.some((id) => id.equals(userId))
+  );
+  const newOpt = poll.options.id(optionId);
+  if (!newOpt) {
+    req.session.toast = {
+      type: "error",
+      message: "Option not found.",
+    };
+    return res.status(404).redirect("/forums");
+  }
+
+  if (prevOpt && prevOpt._id.equals(newOpt._id)) {
+    req.session.toast = {
+      type: "error",
+      message: "You have already voted for this option.",
+    };
+    return res.status(400).redirect("/forums");
+  }
+
+  try {
+    const updatedPoll = await voteOnPoll(pollId, userId, optionId);
+    req.session.toast = {
+      type: "success",
+      message: "Your vote has been recorded successfully.",
+    };
+    return res.status(200).redirect("/forums");
+  } catch (err) {
+    req.session.toast = {
+      type: "error",
+      message: "Please try again:" + err.message,
+    };
+    return res.status(400).redirect("/forums");
+  }
+});
 
 export default router;
