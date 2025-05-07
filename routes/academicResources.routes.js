@@ -12,6 +12,7 @@ import {
   searchAcademicResourceFilterSort,
   upvoteAcademicResource,
 } from "../data/academicResourcesController.js";
+import AdminTags from "../models/preDefinedTags.model.js";
 
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import {
@@ -31,7 +32,6 @@ router.route("/").get(isLoggedIn, async (req, res) => {
   res.render("AcademicResourceLanding", {
     academicResources,
     loggedUserId,
-    layout: "dashboard",
     customStyles:
       '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
   });
@@ -41,12 +41,14 @@ router
   .route("/create")
   .get(isLoggedIn, async (req, res) => {
     try {
-      const tags = await getAllTags();
+      const tags = await AdminTags.find({}).lean();
       const loggedUserId = req.session.user?.user?._id || null;
+      const loggedUserType = req.session.user?.user?.role || null;
+      const isAdmin = loggedUserType === "admin";
       res.render("createAcademicResource", {
         tags,
         loggedUserId,
-        layout: "dashboard",
+        isAdmin,
         customStyles:
           '<link rel="stylesheet" href="/public/css/createAcademicResource.css">',
       });
