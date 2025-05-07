@@ -5,6 +5,7 @@ import {
   isValidString,
   isValidArray,
 } from "../utils/validation.utils.js";
+import Tags from "../models/tags.model.js";
 import AcademicResourceVotes from "../models/academicResourceVotes.model.js";
 import Reports from "../models/reports.model.js";
 
@@ -394,3 +395,36 @@ export const changeAcademicResourceStatus = async (
   academicResourceId,
   status
 ) => {};
+
+export const searchAcademicResourceFilterSort = async (
+  text = "",
+  sort = "createdAt",
+  order = "desc"
+) => {
+  const sortOption = { [sort]: order === "asc" ? 1 : -1 };
+  const trimmed = text.trim();
+  const regex = trimmed ? new RegExp(trimmed, "i") : null;
+
+  const AcademicResourceFilter = {};
+
+  let tagIds = [];
+  if (regex) {
+    const matchingTags = await Tags.find({ name: regex }).select("_id").lean();
+    tagIds = matchingTags.map((t) => t._id);
+
+    AcademicResourceFilter.$or = [
+      { title: regex },
+      { description: regex },
+      ...(tagIds.length ? [{ tags: { $in: tagIds } }] : []),
+    ];
+  }
+
+  let AcademicResources = [];
+
+  AcademicResources = await AcademicResource.find(AcademicResourceFilter)
+    .sort(sortOption)
+    .populate("uploadedBy tags", "firstName lastName name -_id")
+    .lean();
+
+  return AcademicResources;
+};

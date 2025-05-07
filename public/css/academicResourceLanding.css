@@ -5,6 +5,7 @@
     padding-left: 10rem;
     margin-bottom: 1rem;
     padding-top: 1rem;
+    padding-top: 80px;
   }
   
   .toggle-buttons button {
@@ -34,7 +35,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 80px;
   }
   
   .section-heading-bar h2 {
