@@ -9,6 +9,7 @@ import {
   getAcademicResourceByUserId,
   getAllAcademicResources,
   getReportedAcademicResources,
+  searchAcademicResourceFilterSort,
   upvoteAcademicResource,
 } from "../data/academicResourcesController.js";
 
@@ -80,12 +81,6 @@ router
     }
   });
 
-router.route("/:id").get(async (req, res) => {
-  const academicResourceId = req.params.id;
-  const academicResource = await getAcademicResourceById(academicResourceId);
-  return res.status(200).json(academicResource);
-});
-
 router.route("/user/:userId").get(async (req, res) => {
   const userId = req.params.userId;
   const academicResources = await getAcademicResourceByUserId(userId);
@@ -149,13 +144,39 @@ router.route("/:id").delete(async (req, res) => {
   return res.json(deletedResource);
 });
 
-router.route("/search").get(async (req, res) => {
-  const { keyword } = req.query;
+router.route("/search").get(isLoggedIn, async (req, res) => {
   try {
-    const filteredAcademicResources = await filterAcademicResources(keyword);
-    return res.status(200).json(filteredAcademicResources);
+    const { text = "", sort = "createdAt", order = "desc" } = req.query;
+    const academicResources = await searchAcademicResourceFilterSort(
+      text,
+      sort,
+      order
+    );
+
+    if (academicResources.length === 0) {
+      req.session.toast = {
+        type: "error",
+        message:
+          "The given search did not return any results. Please try again with a different keyword.",
+      };
+      return res.redirect("/academicResources");
+    }
+    return res.render("academicResourceLanding", {
+      academicResources,
+      text,
+      sort,
+      order,
+      loggedInUserId: req.session.user?.user?._id ?? null,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
+    });
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    // Search error
+    req.session.toast = {
+      type: "error",
+      message: "Failed to search Academic Resources. Please try again.",
+    };
+    return res.redirect("/academicResources");
   }
 });
 
@@ -166,6 +187,12 @@ router.route("/reported").get(async (req, res) => {
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
+});
+
+router.route("/:id").get(async (req, res) => {
+  const academicResourceId = req.params.id;
+  const academicResource = await getAcademicResourceById(academicResourceId);
+  return res.status(200).json(academicResource);
 });
 
 export default router;
