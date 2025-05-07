@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "./user.model.js";
+import Reports from "./reports.model.js";
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -59,7 +60,7 @@ const reviewSchema = new mongoose.Schema(
     reports: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "--FILL_HERE--", // TODO: Add report schema name here. // TASK FOR: Unknown
+        ref: Reports.modelName,
       },
     ],
   },

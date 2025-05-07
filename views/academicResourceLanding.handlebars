@@ -1,75 +1,64 @@
-{{!-- fix styling --}}
-<div class="forum-header-bar">
-  <form id="searchForm" action="/academicResources/search" method="get" class="controls-form">
-    <!-- SEARCH WRAPPER -->
-    <div class="search-wrapper">
-      <div class="search-section">
-        <input
-          name="text"
-          id="searchInput"
-          placeholder="Search Academic Resources..."
-          value="{{text}}"
-        />
-        <button type="submit" class="search-button">🔍</button>
-      </div>
-    </div>
-
-    <!-- SORT WRAPPER -->
-    <div class="sort-wrapper">
-      <div class="sort-section">
-        <label for="sortSelect">Sort by:</label>
-        <select name="sort" id="sortSelect">
-          <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Latest</option>
-          <option value="upVotes"   {{#if (eq sort "upVotes")}}selected{{/if}}>Most UpVoted</option>
-          <option value="downVotes" {{#if (eq sort "downVotes")}}selected{{/if}}>Most DownVoted</option>
-        </select>
-        <select name="order" id="orderSelect">
-          <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
-          <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
-        </select>
-      </div>
-    </div>
-  </form>
-</div>
-
 <div class="section-heading-bar">
   <h2 id="sectionHeading">Academic Resources</h2>
-  <a href="/academicResources/create" class="create-post-button">Create Academic Resource</a>
+  <a href="/academicResources/create" class="create-post-button">
+    Create Academic Resource
+  </a>
 </div>
 
 <div class="forum-posts-list">
   {{#each academicResources}}
     <div class="forum-post-card">
-
+      <!-- Report icon -->
       <div class="post-actions report-action">
         <button class="report-button" data-id="{{this._id}}" title="Report">
-          <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
+          <img
+            src="/public/images/icons/exclamation-mark.png"
+            alt="Report Icon"
+            class="action-icon"
+          />
         </button>
       </div>
 
-      <h3 class="forum-title">{{title}}</h3>
-
+      <!-- Resource info -->
+      <h3 class="forum-title">{{this.title}}</h3>
       <p class="forum-posted-by">
         Posted by:
-        {{uploadedBy.firstName}} {{uploadedBy.lastName}}
+        {{this.uploadedBy.firstName}}
+        {{this.uploadedBy.lastName}}
       </p>
+      <p class="forum-content">{{this.description}}</p>
+      <a
+        class="forum-content"
+        href="{{this.url}}"
+        target="_blank"
+        rel="noopener"
+      >
+        {{this.url}}
+      </a>
 
-      <p class="forum-content">{{description}}</p>
-
-      <a class="forum-content" href={{url}}>{{url}}</a>
-
-      {{#each tags}}
-        <p class="forum-content">{{this.name}}</p>
-      {{/each}}
-
-      <div class="forum-buttons">
-        <button class="vote-button upvote-button" data-id="{{this._id}}">
-          <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon" /><span>{{this.upVotes}}</span>
+      <!-- Upvote / Downvote -->
+      <div class="vote-container">
+        <button class="upvote-button" data-id="{{this._id}}">
+          <img
+            src="/public/images/icons/upVote.png"
+            alt="Upvote"
+            class="vote-icon"
+          /><span>{{this.upVotes}}</span>
         </button>
-        <button class="vote-button downvote-button" data-id="{{this._id}}">
-          <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon" /><span>{{this.downVotes}}</span>
+        <button class="downvote-button" data-id="{{this._id}}">
+          <img
+            src="/public/images/icons/downVote.png"
+            alt="Downvote"
+            class="vote-icon"
+          /><span>{{this.downVotes}}</span>
         </button>
-        <button class="vote-button delete-button" data-id="{{_id}}">Delete</button>
+      </div>
+
+      <!-- Tags list -->
+      <div class="tags">
+        {{#each this.tags}}
+          <span class="tag">{{this.name}}</span>
+        {{/each}}
       </div>
     </div>
   {{/each}}
@@ -98,7 +87,7 @@
       </div>
     </form>
   </div>
-</div>      
+</div>
 
 <script>
   const loggedInUserId = "{{loggedUserId}}";
