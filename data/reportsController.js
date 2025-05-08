@@ -103,7 +103,6 @@ export const getReportById = async (reportId) => {
   return reports;
 };
 
-<<<<<<< Updated upstream
 export const resolveApprovedReport = async (reportId) => {
   try {
     const report = await Reports.findByIdAndUpdate(reportId, {
@@ -167,8 +166,6 @@ export const resolveDisapprovedReport = async (reportId) => {
   }
 };
 
-=======
->>>>>>> Stashed changes
 export const updateReportStatus = async (reportId, status) => {
   reportId = isValidID(reportId, "Report ID");
   updatedReports = await Reports.findByIdAndUpdate(reportId, {
