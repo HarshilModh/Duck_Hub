@@ -1,15 +1,8 @@
 import mongoose from "mongoose";
-
+import User from "./user.model.js";
+import AdminTags from "./preDefinedTags.model.js";
 const academicResourcesSchema = new mongoose.Schema(
   {
-    /*
-    _id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      trim: true,
-    },
-    */
     title: {
       type: String,
       required: true,
@@ -29,24 +22,14 @@ const academicResourcesSchema = new mongoose.Schema(
     },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: User.modelName,
       required: true,
       trim: true,
     },
-    /*
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
-    */
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Tags",
+        ref: AdminTags.modelName,
       },
     ],
     upVotes: {
@@ -61,7 +44,7 @@ const academicResourcesSchema = new mongoose.Schema(
     },
     reportedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: User.modelName,
       trim: true,
     },
     status: {

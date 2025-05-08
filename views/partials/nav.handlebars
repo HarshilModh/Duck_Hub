@@ -1,4 +1,4 @@
-{{!-- views/partials/navbar.handlebars --}}
+{{! views/partials/navbar.handlebars }}
 
 <nav class="bg-stevensWhite border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
@@ -13,74 +13,162 @@
       <ul class="flex space-x-6 text-gray-700 items-center">
         {{#if user}}
           {{#if (eq user.role "admin")}}
-            <li><a href="/forums/"                  class="hover:text-stevensMaroon">Forums</a></li>
-            <li><a href="/departments"              class="hover:text-stevensMaroon">Departments</a></li>
-            <li><a href="/courses"                  class="hover:text-stevensMaroon">Courses</a></li>
-            <li><a href="/users/adminDashboard"     class="hover:text-stevensMaroon">Users</a></li>
-            <li><a href="/userSideCampusResources/categories" class="hover:text-stevensMaroon">Campus Resources</a></li>
-            <li><a href="/academicResources" class="hover:text-stevensMaroon">Academic Resources</a></li>
-            <li><a href="/announcements/add"            class="hover:text-stevensMaroon">Announcements</a></li>
+            <li><a
+                href="/forums/"
+                class="hover:text-stevensMaroon"
+              >Forums</a></li>
+            <li><a
+                href="/departments"
+                class="hover:text-stevensMaroon"
+              >Departments</a></li>
+            <li><a
+                href="/courses"
+                class="hover:text-stevensMaroon"
+              >Courses</a></li>
+            <li><a
+                href="/users/adminDashboard"
+                class="hover:text-stevensMaroon"
+              >Users</a></li>
+            <li><a
+                href="/userSideCampusResources/categories"
+                class="hover:text-stevensMaroon"
+              >Campus Resources</a></li>
+            <li><a
+                href="/academicResources"
+                class="hover:text-stevensMaroon"
+              >Academic Resources</a></li>
+            <li><a
+                href="/announcements/add"
+                class="hover:text-stevensMaroon"
+              >Announcements</a></li>
+            <li><a
+                href="/reports/view"
+                class="hover:text-stevensMaroon"
+              >Reports</a></li>
           {{else}}
-            <li><a href="/forums"                  class="hover:text-stevensMaroon">Forums</a></li>
-            <li><a href="/forums/user/{{user._id}}" class="hover:text-stevensMaroon">My Forums</a></li>
-            <li><a href="/departments/userSideDepartment"              class="hover:text-stevensMaroon">Departments</a></li>
-            <li><a href="/userSideCourses"          class="hover:text-stevensMaroon">Courses</a></li>
-            <li><a href="/userSideCampusResources/categories" class="hover:text-stevensMaroon">Campus Resources</a></li>
-           <li><a href="/academicResources" class="hover:text-stevensMaroon">Academic Resources</a></li>
-            <li><a href="/userSideCourses/myReviews" class="hover:text-stevensMaroon">My Reviews</a></li>
-            <li><a href="/users/missingRequest"     class="hover:text-stevensMaroon">Requests</a></li>
-            
+            <li><a
+                href="/forums"
+                class="hover:text-stevensMaroon"
+              >Forums</a></li>
+            <li><a
+                href="/forums/user/{{user._id}}"
+                class="hover:text-stevensMaroon"
+              >My Forums</a></li>
+            <li><a
+                href="/departments/userSideDepartment"
+                class="hover:text-stevensMaroon"
+              >Departments</a></li>
+            <li><a
+                href="/userSideCourses"
+                class="hover:text-stevensMaroon"
+              >Courses</a></li>
+            <li><a
+                href="/userSideCampusResources/categories"
+                class="hover:text-stevensMaroon"
+              >Campus Resources</a></li>
+            <li><a
+                href="/academicResources"
+                class="hover:text-stevensMaroon"
+              >Academic Resources</a></li>
+            <li><a
+                href="/userSideCourses/myReviews"
+                class="hover:text-stevensMaroon"
+              >My Reviews</a></li>
+            <li><a
+                href="/users/missingRequest"
+                class="hover:text-stevensMaroon"
+              >Requests</a></li>
+
           {{/if}}
         {{else}}
-          <li><a href="/users/login"  class="hover:text-stevensMaroon">Login</a></li>
+          <li><a
+              href="/users/login"
+              class="hover:text-stevensMaroon"
+            >Login</a></li>
           <li><a href="/users/signup" class="hover:text-stevensMaroon">Sign Up</a></li>
         {{/if}}
       </ul>
       {{#if user}}
-    <a href="/announcements"            class="hover:text-stevensMaroon flex items-center">
-              <!-- Bell Icon -->
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   class="h-6 w-6"
-                   fill="none"
-                   viewBox="0 0 24 24"
-                   stroke="currentColor">
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0
+        <a
+          href="/announcements"
+          class="hover:text-stevensMaroon flex items-center"
+        >
+          <!-- Bell Icon -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0
                          0118 14.158V11a6.002 6.002 0
                          00-4-5.659V5a2 2 0 10-4 0v.341C7.67
                          6.165 6 8.388 6 11v3.159c0
                          .538-.214 1.055-.595
                          1.436L4 17h5m6 0v1a3 3 0
-                         11-6 0v-1m6 0H9"/>
-              </svg>
-            </a>
-            {{/if}}
+                         11-6 0v-1m6 0H9"
+            />
+          </svg>
+        </a>
+      {{/if}}
       <!-- Profile Dropdown -->
       {{#if user}}
         <div class="relative group">
           <button class="flex items-center space-x-2 focus:outline-none">
             {{#if user.profileImage}}
-              <img src="{{user.profileImage}}" alt="Avatar" class="h-8 w-8 rounded-full object-cover" />
+              <img
+                src="{{user.profileImage}}"
+                alt="Avatar"
+                class="h-8 w-8 rounded-full object-cover"
+              />
             {{else}}
-              <span class="h-8 w-8 rounded-full bg-stevensGray flex items-center justify-center text-white">
+              <span
+                class="h-8 w-8 rounded-full bg-stevensGray flex items-center justify-center text-white"
+              >
                 {{user.firstName.[0]}}{{user.lastName.[0]}}
               </span>
             {{/if}}
             <span class="text-gray-700">{{user.firstName}}</span>
-            <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 9l-7 7-7-7"/>
+            <svg
+              class="h-4 w-4 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </button>
-          <ul class="absolute right-0 mt-2 w-36 bg-white border rounded shadow opacity-0 group-hover:opacity-100 transition-opacity">
-            <li><a href="/users/userProfile" class="block px-4 py-2 hover:bg-stevensBg">Profile</a></li>
-            <li><a href="/users/logout"      class="block px-4 py-2 hover:bg-stevensBg">Logout</a></li>
+          <ul
+            class="absolute right-0 mt-2 w-36 bg-white border rounded shadow opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <li><a
+                href="/users/userProfile"
+                class="block px-4 py-2 hover:bg-stevensBg"
+              >Profile</a></li>
+            <li><a
+                href="/users/logout"
+                class="block px-4 py-2 hover:bg-stevensBg"
+              >Logout</a></li>
             {{#if (eq user.role "admin")}}
-              <li><a href="/users/missingRequestDashboard" class="block px-4 py-2 hover:bg-stevensBg">Requests</a></li>
+              <li><a
+                  href="/users/missingRequestDashboard"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >Requests</a></li>
             {{else}}
-              <li><a href="/users/missingRequestuser" class="block px-4 py-2 hover:bg-stevensBg">My Requests</a></li>
+              <li><a
+                  href="/users/missingRequestuser"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >My Requests</a></li>
             {{/if}}
           </ul>
         </div>

@@ -6,6 +6,8 @@ import Reports from "../models/reports.model.js";
 import Poll from "../models/polls.model.js";
 import Review from "../models/courseReviews.model.js";
 import AcademicResource from "../models/academicResources.model.js";
+import xss from "xss";
+import { isValidID } from "../utils/validation.utils.js";
 
 const router = express.Router();
 
@@ -13,7 +15,6 @@ router
   .route("/")
   .get(isLoggedIn, async (req, res) => {
     try {
-      const reports = await getAllReports();
       const loggedUserId = req.session.user?.user?._id || null;
       res.render("reportLanding", {
         reports,
@@ -29,13 +30,25 @@ router
   })
   .post(isLoggedIn, async (req, res) => {
     try {
-      const { contentId, userId, reason } = req.body;
-      let forumId,
-        pollId,
-        reviewId,
-        academicResourceId = null;
+      let contentId = xss(req.body.contentId);
+      let userId = xss(req.body.userId);
+      let reason = xss(req.body.reason);
+      let forumId =  null;
+      let pollId = null;
+      let reviewId = null;  
+      let academicResourceId = null;
       let reportType = null;
 
+      try {
+        userId = isValidID(userId, "userId");
+        contentId = isValidID(contentId, "contentId");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/forums");
+      }
       if (!reason || typeof reason !== "string" || reason.trim() === "") {
         req.session.toast = {
           type: "error",
@@ -44,22 +57,56 @@ router
         return res.status(400).redirect("/forums");
       }
 
-      const existingReport = await Reports.findOne({
-        reportedBy: userId,
-        $or: [
-          { forumId: contentId },
-          { pollId: contentId },
-          { reviewId: contentId },
-          { academicResourceId: contentId },
-        ],
+      const existingForumReport = await Reports.findOne({
+        reportedBy: userId, 
+          forumId: contentId 
       }).exec();
 
-      if (existingReport) {
+      if (existingForumReport) {
         req.session.toast = {
           type: "error",
-          message: "You have already reported this content.",
+          message: "You have already reported this Forum.",
         };
         return res.status(400).redirect("/forums");
+      }
+
+      const existingPollReport = await Reports.findOne({
+        reportedBy: userId, 
+          pollId: contentId 
+      }).exec();
+
+      if (existingPollReport) {
+        req.session.toast = {
+          type: "error",
+          message: "You have already reported this Poll.",
+        };
+        return res.status(400).redirect("/forums");
+      }
+
+      const existingReviewReport = await Reports.findOne({
+        reportedBy: userId, 
+          reviewId: contentId 
+      }).exec();
+
+      if (existingReviewReport) {
+        req.session.toast = {
+          type: "error",
+          message: "You have already reported this Review.",
+        };
+        return res.status(400).redirect("/forums");
+      }
+
+      const existingResourceReport = await Reports.findOne({
+        reportedBy: userId, 
+          academicResourceId: contentId 
+      }).exec();
+
+      if (existingResourceReport) {
+        req.session.toast = {
+          type: "error",
+          message: "You have already reported this Resource.",
+        };
+        return res.status(400).redirect("/academicResources");
       }
 
       const isForum = await Forum.exists({ _id: contentId });
@@ -67,24 +114,39 @@ router
       const isReview = await Review.exists({ _id: contentId });
       const isResource = await AcademicResource.exists({ _id: contentId });
       if (isForum) {
+        await Forum.findByIdAndUpdate(contentId, {
+          $push: { reportedBy: userId },
+        });
         reportType = "Forum";
         forumId = contentId;
-      }
-      if (isPoll) {
+      } else if (isPoll) {
+        await Poll.findByIdAndUpdate(contentId, {
+          $push: { reportedBy: userId },
+        });
         reportType = "Poll";
         pollId = contentId;
-      }
-      if (isReview) {
+      } else if (isReview) {
+        await Review.findByIdAndUpdate(contentId, {
+          $push: { reports: userId },
+        });
         reportType = "Review";
         reviewId = contentId;
-      }
-      if (isResource) {
+      } else if (isResource) {
+        await AcademicResource.findByIdAndUpdate(contentId, {
+          $push: { reportedBy: userId },
+        });
         reportType = "AcademicResource";
         academicResourceId = contentId;
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "Content not found.",
+        };
+        return res.status(404).redirect("/forums");
       }
 
       try {
-        const report = createReport(
+        const report = await createReport(
           forumId,
           pollId,
           reviewId,
@@ -114,7 +176,11 @@ router
         return res.status(500).redirect("/forums");
       }
     } catch (e) {
-      return res.status(500).json({ error: e.message });
+      req.session.toast = {
+        type: "error",
+        message: "Internal server error:" + e.message,
+      };
+      return res.status(500).redirect("/forums");
     }
   });
 
