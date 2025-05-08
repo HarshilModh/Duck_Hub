@@ -1,6 +1,7 @@
 import Poll from "../models/polls.model.js";
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
+import Reports from "../models/reports.model.js";
 import {
   isValidArray,
   isValidString,
@@ -82,3 +83,32 @@ export async function voteOnPoll(pollId, userId, optionId) {
   await poll.save();
   return poll;
 }
+
+export const reportPoll = async (pollId, userId) => {
+  pollId = isValidID(pollId, "PollID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let existingReport = await Reports.findOne({
+      pollId: pollId,
+      reportedBy: userId,
+    });
+
+    if (existingReport) {
+      throw new Error("You can't report a poll more than once !");
+    }
+
+    let poll = Poll.findByIdAndUpdate(pollId, {
+      $set: { status: "reported" },
+      $push: { reportedBy: userId },
+    });
+
+    if (!poll) {
+      throw new Error("Poll not found");
+    }
+
+    return poll;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};

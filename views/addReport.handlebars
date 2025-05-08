@@ -7,7 +7,7 @@
       Report {{reportedContentType}}
     </h2>
 
-    <form action="/report" method="POST" class="space-y-6">
+    <form action="/report/{{reportedContentType}}" method="POST" class="space-y-6">
       <!-- Hidden identifiers -->
       <input type="hidden" name="reportedContentId" value="{{reportedContentId}}">
       <input type="hidden" name="reportedContentType" value="{{reportedContentType}}">

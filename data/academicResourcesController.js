@@ -141,8 +141,22 @@ export const deleteAcacdemicResourceById = async (id) => {
     const deletedAcademicResource = await AcademicResource.findByIdAndDelete(
       validId
     );
+
     if (!deletedAcademicResource) {
       throw new Error("Academic Resource post not found");
+    }
+
+    const academicResourceVotes = await AcademicResourceVotes.find({
+      academicResourceId: id,
+    });
+
+    if (academicResourceVotes) {
+      const deleteAcacdemicResourceVotes =
+        await AcademicResourceVotes.deleteMany({ academicResourceId: id });
+
+      if (!deleteAcacdemicResourceVotes) {
+        throw new Error("Could not delete votes!");
+      }
     }
 
     return {
@@ -348,7 +362,7 @@ export const reportAcademicResource = async (academicResourceId, userId) => {
 
     let academicResource = AcademicResource.findByIdAndUpdate(
       academicResourceId,
-      { $set: { reportedBy: userId, status: "reported" } }
+      { $set: { status: "reported" }, $push: { reportedBy: userId } }
     );
 
     if (!academicResource) {

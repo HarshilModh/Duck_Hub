@@ -354,7 +354,8 @@ export const reportForumPost = async (forumId, userId) => {
     }
 
     let forum = Forum.findByIdAndUpdate(forumId, {
-      $set: { reportedBy: userId, status: "reported" },
+      $set: { status: "reported" },
+      $push: { reportedBy: userId },
     });
 
     if (!forumId) {

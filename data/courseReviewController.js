@@ -10,6 +10,7 @@ import {
 } from "../utils/validation.utils.js";
 import Review from "../models/courseReviews.model.js";
 import ReviewVotes from "../models/reviewVotes.model.js";
+import Reports from "../models/reports.model.js";
 
 //Create a new course review
 export const createCourseReview = async (
@@ -20,7 +21,6 @@ export const createCourseReview = async (
   overallRating,
   isAnonymous
 ) => {
-
   try {
     if (!userId) {
       throw new Error("UserID is required");
@@ -69,18 +69,17 @@ export const createCourseReview = async (
       if (!validNumberStringRegex.test(difficultyRating)) {
         throw new Error("Difficulty Rating must be a number");
       }
-      
+
       difficultyRating = Number(difficultyRating);
     } else if (typeof difficultyRating === "number") {
       difficultyRating = difficultyRating;
-    } 
-    else {
+    } else {
       throw new Error("Difficulty Rating must be a number");
     }
     if (typeof difficultyRating !== "number") {
       throw new Error("Difficulty Rating must be a number");
     }
-    
+
     difficultyRating = isValidNumber(difficultyRating, "Difficulty Rating");
     if (difficultyRating < 1 || difficultyRating > 3) {
       throw new Error("Difficulty Rating must be between 1 & 3");
@@ -121,9 +120,7 @@ export const createCourseReview = async (
       isAnonymous: Boolean(isAnonymous),
     });
 
-    const savedReview = await Review.create(
-      newReview
-    );
+    const savedReview = await Review.create(newReview);
     if (!savedReview || !savedReview._id) {
       throw new Error("Could not create a review");
     }
@@ -141,8 +138,7 @@ export const createCourseReview = async (
     console.log("Updated Ratings: ", updatedRatings);
 
     console.log("averageRating: ", updatedRatings.updatedaverageRating);
-    
-    
+
     // Need to update the course with the new ratings and add the newly created reviewId in the course
     let reviews = course.reviews;
     if (!reviews) {
@@ -200,24 +196,26 @@ export const getCourseReviewById = async (reviewId) => {
   }
 };
 //Update a course review by ID
-export const updateCourseReviewById = async (reviewId, difficultyRating,overallRating, review) => {
+export const updateCourseReviewById = async (
+  reviewId,
+  difficultyRating,
+  overallRating,
+  review
+) => {
   try {
- 
-    
-    
-    if(!reviewId) {
+    if (!reviewId) {
       throw new Error("Review ID is required");
     }
-    if(!overallRating) {
+    if (!overallRating) {
       throw new Error("Overall Rating is required");
     }
-    if(!difficultyRating) {
+    if (!difficultyRating) {
       throw new Error("Difficulty Rating is required");
     }
-    if(!review) {
+    if (!review) {
       throw new Error("Review is required");
     }
-    if(mongoose.isValidObjectId(reviewId) === false) {
+    if (mongoose.isValidObjectId(reviewId) === false) {
       throw new Error("Invalid Review ID");
     }
     const validNumberStringRegex = /^[0-9]$/;
@@ -243,7 +241,7 @@ export const updateCourseReviewById = async (reviewId, difficultyRating,overallR
       if (!validNumberStringRegex.test(overallRating)) {
         throw new Error("Overall Rating must be a number");
       }
-      overallRating = Number(overallRating);  
+      overallRating = Number(overallRating);
     } else if (typeof overallRating === "number") {
       overallRating = overallRating;
     } else {
@@ -272,7 +270,7 @@ export const updateCourseReviewById = async (reviewId, difficultyRating,overallR
         "This review has been removed by the admin since it goes against the guidelines"
       );
     }
-     reviewToUpdate = await Review.findByIdAndUpdate(
+    reviewToUpdate = await Review.findByIdAndUpdate(
       reviewId,
       {
         overallRating,
@@ -322,7 +320,7 @@ export const updateCourseReviewById = async (reviewId, difficultyRating,overallR
   } catch (error) {
     throw new Error(error.message);
   }
-}
+};
 //Delete a course review by ID
 export const deleteCourseReviewById = async (reviewId) => {
   try {
@@ -333,7 +331,7 @@ export const deleteCourseReviewById = async (reviewId) => {
 
     let deletedReview = await Review.findByIdAndDelete(reviewId);
     console.log("Deleted Review: ", deletedReview);
-    
+
     if (!deletedReview) {
       throw new Error("Review not found");
     }
@@ -343,7 +341,7 @@ export const deleteCourseReviewById = async (reviewId) => {
       courseId: deletedReview.courseId,
     });
     console.log("Total Reviews: ", totalReviews);
-    
+
     if (totalReviews === 0) {
       //set course ratings to 0 and empty reviews
       await Course.findByIdAndUpdate(deletedReview.courseId, {
@@ -352,8 +350,7 @@ export const deleteCourseReviewById = async (reviewId) => {
         reviews: [],
       });
       return { message: "Review deleted successfully", deletedReview };
-    }
-    else{
+    } else {
       //Need to update the logic to calculate the overall ratings here only
       let course = await Course.findById(deletedReview.courseId);
       if (!course) {
@@ -394,7 +391,7 @@ export const deleteCourseReviewById = async (reviewId) => {
       if (!updatedCourse) {
         throw new Error("Could not update the course with the new ratings");
       }
-      return  deletedReview ;
+      return deletedReview;
     }
   } catch (error) {
     throw new Error(`Error deleting the review: ${error.message}`);
@@ -407,17 +404,16 @@ export const getCourseReviewsByCourseId = async (courseId) => {
     let reviews = await Review.find({ courseId: courseId })
       .populate("userId", "firstName lastName")
       .sort({ createdAt: -1 });
-      //if userId is not present in the reviews, then don't populate it with userId
-   
-    if (!reviews ) {
+    //if userId is not present in the reviews, then don't populate it with userId
+
+    if (!reviews) {
       throw new Error("No reviews found for the given course");
     }
     if (reviews.length === 0) {
       reviews = [];
     }
     return reviews;
-  }
-  catch (error) {
+  } catch (error) {
     throw new Error(error.message);
   }
 };
@@ -429,8 +425,9 @@ export const getCourseReviewsByUserId = async (userId) => {
     const reviews = await Review.find({ userId: userId })
       .populate("courseId", "courseCode courseName")
       .populate("userId", "firstName lastName")
-      .sort({ createdAt: -1 }).lean();
-    if (!reviews ) {
+      .sort({ createdAt: -1 })
+      .lean();
+    if (!reviews) {
       throw new Error("Sorry, you did not post any reviews");
     }
     return reviews;
@@ -700,14 +697,43 @@ export const downVoteReview = async (reviewId, userId) => {
 export const getReviewById = async (reviewId) => {
   try {
     reviewId = isValidID(reviewId, "Review ID");
-    const review = await Review.findById(reviewId).populate(
-      "userId",
-      "firstName lastName"
-    ).populate("courseId", "courseCode courseName").lean();
-    
+    const review = await Review.findById(reviewId)
+      .populate("userId", "firstName lastName")
+      .populate("courseId", "courseCode courseName")
+      .lean();
+
     if (!review) {
       throw new Error("Review not found");
     }
+    return review;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const reportReview = async (reviewId, userId) => {
+  reviewId = isValidID(reviewId, "ReviewID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let existingReport = await Reports.findOne({
+      reviewId: reviewId,
+      reportedBy: userId,
+    });
+
+    if (existingReport) {
+      throw new Error("You can't report a review more than once !");
+    }
+
+    let review = Review.findByIdAndUpdate(reviewId, {
+      $set: { status: "reported" },
+      $push: { reportedBy: userId },
+    });
+
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
     return review;
   } catch (error) {
     throw new Error(error.message);

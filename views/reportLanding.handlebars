@@ -13,6 +13,15 @@
                 {{reportedBy.firstName}} {{reportedBy.lastName}}
             </p>
             <p class="forum-content">{{reason}}</p>
+            <form>
+                <select id="decision" name="decision">
+                    <option value="approve">Approve</option>
+                    <option value="disapprove">Disapprove</option>
+                </select>
+                <button type="submit" class="submit-post-button">
+                    Submit Decision
+                </button>
+            </form>
         </div>
     {{/each}}
 </div>

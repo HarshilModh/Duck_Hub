@@ -5,7 +5,9 @@ import {
   reportTypeValidation,
 } from "../utils/validation.utils.js";
 import { reportAcademicResource } from "./academicResourcesController.js";
+import { reportReview } from "./courseReviewController.js";
 import { reportForumPost } from "./forumsController.js";
+import { reportPoll } from "./pollController.js";
 export const createReport = async (
   forumId,
   pollId,
@@ -25,14 +27,6 @@ export const createReport = async (
   try {
     let forumUpdate;
     let academicResourceUpdate;
-    if (type === "Forum") {
-      forumUpdate = await reportForumPost(forumId, userId);
-    } else if (type === "Academic Resource") {
-      academicResourceUpdate = await reportAcademicResource(
-        academicResourceId,
-        userId
-      );
-    }
 
     if (forumUpdate && academicResourceUpdate) {
       throw new Error("Could not update content!");
@@ -97,6 +91,45 @@ export const getReportById = async (reportId) => {
   }
   return reports;
 };
+
+export const resolveApprovedReport = async (reportId) => {
+  try {
+    report = await Reports.findByIdAndUpdate(reportId, {
+      $set: { status: "resolved" },
+    });
+    if (!report) {
+      throw new Error("Report with that ID does not exist");
+    }
+    if (report.type === "Forum") {
+      forumUpdate = await reportForumPost(report.forumId, report.reportedBy);
+      if (!forumUpdate) {
+        throw new Error("Forum report could not be updated");
+      }
+    } else if (report.type === "Academic Resource") {
+      academicResourceUpdate = await reportAcademicResource(
+        report.academicResourceId,
+        report.reportedBy
+      );
+      if (!academicResourceUpdate) {
+        throw new Error("Academic Resource report could not be updated");
+      }
+    } else if (report.type === "Review") {
+      reviewUpdate = await reportReview(report.reviewId, report.reportedBy);
+      if (!reviewUpdate) {
+        throw new Error("Review report could not be updated");
+      }
+    } else if (report.type === "Poll") {
+      pollUpdate = await reportPoll(report.pollId, report.reportedBy);
+      if (!reviewUpdate) {
+        throw new Error("Poll report could not be updated");
+      }
+    }
+    return report;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export const updateReportStatus = async (reportId, status) => {
   reportId = isValidID(reportId, "Report ID");
   updatedReports = await Reports.findByIdAndUpdate(reportId, {
