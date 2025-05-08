@@ -89,15 +89,6 @@ export const reportPoll = async (pollId, userId) => {
   userId = isValidID(userId, "UserID");
 
   try {
-    let existingReport = await Reports.findOne({
-      pollId: pollId,
-      reportedBy: userId,
-    });
-
-    if (existingReport) {
-      throw new Error("You can't report a poll more than once !");
-    }
-
     let poll = Poll.findByIdAndUpdate(pollId, {
       $set: { status: "reported" },
       $push: { reportedBy: userId },

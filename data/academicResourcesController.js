@@ -351,15 +351,6 @@ export const reportAcademicResource = async (academicResourceId, userId) => {
   userId = isValidID(userId, "UserID");
 
   try {
-    let existingReport = await Reports.findOne({
-      academicResourceId: academicResourceId,
-      reportedBy: userId,
-    });
-
-    if (existingReport) {
-      throw new Error("You can't report a academic resource more than once !");
-    }
-
     let academicResource = AcademicResource.findByIdAndUpdate(
       academicResourceId,
       { $set: { status: "reported" }, $push: { reportedBy: userId } }
