@@ -4,21 +4,21 @@ import fs from "fs";
 import Poll from "../models/polls.model.js";
 import { createPoll, voteOnPoll } from "../data/pollController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
-import { userImage } from "../middlewares/cloudinary.js";
+import { userImage, uploadImagesGuard } from "../middlewares/cloudinary.js";
 
 const router = express.Router();
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+// const uploadDir = "uploads";
+// if (!fs.existsSync(uploadDir)) {
+//   fs.mkdirSync(uploadDir);
+// }
 
-// Setup multer for temp file storage
-const upload = multer({ dest: "uploads/" });
+// // Setup multer for temp file storage
+// const upload = multer({ dest: "uploads/" });
 
 router
   .route("/")
-  .post(isLoggedIn, upload.array("images", 5), async (req, res) => {
+  .post(isLoggedIn, uploadImagesGuard, async (req, res) => {
     try {
       const { question, options, tags, createdBy } = req.body;
 
@@ -32,13 +32,13 @@ router
         }
       }
 
-      if (req.files && req.files.length > 5) {
-        req.session.toast = {
-          type: "error",
-          message: "You can upload a maximum of 5 images.",
-        };
-        return res.status(400).redirect("/polls");
-      }
+      // if (req.files && req.files.length > 5) {
+      //   req.session.toast = {
+      //     type: "error",
+      //     message: "You can upload a maximum of 5 images.",
+      //   };
+      //   return res.status(400).redirect("/polls");
+      // }
 
       if (!createdBy) {
         return res.status(401).json({ error: "Authentication required." });

@@ -84,8 +84,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Something went wrong.");
+        const contentType = response.headers.get("Content-Type") || "";
+        let payload;
+        if (contentType.includes("application/json")) {
+          payload = await response.json();
+          throw new Error(payload.error || JSON.stringify(payload));
+        } else {
+          const text = await response.text();
+          throw new Error(text);
+        }
       }
       alert("Forum post created successfully!");
       window.location.href = "/forums";
@@ -119,16 +126,26 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const formData = new FormData(pollForm);
     try {
-      const res = await fetch("/polls", { method: "POST", body: formData });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to create poll");
+      const response = await fetch("/polls", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        const contentType = response.headers.get("Content-Type") || "";
+        let payload;
+        if (contentType.includes("application/json")) {
+          payload = await response.json();
+          throw new Error(payload.error || JSON.stringify(payload));
+        } else {
+          const text = await response.text();
+          throw new Error(text);
+        }
       }
-      alert("Poll created!");
       window.location.href = "/forums";
     } catch (err) {
       console.error("Error submitting poll:", err);
-      alert(err.message);
+      alert(err.message || "Failed to create poll.");
     }
   });
 });

@@ -1,9 +1,10 @@
 import express from "express";
 import multer from "multer";
+import xss from "xss";
 import fs from "fs";
 import Forum from "../models/forums.model.js";
 import ForumVotes from "../models/forumVotes.model.js";
-import { userImage } from "../middlewares/cloudinary.js";
+import { userImage, uploadImagesGuard} from "../middlewares/cloudinary.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Tags from "../models/tags.model.js";
 import Poll from "../models/polls.model.js";
@@ -38,21 +39,35 @@ import {
   deleteCommentById,
 } from "../data/forumsCommentsController.js";
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-// Setup multer for temp file storage
-const upload = multer({ dest: "uploads/" });
-
 //TODO: Implement Router Checks
 router
   .route("/")
-  .post(isLoggedIn, upload.array("images", 5), async (req, res) => {
+  .post(isLoggedIn, uploadImagesGuard, async (req, res) => {
     try {
-      const { userId, title, content, tags } = req.body;
+      const userId = xss(req.body.userId);
+      let title = xss(req.body.title);
+      let content = xss(req.body.content);
+      let tags = xss(req.body.tags);
       let imageURLs = [];
+
+      if (!userId) {
+        req.session.toast = {
+          type: "error",
+          message: "Please login to create a post.",  
+        }
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      try {
+        title = isValidString(title, "Title");
+        content = isValidString(content, "Content");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };  
+        return res.status(400).json({ error: error.message });
+      }
 
       if (req.files && req.files.length > 0) {
         for (const file of req.files) {
@@ -61,6 +76,8 @@ router
           fs.unlinkSync(file.path); // deletes the reference from the uploads folder
         }
       }
+
+      tags = tags.split(",").map((tag) => tag.trim());
 
       let tagsArray;
       if (!tags) {
@@ -78,8 +95,16 @@ router
         imageURLs,
         tagsArray
       );
+      req.session.toast = {
+        type: "success",
+        message: "Post created successfully!",
+      };
       return res.status(201).json(post);
     } catch (err) {
+      req.session.toast = {
+        type: "error",
+        message: "Failed to create post. Please try again.",
+      };
       return res.status(500).json({ error: err.message });
     }
   });
@@ -179,7 +204,7 @@ router.route("/:id").get(async (req, res) => {
 
 router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
   const { userId } = req.params;
-  const { postType } = req.query; // "forums" | "polls" | undefined → ALL POSTS
+  const { postType } = req.query; 
 
   try {
     // fetch only this user's forums & polls
@@ -207,8 +232,6 @@ router.route("/status/:status").get(async (req, res) => {
   const posts = await getForumPostsByStatus(req.params.status);
   return res.json(posts);
 });
-
-// routes/forum.routes.js
 
 router.put("/upvote/:id", async (req, res) => {
   const userId = req.body.userId;
@@ -282,7 +305,7 @@ router.route("/:id").delete(async (req, res) => {
   return res.json(result);
 });
 
-router.route("/:id").put(upload.array("images", 5), async (req, res) => {
+router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
   let forumId;
   try {
     forumId = isValidID(req.params.id, "Forum Post ID");
@@ -301,7 +324,7 @@ router.route("/:id").put(upload.array("images", 5), async (req, res) => {
       for (const file of req.files) {
         const cloudinaryUrl = await userImage(file.path);
         imageURLs.push(cloudinaryUrl);
-        fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+        fs.unlinkSync(file.path);
       }
     }
 
@@ -406,7 +429,7 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
   }
 });
 
-router.route("/comments").post(upload.array("images", 5), async (req, res) => {
+router.route("/comments").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
   try {
     const { forumId, userId, content } = req.body;
     let imageURLs = [];
