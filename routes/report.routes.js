@@ -16,6 +16,7 @@ router
   .get(isLoggedIn, async (req, res) => {
     try {
       const loggedUserId = req.session.user?.user?._id || null;
+      let reports = await getAllReports();
       res.render("reportLanding", {
         reports,
         loggedUserId,
@@ -33,9 +34,9 @@ router
       let contentId = xss(req.body.contentId);
       let userId = xss(req.body.userId);
       let reason = xss(req.body.reason);
-      let forumId =  null;
+      let forumId = null;
       let pollId = null;
-      let reviewId = null;  
+      let reviewId = null;
       let academicResourceId = null;
       let reportType = null;
 
@@ -58,8 +59,8 @@ router
       }
 
       const existingForumReport = await Reports.findOne({
-        reportedBy: userId, 
-          forumId: contentId 
+        reportedBy: userId,
+        forumId: contentId,
       }).exec();
 
       if (existingForumReport) {
@@ -71,8 +72,8 @@ router
       }
 
       const existingPollReport = await Reports.findOne({
-        reportedBy: userId, 
-          pollId: contentId 
+        reportedBy: userId,
+        pollId: contentId,
       }).exec();
 
       if (existingPollReport) {
@@ -84,8 +85,8 @@ router
       }
 
       const existingReviewReport = await Reports.findOne({
-        reportedBy: userId, 
-          reviewId: contentId 
+        reportedBy: userId,
+        reviewId: contentId,
       }).exec();
 
       if (existingReviewReport) {
@@ -97,8 +98,8 @@ router
       }
 
       const existingResourceReport = await Reports.findOne({
-        reportedBy: userId, 
-          academicResourceId: contentId 
+        reportedBy: userId,
+        academicResourceId: contentId,
       }).exec();
 
       if (existingResourceReport) {
@@ -186,8 +187,29 @@ router
 
 router.route("/:contentType").post(isLoggedIn, async (req, res) => {
   try {
-    const contentType = req.params.contentType;
+    let contentId = xss(req.body.contentId);
+    let userId = xss(req.body.userId);
+    let reason = xss(req.body.reason);
+    let forumId = null;
+    let pollId = null;
+    let reviewId = null;
+    let academicResourceId = null;
+    let reportType = null;
+
+    try {
+      userId = isValidID(userId, "userId");
+      contentId = isValidID(contentId, "contentId");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).redirect("/forums");
+    }
+
+    let contentType = xss(req.params.contentType);
     const validTypes = ["Forum", "Poll", "Review", "AcademicResource"];
+
     if (!validTypes.includes(contentType)) {
       req.session.toast = {
         type: "error",
@@ -195,13 +217,6 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       };
       return res.status(400).redirect("/forums");
     }
-
-    const { contentId, userId, reason } = req.body;
-    let forumId,
-      pollId,
-      reviewId,
-      academicResourceId = null;
-    let reportType = null;
 
     if (!reason || typeof reason !== "string" || reason.trim() === "") {
       req.session.toast = {
@@ -221,12 +236,56 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       ],
     }).exec();
 
-    if (existingReport) {
+    const existingForumReport = await Reports.findOne({
+      reportedBy: userId,
+      forumId: contentId,
+    }).exec();
+
+    if (existingForumReport) {
       req.session.toast = {
         type: "error",
-        message: "You have already reported this content.",
+        message: "You have already reported this Forum.",
       };
       return res.status(400).redirect("/forums");
+    }
+
+    const existingPollReport = await Reports.findOne({
+      reportedBy: userId,
+      pollId: contentId,
+    }).exec();
+
+    if (existingPollReport) {
+      req.session.toast = {
+        type: "error",
+        message: "You have already reported this Poll.",
+      };
+      return res.status(400).redirect("/forums");
+    }
+
+    const existingReviewReport = await Reports.findOne({
+      reportedBy: userId,
+      reviewId: contentId,
+    }).exec();
+
+    if (existingReviewReport) {
+      req.session.toast = {
+        type: "error",
+        message: "You have already reported this Review.",
+      };
+      return res.status(400).redirect("/forums");
+    }
+
+    const existingResourceReport = await Reports.findOne({
+      reportedBy: userId,
+      academicResourceId: contentId,
+    }).exec();
+
+    if (existingResourceReport) {
+      req.session.toast = {
+        type: "error",
+        message: "You have already reported this Resource.",
+      };
+      return res.status(400).redirect("/academicResources");
     }
 
     reportType = contentType;
@@ -271,7 +330,11 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(500).redirect("/forums");
     }
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    req.session.toast = {
+      type: "error",
+      message: "Internal server error:" + e.message,
+    };
+    return res.status(500).redirect("/forums");
   }
 });
 
