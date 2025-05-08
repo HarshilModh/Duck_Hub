@@ -207,4 +207,19 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
   }
 });
 
+  router
+  .route("/view")
+  .get(async (req, res) => {
+    try {
+      const groupedReports = await getAllReportsForAdmin();
+      return groupedReports;
+      res.render("reportLandingAdmin", {
+        reports: groupedReports,
+        customStyles: '<link rel="stylesheet" href="/public/css/reportLandingAdmin.css">'
+      });
+    } catch (err) {
+      console.error("Error fetching reports:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
 export default router;

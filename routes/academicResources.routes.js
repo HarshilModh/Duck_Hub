@@ -98,18 +98,33 @@ router.route("/tag/:tagId").get(async (req, res) => {
 router.route("/status/:status").get(async (req, res) => {
   const status = req.params.status;
   const academicResources = await getAcademicResourceByStatus(status);
-  return res.json(academicResources);
+  return res.json(academicResources)
 });
 
 router.route("/upvote/:id").put(async (req, res) => {
   const academicResourceId = req.params.id;
   const userId = req.body.userId;
 
+  let existingVote = await AcademicResourceVotes.findOne({
+    academicResourceId: academicResourceId,
+    voterId: userId,
+  });
+  if (existingVote?.voteType === "UP") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't upvote a resource twice.",
+    };
+    return res.status(400).json({ error: "Duplicate upvote" });
+  }
   try {
     const upvotedResource = await upvoteAcademicResource(
       academicResourceId,
       userId
     );
+    req.session.toast = {
+      type: "success",
+      message: "Upvoted successfully!",
+    };
     return res.json(upvotedResource);
   } catch (error) {
     console.error("Upvote error:", error);
@@ -124,11 +139,26 @@ router.route("/upvote/:id").put(async (req, res) => {
 router.route("/downvote/:id").put(async (req, res) => {
   const academicResourceId = req.params.id;
   const userId = req.body.userId;
+  let existingVote = await AcademicResourceVotes.findOne({
+    academicResourceId: academicResourceId,
+    voterId: userId,
+  });
+  if (existingVote?.voteType === "DOWN") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't down vote a resource twice.",
+    };
+    return res.status(400).json({ error: "Duplicate down vote" });
+  }
   try {
     const downvotedResource = await downvoteAcademicResource(
       academicResourceId,
       userId
     );
+    req.session.toast = {
+      type: "success",
+      message: "Downvoted successfully!",
+    };
     return res.json(downvotedResource);
   } catch (error) {
     console.error("Downvote error:", error);

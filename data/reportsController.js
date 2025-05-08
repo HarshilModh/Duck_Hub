@@ -177,3 +177,54 @@ export const updateReportStatus = async (reportId, status) => {
   }
   return updatedReports;
 };
+
+export const getAllReportsForAdmin = async () => {
+  const reports = await Reports.find()
+  .populate("forumId", "")               
+  // .populate("pollId")                
+  // .populate("reviewId")
+  // .populate("academicResourceId")
+  // .populate("reportedBy", "firstName lastName email")
+  .lean();
+
+const grouped = {
+  Forums: [],
+  Polls: [],
+  Reviews: [],
+  Resources: []
+};
+
+for (const r of reports) {
+
+  const entry = {
+    reportId: r._id,
+    reason: r.reason,
+    status: r.status,
+    reportedBy: r.reportedBy,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+    content: null       
+  };
+
+  switch (r.reportedContentType) {
+    case "Forum":
+      entry.content = r.forumId;
+      grouped.Forums.push(entry);
+      break;
+    case "Poll":
+      entry.content = r.pollId;
+      grouped.Polls.push(entry);
+      break;
+    case "Review":
+      entry.content = r.reviewId;
+      grouped.Reviews.push(entry);
+      break;
+    case "AcademicResource":
+      entry.content = r.academicResourceId;
+      grouped.Resources.push(entry);
+      break;
+  }
+}
+
+  return grouped;
+};

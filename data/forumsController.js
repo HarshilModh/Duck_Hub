@@ -12,7 +12,7 @@ import {
 import Reports from "../models/reports.model.js";
 
 // Create a new forum post
-export const createForumPost = async (
+export const  createForumPost = async (
   userId,
   title,
   content,

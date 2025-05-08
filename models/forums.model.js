@@ -39,14 +39,6 @@ const forumSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
-    // createdAt: {
-    //     type: Date,
-    //     default: Date.now,
-    // },
-    // updatedAt: {
-    //     type: Date,
-    //     default: Date.now,
-    // },
     status: {
       type: String,
       enum: ["active", "reported", "removed"],
