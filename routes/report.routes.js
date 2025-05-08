@@ -118,4 +118,95 @@ router
     }
   });
 
+router.route("/:contentType").post(isLoggedIn, async (req, res) => {
+  try {
+    const contentType = req.params.contentType;
+    const validTypes = ["Forum", "Poll", "Review", "AcademicResource"];
+    if (!validTypes.includes(contentType)) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid Content Type",
+      };
+      return res.status(400).redirect("/forums");
+    }
+
+    const { contentId, userId, reason } = req.body;
+    let forumId,
+      pollId,
+      reviewId,
+      academicResourceId = null;
+    let reportType = null;
+
+    if (!reason || typeof reason !== "string" || reason.trim() === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Reason is required and must be a non-empty string.",
+      };
+      return res.status(400).redirect("/forums");
+    }
+
+    const existingReport = await Reports.findOne({
+      reportedBy: userId,
+      $or: [
+        { forumId: contentId },
+        { pollId: contentId },
+        { reviewId: contentId },
+        { academicResourceId: contentId },
+      ],
+    }).exec();
+
+    if (existingReport) {
+      req.session.toast = {
+        type: "error",
+        message: "You have already reported this content.",
+      };
+      return res.status(400).redirect("/forums");
+    }
+
+    reportType = contentType;
+    if (contentType === "Forum") {
+      forumId = contentId;
+    } else if (contentType === "Poll") {
+      pollId = contentId;
+    } else if (contentType === "Review") {
+      reviewId = contentId;
+    } else if (contentType === "Academic Resource") {
+      academicResourceId = contentId;
+    }
+
+    try {
+      const report = createReport(
+        forumId,
+        pollId,
+        reviewId,
+        academicResourceId,
+        reportType,
+        userId,
+        reason
+      );
+      if (!report) {
+        req.session.toast = {
+          type: "error",
+          message: "Create Report Failed",
+        };
+        return res.status(500).redirect("/forums");
+      }
+      req.session.toast = {
+        type: "success",
+        message: "Report created: Administrator will review it shortly.",
+      };
+      return res.status(200).redirect("/forums");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message:
+          error.message || "An error occurred while creating the report.",
+      };
+      return res.status(500).redirect("/forums");
+    }
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
