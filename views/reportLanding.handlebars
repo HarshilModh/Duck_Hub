@@ -13,7 +13,8 @@
                 {{reportedBy.firstName}} {{reportedBy.lastName}}
             </p>
             <p class="forum-content">{{reason}}</p>
-            <form>
+            <form id="reportForm" action="/report" method="POST">
+                <input type="hidden" id="reportId" name="reportId" value="{{this._id}}" />
                 <select id="decision" name="decision">
                     <option value="approve">Approve</option>
                     <option value="disapprove">Disapprove</option>

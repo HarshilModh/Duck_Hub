@@ -344,15 +344,6 @@ export const reportForumPost = async (forumId, userId) => {
   userId = isValidID(userId, "UserID");
 
   try {
-    let existingReport = await Reports.findOne({
-      forumId: forumId,
-      reportedBy: userId,
-    });
-
-    if (existingReport) {
-      throw new Error("You can't report a forum more than once !");
-    }
-
     let forum = Forum.findByIdAndUpdate(forumId, {
       $set: { status: "reported" },
       $push: { reportedBy: userId },

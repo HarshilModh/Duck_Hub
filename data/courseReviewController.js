@@ -716,15 +716,6 @@ export const reportReview = async (reviewId, userId) => {
   userId = isValidID(userId, "UserID");
 
   try {
-    let existingReport = await Reports.findOne({
-      reviewId: reviewId,
-      reportedBy: userId,
-    });
-
-    if (existingReport) {
-      throw new Error("You can't report a review more than once !");
-    }
-
     let review = Review.findByIdAndUpdate(reviewId, {
       $set: { status: "reported" },
       $push: { reportedBy: userId },

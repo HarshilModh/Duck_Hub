@@ -8,6 +8,8 @@ import { reportAcademicResource } from "./academicResourcesController.js";
 import { reportReview } from "./courseReviewController.js";
 import { reportForumPost } from "./forumsController.js";
 import { reportPoll } from "./pollController.js";
+import mongoose from "mongoose";
+
 export const createReport = async (
   forumId,
   pollId,
@@ -30,6 +32,15 @@ export const createReport = async (
 
     if (forumUpdate && academicResourceUpdate) {
       throw new Error("Could not update content!");
+    }
+
+    let existingReport = await Reports.findOne({
+      forumId: forumId,
+      reportedBy: userId,
+    });
+
+    if (existingReport) {
+      throw new Error("You can't report a forum more than once !");
     }
 
     const newReport = new Reports({
@@ -94,36 +105,61 @@ export const getReportById = async (reportId) => {
 
 export const resolveApprovedReport = async (reportId) => {
   try {
-    report = await Reports.findByIdAndUpdate(reportId, {
+    const report = await Reports.findByIdAndUpdate(reportId, {
       $set: { status: "resolved" },
     });
     if (!report) {
       throw new Error("Report with that ID does not exist");
     }
-    if (report.type === "Forum") {
-      forumUpdate = await reportForumPost(report.forumId, report.reportedBy);
+    if (report.reportedContentType === "Forum") {
+      const forumUpdate = await reportForumPost(
+        report.forumId.toString(),
+        report.reportedBy.toString()
+      );
       if (!forumUpdate) {
         throw new Error("Forum report could not be updated");
       }
-    } else if (report.type === "Academic Resource") {
-      academicResourceUpdate = await reportAcademicResource(
-        report.academicResourceId,
-        report.reportedBy
+    } else if (report.reportedContentType === "AcademicResource") {
+      const academicResourceUpdate = await reportAcademicResource(
+        report.academicResourceId.toString(),
+        report.reportedBy.toString()
       );
       if (!academicResourceUpdate) {
         throw new Error("Academic Resource report could not be updated");
       }
-    } else if (report.type === "Review") {
-      reviewUpdate = await reportReview(report.reviewId, report.reportedBy);
+    } else if (report.reportedContentType === "Review") {
+      const reviewUpdate = await reportReview(
+        report.reviewId.toString(),
+        report.reportedBy.toString()
+      );
       if (!reviewUpdate) {
         throw new Error("Review report could not be updated");
       }
-    } else if (report.type === "Poll") {
-      pollUpdate = await reportPoll(report.pollId, report.reportedBy);
-      if (!reviewUpdate) {
+    } else if (report.reportedContentType === "Poll") {
+      const pollUpdate = await reportPoll(
+        report.pollId.toString(),
+        report.reportedBy.toString()
+      );
+      if (!pollUpdate) {
         throw new Error("Poll report could not be updated");
       }
     }
+    return report;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const resolveDisapprovedReport = async (reportId) => {
+  try {
+    const report = await Reports.findByIdAndUpdate(reportId, {
+      $set: { status: "resolved" },
+    });
+
+    if (!report) {
+      throw new Error("Report with that ID does not exist");
+    }
+
     return report;
   } catch (error) {
     throw new Error(error.message);
