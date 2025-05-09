@@ -17,6 +17,7 @@ import adminAnouncementRoutes from "./adminAnouncement.routes.js";
 import googleLogin from './googleLogin.routes.js';
 const router = express.Router();
 const constructorMethods = (app) => {
+  
   app.use("/users", userRoutes);
   app.use("/forums", forumRoutes);
   app.use("/reviews", reviewRoutes);

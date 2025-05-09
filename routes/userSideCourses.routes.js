@@ -5,7 +5,7 @@ import session from 'express-session';
 import xss from 'xss';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { isValidID } from '../utils/validation.utils.js';
-import xss from 'xss';
+
 const app = express();
 const router = express.Router();
 // Middleware to check if user is logged in
