@@ -22,7 +22,7 @@ import { checkRole } from "../middlewares/roleCheck.middleware.js";
 import session from "express-session";
 import { getAllForumPosts } from "../data/forumsController.js";
 import User from "../models/user.model.js";
-import { isValidID, isValidString } from "../utils/validation.utils.js";
+import { isValidEmail, isValidID, isValidPassword, isValidString } from "../utils/validation.utils.js";
 import passport from "passport";
 
 // Create a new user
@@ -143,17 +143,76 @@ router
 
   // Handle login submissions
   .post(async (req, res) => {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    if (!email || !password) {
+      req.session.toast = {
+        type: "error",
+        message: "Please fill all the fields",
+      };
+      return res.redirect("/users/login");
+    }
+    // Trimmed validations
+    email = email.trim();
+    password = password.trim();
+    if(email.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "Email cannot be empty",
+      };
+      return res.redirect("/users/login");
+    }
+    if (password.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "Password cannot be empty",
+      };
+      return res.redirect("/users/login");
+    }
+    if (password.length < 8) {
+      req.session.toast = {
+        type: "error",
+        message: "Password must be at least 6 characters long",
+      };
+      return res.redirect("/users/login");
+    }
+    if (password.length > 1024) {
+      req.session.toast = {
+        type: "error",
+        message: "Password must be less than 1024 characters",
+      };
+      return res.redirect("/users/login");
+    }
+    if(!isValidEmail(email)) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid email format",
+      };
+      return res.redirect("/users/login");
+    }
+    // Check if email is valid
+    if(!isValidPassword(password)) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid password format",
+      };
+      return res.redirect("/users/login");
+    }
+    // Check if user exists
+    const userExists = await getUserByEmail(email);
+    if (!userExists) {
+      req.session.toast = {
+        type: "error",
+        message: "User does not exist",
+      };
+      return res.redirect("/users/login");
+    }
     try {
       const user = await loginUser(email, password);
 
       if (user) {
         // Save user in session and show a welcome toast
         console.log("User logged in:", user);
-
         req.session.user = user;
-
-        
         req.session.toast = {
           type: "success",
           message: `Welcome back, ${user.user.firstName}!`,

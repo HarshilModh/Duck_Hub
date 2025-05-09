@@ -3,7 +3,6 @@ import Course from "../models/courses.model.js";
 import { getUserById } from "./userController.js";
 import { getCourseById } from "./courseController.js";
 import {
-  calculateOverallRatingsForAdding,
   isValidID,
   isValidNumber,
   isValidString,
@@ -11,6 +10,7 @@ import {
 import Review from "../models/courseReviews.model.js";
 import ReviewVotes from "../models/reviewVotes.model.js";
 import Reports from "../models/reports.model.js";
+import { calculateRatings } from "../utils/calculateRatings.utils.js";
 
 //Create a new course review
 export const createCourseReview = async (
@@ -124,40 +124,13 @@ export const createCourseReview = async (
     if (!savedReview || !savedReview._id) {
       throw new Error("Could not create a review");
     }
+    // calculateRatings will return the updated ratings and along with that it will update the course with the new ratings
 
-    const updatedRatings = await calculateOverallRatingsForAdding(
-      courseId,
-      overallRating,
-      difficultyRating,
-      totalReviews
-    );
-    console.log("Updated Ratings: ", updatedRatings);
-
-    course.difficultyRating = updatedRatings.updatedDifficulty;
-    course.averageRating = updatedRatings.updatedaverageRating;
-    console.log("Updated Ratings: ", updatedRatings);
-
-    console.log("averageRating: ", updatedRatings.updatedaverageRating);
-
-    // Need to update the course with the new ratings and add the newly created reviewId in the course
-    let reviews = course.reviews;
-    if (!reviews) {
-      reviews = [];
+    let {newOverallRating, newDifficultyRating} = await calculateRatings(courseId);
+    if (!newOverallRating || !newDifficultyRating) {
+      throw new Error("Could not calculate the ratings");
     }
-    reviews.push(savedReview._id);
-    // Need to update the course with the new ratings
-    let updatedCourse = await Course.findByIdAndUpdate(
-      courseId,
-      {
-        difficultyRating: updatedRatings.updatedDifficulty,
-        averageRating: updatedRatings.updatedaverageRating,
-        reviews: reviews,
-      },
-      { new: true }
-    );
-    if (!updatedCourse) {
-      throw new Error("Could not update the course with the new ratings");
-    }
+    
     return savedReview;
   } catch (error) {
     throw new Error(error.message);

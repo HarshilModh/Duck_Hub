@@ -36,6 +36,20 @@ router.use(isLoggedIn, checkRole('admin')).get("/", async (req, res) => {
       contactNumber: req.body.contactNumber,
     };
     let operatingHours = req.body.operatingHours;
+    resourceName = resourceName.trim();
+    resourceType = resourceType.trim();
+    location = {
+      type: location.type,
+      coordinates: [(location.coordinates[0]), (location.coordinates[1])],
+    };
+    description = description.trim();
+    contactDetails = {
+      email: contactDetails.email.trim(),
+      contactNumber: contactDetails.contactNumber.trim(),
+    };
+    operatingHours = operatingHours.trim(); 
+    // Log the values for debugging
+
     console.log("resourceName", resourceName);
     console.log("resourceType", resourceType);
     console.log("location", location);
@@ -358,7 +372,19 @@ router.route("/edit/:id").get(isLoggedIn, checkRole("admin"), async (req, res) =
       contactNumber: req.body.contactNumber,
     };
     let operatingHours = req.body.operatingHours;
-
+    resourceName = resourceName.trim();
+    resourceType = resourceType.trim();
+    location = {
+      type: location.type,
+      coordinates: [(location.coordinates[0]), (location.coordinates[1])],
+    };
+    description = description.trim();
+    contactDetails = {
+      email: contactDetails.email.trim(),
+      contactNumber: contactDetails.contactNumber.trim(),
+    };
+    operatingHours = operatingHours.trim();
+    
     // Check if all required fields are provided
     if (!resourceName || !resourceType || !location || !description || !contactDetails.email) {
       req.session.toast = {

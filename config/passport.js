@@ -11,6 +11,11 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ email: profile.emails[0].value });
+    //if email is already registered, then cannot register again
+    let isEmailRegistered = await User.findOne({ email: profile.emails[0].value });
+    if (isEmailRegistered && !isEmailRegistered.googleId) {
+      return done(null, false, { message: 'Email already registered' });
+    }
     if (!user) {
       user = await User.create({
         googleId:    profile.id,
@@ -18,7 +23,7 @@ passport.use(new GoogleStrategy({
         lastName:    profile.name.familyName,
         email:       profile.emails[0].value,
         password:    profile.id,      // you’ll want to rethink this
-        role:        'user'
+        role:        'user',
       });
     }
   

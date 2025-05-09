@@ -30,7 +30,7 @@ router.route('/').get(isLoggedIn,checkRole("admin"),async (req, res) => {
         };
     }
 });
-router.route("/userSideDepartment").get(async (req, res) => {
+router.route("/userSideDepartment").get(isLoggedIn,async (req, res) => {
     console.log('Fetching all departments');
     
     try {
@@ -59,7 +59,22 @@ router.route('/addDepartment').get(isLoggedIn,checkRole("admin"),(req, res) => {
 }
 ).post(isLoggedIn,checkRole("admin"),async (req, res) => {
     let name = req.body.departmentName;
-   
+   if (!name) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid department name',
+        };
+        return res.redirect('/departments/addDepartment');
+    }
+    try {
+        name = isValidString(name);
+    } catch (error) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid department name',
+        };
+        return res.redirect('/departments/addDepartment');
+    }
     if (!name) {
         req.session.toast = {
             type: 'error',
@@ -75,6 +90,13 @@ router.route('/addDepartment').get(isLoggedIn,checkRole("admin"),(req, res) => {
     }
     try {
         const newDepartment = await createDepartment(name);
+        if (!newDepartment) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Failed to create department',
+            };
+            return res.redirect('/departments/addDepartment');
+        }
         req.session.toast = {
             type: 'success',
             message: 'Department created successfully',
