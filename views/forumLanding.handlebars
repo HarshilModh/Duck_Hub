@@ -153,6 +153,10 @@
         </div>
         <h3 class="poll-question">{{this.question}}</h3>
 
+        <p class="poll-created-by">
+          Created by: {{this.createdBy.firstName}} {{this.createdBy.lastName}}
+        </p>
+
         {{#if this.tags.length}}
           <div class="poll-tags">
             {{#each this.tags}}
@@ -183,9 +187,6 @@
           {{/each}}
         </ul>
 
-        <p class="poll-created-by">
-          Created by: {{this.createdBy.firstName}} {{this.createdBy.lastName}}
-        </p>
         <div class="poll-buttons">
           <button class="comment-button" data-id="{{this._id}}">💬 Comment</button>
         </div>

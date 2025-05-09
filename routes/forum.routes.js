@@ -147,7 +147,6 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       order = "desc",
     } = req.query;
 
-    // Validate postType
     if (!postType || (postType !== "forums" && postType !== "polls")) {
       req.session.toast = {
         type: "error",
@@ -156,7 +155,6 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       return res.redirect("/forums");
     }
 
-    // Perform search/filter/sort
     const { forumPosts, pollPosts } = await searchFilterSort({
       text,
       postType,
@@ -164,7 +162,6 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       order,
     });
 
-    // No results
     if (forumPosts.length === 0 && pollPosts.length === 0) {
       req.session.toast = {
         type: "error",
@@ -174,7 +171,6 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       return res.redirect("/forums");
     }
 
-    // Render results
     return res.render("forumLanding", {
       forumPosts,
       pollPosts,
@@ -187,7 +183,6 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
         '<link rel="stylesheet" href="/public/css/forumLanding.css">',
     });
   } catch (err) {
-    // Search error
     req.session.toast = {
       type: "error",
       message: "Failed to search posts. Please try again.",
@@ -209,7 +204,7 @@ router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
   try {
     // fetch only this user's forums & polls
     const forumPosts = await getForumPostsByUserId(userId);
-    const pollPosts = await Poll.find({ createdBy: userId }).lean();
+    const pollPosts = await Poll.find({ createdBy: userId }).populate("createdBy", "firstName lastName").lean();
     const loggedUserId = req.session.user?.user?._id || null;
     res.render("userForums", {
       forumPosts,
@@ -219,7 +214,12 @@ router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
       customStyles: '<link rel="stylesheet" href="/public/css/userForums.css">',
     });
   } catch (err) {
-    next(err);
+    console.error("Error fetching user posts:", err);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to fetch user posts. Please try again.",
+    };
+    return res.status(500).json({ error: "Failed to fetch user posts" });
   }
 });
 
@@ -317,7 +317,9 @@ router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
     if (!previousForum) {
       return res.status(404).json({ error: "Forum post not found" });
     }
-    let { title, content, tags } = req.body;
+    let title = xss(req.body.title);
+    let content = xss(req.body.content);
+    let tags = xss(req.body.tags);
     let imageURLs = [];
 
     if (req.files && req.files.length > 0) {
@@ -419,6 +421,7 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
 
     res.render("commentDelete", {
       forum,
+      isForum: true,
       comments,
       loggedUserId,
       customStyles:
@@ -431,7 +434,9 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
 
 router.route("/comments").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
   try {
-    const { forumId, userId, content } = req.body;
+    let forumId = xss(req.body.forumId);
+    let userId = xss(req.body.userId);
+    let content = xss(req.body.content);
     let imageURLs = [];
 
     let commentFor = "forum";
@@ -484,7 +489,7 @@ router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
 router.route("/comments/upvote/:commentId").put(async (req, res) => {
   try {
     const { commentId } = req.params;
-    const { userId } = req.body;
+    const  userId  = xss(req.body.userId);
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -500,7 +505,7 @@ router.route("/comments/upvote/:commentId").put(async (req, res) => {
 router.route("/comments/downvote/:commentId").put(async (req, res) => {
   try {
     const { commentId } = req.params;
-    const { userId } = req.body;
+    const  userId  = xss(req.body.userId);
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });

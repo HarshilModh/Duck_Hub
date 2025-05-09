@@ -1,11 +1,9 @@
 <div class="admin-reports-container">
-  {{!-- Loop over each category --}}
   {{#each reports}}
     <section class="report-section">
       <h2 class="section-title">{{@key}}</h2>
 
       {{#if this.length}}
-        {{!-- Loop over each report in that category --}}
         {{#each this}}
           <div class="report-block">
             <div class="report-content">
@@ -18,12 +16,19 @@
                   {{content.name}}
                 {{/if}}
               </strong>
-              <p class="report-user">
-                User ({{reportedBy.firstName}} {{reportedBy.lastName}}) says:
+              <p class="report-forum">
+                {{#if content.title}}
+                  {{content.title}}
+                {{else if content.question}}
+                  {{content.question}}
+                {{else}}
+                  {{content.name}}
+                {{/if}}
               </p>
               <p class="report-reason">{{reason}}</p>
             </div>
             <div class="report-action">
+              <button class="action-button">View report</button>
               <button class="action-button">Take action</button>
             </div>
           </div>
@@ -31,7 +36,6 @@
       {{else}}
         <p class="no-reports">No reports in this category.</p>
       {{/if}}
-
     </section>
   {{/each}}
 </div>

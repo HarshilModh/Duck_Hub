@@ -2,6 +2,7 @@ import  express from 'express';
 import {createDepartment,deleteDepartmentById,getAllDepartments,getDepartmentById,updateDepartmentById} from '../data/departmentController.js';
 import session from 'express-session';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
+import xss from 'xss';
 import { checkRole } from '../middlewares/roleCheck.middleware.js';
 import { isValidString,isValidID } from '../utils/validation.utils.js';
 const router = express.Router();
@@ -58,7 +59,7 @@ router.route('/addDepartment').get(isLoggedIn,checkRole("admin"),(req, res) => {
     res.render('addDepartment', { title: 'Create Department' });
 }
 ).post(isLoggedIn,checkRole("admin"),async (req, res) => {
-    let name = req.body.departmentName;
+    let name = xss(req.body.departmentName);
    
     if (!name) {
         req.session.toast = {
@@ -165,7 +166,7 @@ router.route("/editDepartment/:id").get(isLoggedIn,checkRole("admin"),async (req
 }
 ).put(isLoggedIn,checkRole("admin"),async (req, res) => {
     let departmentId = req.params.id;
-    let name = req.body.departmentName;
+    let name = xss(req.body.departmentName);
     if (!departmentId) {
         req.session.toast = {
             type: 'error',

@@ -7,6 +7,7 @@ import {
   deleteCampusResourceById,
   getCampusResourcesByType
 } from '../controllers/campusResourcesController.js';
+import xss from 'xss';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
@@ -75,14 +76,12 @@ router.post('/create', upload.single('resourceImage'), async (req, res) => {
       return res.redirect('/users/login');
     }
     
-    const { 
-      resourceName, 
-      resourceType, 
-      location, 
-      description, 
-      contactDetails,
-      operatingHours
-    } = req.body;
+    let resourceName = xss(req.body.resourceName);
+    let resourceType = xss(req.body.resourceType);  
+    let location = xss(req.body.location);
+    let description = xss(req.body.description);  
+    let contactDetails = req.body.contactDetails || {};
+    let operatingHours = xss(req.body.operatingHours); 
     
     // prepare the data
     let resourceTypeArray = [];

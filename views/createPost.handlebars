@@ -8,8 +8,7 @@
 
   <!-- ── FORUM FORM ───────────────────────────────────── -->
   <div id="forumFormContainer" style="display: none;">
-    <form id="forumForm" enctype="multipart/form-data">
-      <!-- Logged-in user -->
+    <form id="forumForm" action="/forums" method="POST" enctype="multipart/form-data">
       <input type="hidden" id="userId" name="userId" value="{{loggedUserId}}" />
 
       <div class="form-group">
@@ -24,7 +23,8 @@
 
       <div class="form-group">
         <label for="tags">Select Tags:</label>
-        <select id="tags" name="tags" multiple>
+        <select id="tags" name="tags[]" multiple required>
+          <option value="" disabled>Select one or more tags</option>
           {{#each tags}}
             <option value="{{this._id}}">{{this.name}}</option>
           {{/each}}
@@ -59,9 +59,9 @@
   <div id="pollFormContainer" style="display: none;">
     <form
       id="pollForm"
-      enctype="multipart/form-data"
       action="/polls"
       method="POST"
+      enctype="multipart/form-data"
     >
       <input type="hidden" name="createdBy" value="{{loggedUserId}}" />
 
@@ -72,22 +72,23 @@
 
       <div id="options-wrapper" class="form-group">
         <label>Options:</label>
-        <div class="option-row flex gap-2 mb-2">
-          <input name="options" type="text" required placeholder="Option 1" />
+        <div class="option-row">
+          <input name="options[]" type="text" required placeholder="Option 1" />
           <button type="button" class="remove-option">✕</button>
         </div>
-        <div class="option-row flex gap-2 mb-2">
-          <input name="options" type="text" required placeholder="Option 2" />
+        <div class="option-row">
+          <input name="options[]" type="text" required placeholder="Option 2" />
           <button type="button" class="remove-option">✕</button>
         </div>
-        <button type="button" id="add-option" class="text-sm underline">
+        <button type="button" id="add-option" class="add-option-button">
           + Add option
         </button>
       </div>
 
       <div class="form-group">
         <label for="pollTags">Select Tags:</label>
-        <select id="pollTags" name="tags" multiple>
+        <select id="pollTags" name="tags[]" multiple required>
+          <option value="" disabled>Select one or more tags</option>
           {{#each tags}}
             <option value="{{this._id}}">{{this.name}}</option>
           {{/each}}
