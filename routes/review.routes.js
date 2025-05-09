@@ -1,4 +1,5 @@
 import express from "express";
+import xss from "xss";
 // import Review from "../models/courseReviews.model";
 import {
   createCourseReview,
@@ -20,11 +21,15 @@ import xss from "xss";
 const router = express.Router();
 
 router.route("/").post(async (req, res) => {
-  let userId = xss(req.body.userId);
-  let courseId = xss(req.body.courseId);
-  let difficultyRating = xss(req.body.difficultyRating);
-  let overallRating = xss(req.body.overallRating);
-  let review = xss(req.body.review);
+
+  
+  try {
+   let userId = xss(req.body.userId);
+    let courseId = xss(req.body.courseId);
+    let difficultyRating = xss(req.body.difficultyRating);
+    let overallRating = xss(req.body.overallRating);
+    let review = xss(req.body.review);
+    let reviewDate = xss(req.body.reviewDate);
 
     if (
       !userId ||

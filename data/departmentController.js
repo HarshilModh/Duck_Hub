@@ -17,7 +17,7 @@ export const createDepartment = async (departmentName) => {
         departmentName = isValidString(departmentName);
        }
          catch(error){
-          console.log(error);
+            throw new Error("Invalid department name");
          }
           const newDepartment = new Department({ departmentName });
           await newDepartment.save();
@@ -71,7 +71,7 @@ export const updateDepartmentById = async (departmentId,departmentName) => {
         try {
             departmentName = isValidString(departmentName);
         } catch (error) {
-            console.log(error);
+            throw new Error("Invalid department name");
         }
         // Validate the department ID
         if (!departmentId) {

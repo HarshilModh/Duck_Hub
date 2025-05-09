@@ -7,7 +7,48 @@ import { courseValidation } from "../utils/validation.utils.js";
 //Create a new course
 export const createCourse = async (courseCode,courseName,courseDescription,departmentId) => {
    
-     
+  // Validate course code
+  if (!courseCode || typeof courseCode !== "string") {
+    throw new Error("Invalid course code");
+  }
+  // Validate course name
+  if (!courseName || typeof courseName !== "string") {
+    throw new Error("Invalid course name");
+  }
+  // Validate course description
+  if (!courseDescription || typeof courseDescription !== "string") {
+    throw new Error("Invalid course description");
+  }
+  // Validate department ID
+  if (!departmentId || !mongoose.isValidObjectId(departmentId)) {
+    throw new Error("Invalid department ID");
+  }
+  // Check if department exists
+  const department = await Department.findById(departmentId);
+  if (!department) {
+    throw new Error("Department not found");
+  }
+  // Check if course code already exists
+  const existingCourse = await Course.findOne({ courseCode });
+  if (existingCourse) {
+    throw new Error("Course code already exists");
+  }
+  // Check if course name already exists
+  const existingCourseName = await Course.findOne({ courseName });
+  if (existingCourseName) {
+    throw new Error("Course name already exists");
+  }
+  try {
+    await courseValidation(
+      courseCode,
+      courseName,
+      courseDescription,
+      departmentId
+    );
+  } catch (error) {
+    throw new Error(error.message);
+  }
+    // Validate course name
   // Create a new course
   const newCourse = new Course({
     courseCode,

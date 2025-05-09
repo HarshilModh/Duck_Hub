@@ -20,7 +20,7 @@
 
     <!-- Actions -->
     <div class="px-6 py-8 space-y-4">
-
+{{#unless googleUser}}
       <a
         href="/users/editProfile"
         class="flex items-center justify-center w-full space-x-2 border border-stevensMaroon text-stevensMaroon px-4 py-2 rounded-lg hover:bg-stevensMaroon hover:text-white transition"
@@ -33,7 +33,9 @@
         </svg>
         <span>Edit Profile</span>
       </a>
-
+      {{/unless}}
+{{#if googleUser}}
+  {{else}}
       <a
         href="/users/changePassword"
         class="flex items-center justify-center w-full space-x-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition"
@@ -46,9 +48,10 @@
                    2v6a2 2 0 01-2 2h-1m-8 0H7a2 
                    2 0 01-2-2v-1"/>
         </svg>
+        
         <span>Change Password</span>
       </a>
-
+{{/if}}
       <form action="/users/logout" method="GET">
         <button
           type="submit"

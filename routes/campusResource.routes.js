@@ -25,18 +25,34 @@ router.use(isLoggedIn, checkRole('admin')).get("/", async (req, res) => {
   });
 }).post("/", async (req, res) => {
 
+
     let resourceName = xss(req.body.resourceName);
     let resourceType = xss(req.body.resourceType);
-    let longitude = parseFloat(req.body.longitude);
-    let latitude = parseFloat(req.body.latitude);
-    if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
-      throw new Error("Invalid coordinates");
-    }
+    let location = {
+      type: "Point",
+      coordinates: [xss(req.body.longitude), xss(req.body.latitude)],
+    };
     let description = xss(req.body.description);
-    let email = xss(req.body.email);
-    let contactNumber = xss(req.body.contactNumber);
-    let contactDetails = { email, contactNumber };
+    let contactDetails = {
+      email: xss(req.body.email),
+      contactNumber: xss(req.body.contactNumber),
+    };
     let operatingHours = xss(req.body.operatingHours);
+    resourceName = resourceName.trim();
+    resourceType = resourceType.trim();
+    location = {
+      type: location.type,
+      coordinates: [(location.coordinates[0]), (location.coordinates[1])],
+    };
+    description = description.trim();
+    contactDetails = {
+      email: contactDetails.email.trim(),
+      contactNumber: contactDetails.contactNumber.trim(),
+    };
+    operatingHours = operatingHours.trim(); 
+    // Log the values for debugging
+
+
     console.log("resourceName", resourceName);
     console.log("resourceType", resourceType);
     console.log("location", location);
@@ -347,18 +363,31 @@ router.route("/edit/:id").get(isLoggedIn, checkRole("admin"), async (req, res) =
     console.log("ID", id);
 
     // Extract fields from the request body
+
     let resourceName = xss(req.body.resourceName);
     let resourceType = xss(req.body.resourceType);
-    let longitude = parseFloat(req.body.longitude);
-    let latitude = parseFloat(req.body.latitude);
-    if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
-      throw new Error("Invalid coordinates");
-    }
+    let location = {
+      type: "Point",
+      coordinates: [xss(req.body.longitude), xss(req.body.latitude)],
+    };
     let description = xss(req.body.description);
-    let email = xss(req.body.email);
-    let contactNumber = xss(req.body.contactNumber);
-    let contactDetails = { email, contactNumber };
+    let contactDetails = {
+      email: xss(req.body.email),
+      contactNumber: xss(req.body.contactNumber),
+    };
     let operatingHours = xss(req.body.operatingHours);
+    resourceName = resourceName.trim();
+    resourceType = resourceType.trim();
+    location = {
+      type: location.type,
+      coordinates: [(location.coordinates[0]), (location.coordinates[1])],
+    };
+    description = description.trim();
+    contactDetails = {
+      email: contactDetails.email.trim(),
+      contactNumber: contactDetails.contactNumber.trim(),
+    };
+    operatingHours = operatingHours.trim(); 
 
     // Check if all required fields are provided
     if (!resourceName || !resourceType || !location || !description || !contactDetails.email) {

@@ -2,6 +2,7 @@ import express from 'express';
 import { createCourse, deleteCourseById, getAllCourses, getCourseById, updateCourseById } from '../data/courseController.js';
 import {createCourseReview,deleteCourseReviewById,downVoteReview,upVoteReview,getCourseReviewsByCourseId, getCourseReviewsByUserId, getReviewById, updateCourseReviewById} from "../data/courseReviewController.js"
 import session from 'express-session';
+import xss from 'xss';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { isValidID } from '../utils/validation.utils.js';
 import xss from 'xss';
@@ -275,7 +276,7 @@ router.route('/course/addReview/:id').get(async (req, res) => {
         return res.redirect(`/userSideCourses/course/addReview/${courseId}`);
     }
     // Check if difficultyRating and overallRating are within valid ranges
-    if (difficultyRating < 1 || difficultyRating > 3 || overallRating < 0 || overallRating > 5) {
+    if (difficultyRating < 1 || difficultyRating > 3 || overallRating < 1 || overallRating > 5) {
         req.session.toast = {
             type: 'error',
             message: 'Invalid rating values',

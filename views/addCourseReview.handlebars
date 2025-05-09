@@ -1,6 +1,7 @@
 <form
   action="/userSideCourses/course/addReview/{{course._id}}"
   method="POST"
+  id="addCourseReviewForm"
   class="max-w-xl mx-auto bg-stevensWhite rounded-2xl shadow-lg p-8 space-y-6"
 >
   <h2 class="text-2xl font-heading text-stevensMaroon">Add Review</h2>
@@ -40,23 +41,23 @@
     <p class="text-stevensGray font-medium mb-1">Overall Rating</p>
     <div class="flex space-x-1">
       <label class="cursor-pointer">
-        <input type="radio" name="overallRating" value="1" class="peer sr-only" />
+        <input type="radio" name="overallRating" id="overallRating" value="1" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
       <label class="cursor-pointer">
-        <input type="radio" name="overallRating" value="2" class="peer sr-only" />
+        <input type="radio" name="overallRating" id="overallRating" value="2" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
       <label class="cursor-pointer">
-        <input type="radio" name="overallRating" value="3" class="peer sr-only" />
+        <input type="radio" name="overallRating" id="overallRating" value="3" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
       <label class="cursor-pointer">
-        <input type="radio" name="overallRating" value="4" class="peer sr-only" />
+        <input type="radio" name="overallRating" id="overallRating" value="4" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
       <label class="cursor-pointer">
-        <input type="radio" name="overallRating" value="5" class="peer sr-only" />
+        <input type="radio" name="overallRating" id="overallRating" value="5" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
     </div>
@@ -67,15 +68,15 @@
     <p class="text-stevensGray font-medium mb-1">Difficulty</p>
     <div class="flex space-x-1">
       <label class="cursor-pointer">
-        <input type="radio" name="difficultyRating" value="1" class="peer sr-only" />
+        <input type="radio" name="difficultyRating" id="difficultyRating" value="1" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
       <label class="cursor-pointer">
-        <input type="radio" name="difficultyRating" value="2" class="peer sr-only" />
+        <input type="radio" name="difficultyRating" id="difficultyRating" value="2" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
       <label class="cursor-pointer">
-        <input type="radio" name="difficultyRating" value="3" class="peer sr-only" />
+        <input type="radio" name="difficultyRating" id="difficultyRating" value="3" class="peer sr-only" />
         <span class="text-2xl text-gray-300 peer-checked:text-stevensMaroon peer-hover:text-stevensMaroon transition">★</span>
       </label>
     </div>
@@ -84,7 +85,7 @@
   <!-- Anonymous Option -->
   <div>
     <label class="inline-flex items-center space-x-2">
-      <input type="checkbox" name="isAnonymous" value="true" class="form-checkbox" />
+      <input type="checkbox" name="isAnonymous" id="isAnonymous" value="true" class="form-checkbox" />
       <span class="text-stevensGray">Post anonymously</span>
     </label>
   </div>
@@ -99,3 +100,4 @@
     </button>
   </div>
 </form>
+<script src="/js/addReviewClientSide.js"></script>

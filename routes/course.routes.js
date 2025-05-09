@@ -13,13 +13,13 @@ import { isValidID, isValidString } from '../utils/validation.utils.js';
 
 const router = express.Router();
 // Render course page and print all courses
-router.use(isLoggedIn);
 
 //load add course page
-router.route('/addCourse').get(async (req, res) => {
+router.route('/addCourse').get(isLoggedIn,checkRole("admin"),async (req, res) => {
     const departments = await getAllDepartments();
     res.render('addCourse', { title: 'Add Course', departments });
-}).post(async (req, res) => {
+}).post(isLoggedIn,checkRole("admin"),async (req, res) => {
+
     console.log('Creating course');
     
     console.log(req.body);
@@ -112,7 +112,7 @@ router.route('/addCourse').get(async (req, res) => {
         console.error(error);
         req.session.toast = {
             type: 'error',
-            message: 'Failed to create course',
+            message: 'Failed to create course'+error.message,
         };
         return res.redirect('/courses/addCourse');
     }
@@ -206,7 +206,7 @@ router.route('/:id').get(async (req, res) => {
         };
         return res.redirect('/courses');
     }
-}).put(async(req,res)=>{
+}).put(isLoggedIn,checkRole("admin"),async(req,res)=>{
     console.log('Updating course by ID');
     let courseId = xss(req.body.id) || req.params.id;
     console.log(courseId);
