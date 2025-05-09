@@ -4,6 +4,7 @@ import {
   getAllReports,
   resolveApprovedReport,
   resolveDisapprovedReport,
+  getAllReportsForAdmin
 } from "../data/reportsController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Forum from "../models/forums.model.js";
@@ -212,8 +213,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
   .get(async (req, res) => {
     try {
       const groupedReports = await getAllReportsForAdmin();
-      return groupedReports;
-      res.render("reportLandingAdmin", {
+      return res.render("reportLandingAdmin", {
         reports: groupedReports,
         customStyles: '<link rel="stylesheet" href="/public/css/reportLandingAdmin.css">'
       });

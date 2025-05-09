@@ -10,6 +10,7 @@ import {
   searchCampusResources,
   getCampusResourcesByName,
 } from "../data/campusResourcesController.js";
+import xss from "xss";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import { checkRole } from "../middlewares/roleCheck.middleware.js";
 import { isValidEmail, isValidID } from "../utils/validation.utils.js";
@@ -24,18 +25,18 @@ router.use(isLoggedIn, checkRole('admin')).get("/", async (req, res) => {
   });
 }).post("/", async (req, res) => {
 
-    let resourceName = req.body.resourceName;
-    let resourceType = req.body.resourceType;
-    let location = {
-      type: "Point",
-      coordinates: [req.body.longitude, req.body.latitude],
-    };
-    let description = req.body.description;
-    let contactDetails = {
-      email: req.body.email,
-      contactNumber: req.body.contactNumber,
-    };
-    let operatingHours = req.body.operatingHours;
+    let resourceName = xss(req.body.resourceName);
+    let resourceType = xss(req.body.resourceType);
+    let longitude = parseFloat(req.body.longitude);
+    let latitude = parseFloat(req.body.latitude);
+    if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
+      throw new Error("Invalid coordinates");
+    }
+    let description = xss(req.body.description);
+    let email = xss(req.body.email);
+    let contactNumber = xss(req.body.contactNumber);
+    let contactDetails = { email, contactNumber };
+    let operatingHours = xss(req.body.operatingHours);
     console.log("resourceName", resourceName);
     console.log("resourceType", resourceType);
     console.log("location", location);
@@ -346,18 +347,18 @@ router.route("/edit/:id").get(isLoggedIn, checkRole("admin"), async (req, res) =
     console.log("ID", id);
 
     // Extract fields from the request body
-    let resourceName = req.body.resourceName;
-    let resourceType = req.body.resourceType;
-    let location = {
-      type: "Point",
-      coordinates: [req.body.longitude, req.body.latitude],
-    };
-    let description = req.body.description;
-    let contactDetails = {
-      email: req.body.email,
-      contactNumber: req.body.contactNumber,
-    };
-    let operatingHours = req.body.operatingHours;
+    let resourceName = xss(req.body.resourceName);
+    let resourceType = xss(req.body.resourceType);
+    let longitude = parseFloat(req.body.longitude);
+    let latitude = parseFloat(req.body.latitude);
+    if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
+      throw new Error("Invalid coordinates");
+    }
+    let description = xss(req.body.description);
+    let email = xss(req.body.email);
+    let contactNumber = xss(req.body.contactNumber);
+    let contactDetails = { email, contactNumber };
+    let operatingHours = xss(req.body.operatingHours);
 
     // Check if all required fields are provided
     if (!resourceName || !resourceType || !location || !description || !contactDetails.email) {
@@ -575,7 +576,7 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const updateData = req.body;
+    const updateData = xss(req.body);
 
     // call controller function to update resource
     const updatedResource = await updateCampusResourceById(id, updateData);

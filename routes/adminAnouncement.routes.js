@@ -6,6 +6,7 @@ import {
   updateAnnouncement,
   deleteAnnouncement,
 } from '../data/anoucement.controller.js';
+import xss from 'xss';
 import { isValidString } from '../utils/validation.utils.js';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { checkRole } from '../middlewares/roleCheck.middleware.js';
@@ -21,8 +22,8 @@ router.route('/add').get(isLoggedIn, checkRole('admin'), (req, res) => {
     isLoggedIn,
     checkRole('admin'),
     async (req, res) => {
-        let title = req.body.title;
-        let content = req.body.content;
+        let title = xss(req.body.title);
+        let content = xss(req.body.content);
         try {
         // Validate input
         if (!title || !content) {

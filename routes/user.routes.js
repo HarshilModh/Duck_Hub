@@ -24,6 +24,7 @@ import { getAllForumPosts } from "../data/forumsController.js";
 import User from "../models/user.model.js";
 import { isValidID, isValidString } from "../utils/validation.utils.js";
 import passport from "passport";
+import xss from "xss";
 
 // Create a new user
 // router.post("/signUp", createUser);
@@ -143,7 +144,8 @@ router
 
   // Handle login submissions
   .post(async (req, res) => {
-    const { email, password } = req.body;
+    let email = xss(req.body.email);
+    let password = xss(req.body.password);
     try {
       const user = await loginUser(email, password);
 
@@ -243,10 +245,10 @@ router.use(isLoggedIn).get("/userProfile", async (req, res) => {
   let user = req.session.user;
   console.log("userprofile route", user);
 
-  let firstName = user.user.firstName;
-  let lastName = user.user.lastName;
-  let email = user.user.email;
-  let role = user.user.role;
+  let firstName = xss(user.user.firstName);
+  let lastName = xss(user.user.lastName);
+  let email = xss(user.user.email);
+  let role = xss(user.user.role);
 
   res.render("userProfile", {
     title: "User Profile",
@@ -337,7 +339,8 @@ router.route("/logout").get((req, res) => {
 // Update user password
 router.route("/password/:id").put(async (req, res) => {
   const userId = req.params.id;
-  const { newPassword1, newPassword2 } = req.body;
+  let newPassword1 = xss(req.body.newPassword1);
+  let newPassword2 = xss(req.body.newPassword2);
   try {
     const updatedPassword = await updatePassword(
       userId,
@@ -521,9 +524,9 @@ router
     });
   })
   .post(async (req, res) => {
-    let itemType = req.body.itemType;
-    let itemName = req.body.itemName;
-    let description = req.body.description;
+    let itemType = xss(req.body.itemType);
+    let itemName = xss(req.body.itemName);
+    let description = xss(req.body.description);
     let userId = req.session.user.user._id;
     if (!itemType || !itemName || !description) {
       req.session.toast = {
@@ -726,9 +729,9 @@ router
   })
   .put(async (req, res) => {
     let userId = req.session.user.user._id;
-    let oldPassword = req.body.currentPassword;
-    let newPassword1 = req.body.newPassword;
-    let newPassword2 = req.body.confirmPassword;
+    let oldPassword = xss(req.body.currentPassword);
+    let newPassword1 = xss(req.body.newPassword);
+    let newPassword2 = xss(req.body.confirmPassword);
     if (!oldPassword || !newPassword1 || !newPassword2) {
       req.session.toast = {
         type: "error",

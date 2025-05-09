@@ -2,6 +2,7 @@ import express from 'express';
 import { getAllCampusResources, getCampusResourceById} from '../data/campusResourcesController.js';
 const router = express.Router();
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
+import xss from 'xss';
 import { isValidID,isValidString } from '../utils/validation.utils.js';
 
 

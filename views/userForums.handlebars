@@ -1,77 +1,116 @@
-{{! userForums.hbs }}
+  <section class="user-posts-section">
+    <h2>Your Forum Posts</h2>
 
-<div class="forum-body">
-  <div class="forum-posts-list">
     {{#if forumPosts.length}}
-      {{#each forumPosts}}
-        <div class="forum-post-card">
-
-          <!-- top‑right action icons -->
-          <div class="post-actions">
-            <!-- Edit link -->
-            <a
-              href="/forums/{{_id}}/edit-choice"
-              class="edit-button"
-              title="Edit this post"
-              aria-label="Edit this post"
-            >
-              <img
-                src="/public/images/icons/compose.png"
-                alt="Edit icon"
-                class="action-icon"
-              />
-            </a>
-
-            <!-- Delete button -->
-            <button
-              type="button"
-              class="delete-button"
-              data-id="{{_id}}"
-              title="Delete this post"
-              aria-label="Delete this post"
-            >
-              <img
-                src="/images/icons/bin.png"
-                alt="Trash bin icon"
-                class="action-icon"
-              />
-            </button>
-          </div>
-
-          <h3 class="forum-title">{{title}}</h3>
-
-          <p class="forum-posted-by">
-            Posted by:
-            {{userId.firstName}}_{{userId.lastName}}
-          </p>
-
-          <p class="forum-content">{{content}}</p>
-
-          {{#if imageURLs.length}}
-            <div class="forum-images">
-              {{#each imageURLs}}
-                <img src="{{this}}" alt="Forum Image" class="forum-image" />
-              {{/each}}
+      <div class="forum-posts-list">
+        {{#each forumPosts}}
+          <div class="forum-post-card">
+            <div class="post-actions">
+              <a href="/forums/{{_id}}/edit-choice" class="edit-button" title="Edit this post">
+                <img src="/public/images/icons/compose.png" alt="Edit icon" class="action-icon"/>
+              </a>
+              <button
+                type="button"
+                class="delete-button"
+                data-id="{{_id}}"
+                title="Delete this post"
+              >
+                <img src="/public/images/icons/bin.png" alt="Trash icon" class="action-icon"/>
+              </button>
             </div>
-          {{/if}}
 
-          <a
-            href="/forums/user/comments/view/{{_id}}"
-            class="comments-button"
-            title="View comments for this post"
-          >
-            COMMENTS
-          </a>
+            <h3 class="forum-title">{{title}}</h3>
+            <p class="forum-posted-by">
+              Posted by: {{userId.firstName}} {{userId.lastName}}
+            </p>
+            <p class="forum-content">{{content}}</p>
 
-        </div>
-      {{/each}}
+            {{#if imageURLs.length}}
+              <div class="forum-images">
+                {{#each imageURLs}}
+                  <img src="{{this}}" alt="Forum Image" class="forum-image"/>
+                {{/each}}
+              </div>
+            {{/if}}
+
+            <a
+              href="/forums/user/comments/view/{{_id}}"
+              class="comments-button"
+              title="View comments for this post"
+            >
+              COMMENTS
+            </a>
+          </div>
+        {{/each}}
+      </div>
     {{else}}
       <p class="no-posts-message">
-        Currently, you haven't created any posts. Created ones will be displayed
-        here.
+        You haven't created any forum posts yet.
       </p>
     {{/if}}
-  </div>
+  </section>
+
+  {{!-- ── YOUR POLL POSTS ───────────────────────────────────────────── --}}
+  <section class="user-posts-section" style="margin-top:40px;">
+    <h2>Your Polls</h2>
+
+    {{#if pollPosts.length}}
+      <div class="poll-posts-list">
+        {{#each pollPosts}}
+          <div class="poll-post-card">
+            <div class="post-actions">
+              <a href="/polls/{{_id}}/edit" class="edit-button" title="Edit this poll">
+                <img src="/public/images/icons/compose.png" alt="Edit icon" class="action-icon"/>
+              </a>
+              <button
+                type="button"
+                class="delete-button"
+                data-id="{{_id}}"
+                title="Delete this poll"
+              >
+                <img src="/public/images/icons/bin.png" alt="Trash icon" class="action-icon"/>
+              </button>
+            </div>
+
+            <h3 class="poll-question">{{question}}</h3>
+            <p class="poll-meta">
+              Posted By: {{createdBy.firstName}} {{createdBy.lastName}} 
+            </p>
+
+            {{#if imageURLs.length}}
+              <div class="forum-images">
+                {{#each imageURLs}}
+                  <img src="{{this}}" alt="Forum Image" class="forum-image"/>
+                {{/each}}
+              </div>
+            {{/if}}
+
+            {{!-- show options and vote counts if you like --}}
+            <ul class="poll-options">
+              {{#each options}}
+                <li>
+                  {{this.answer}} — {{this.votes}} votes
+                </li>
+              {{/each}}
+            </ul>
+
+            <a
+              href="/polls/user/comments/view/{{_id}}"
+              class="view-poll-button"
+              title="View this poll"
+            >
+              COMMENTS
+            </a>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="no-posts-message">
+        You haven't created any polls yet.
+      </p>
+    {{/if}}
+  </section>
+
 </div>
 
 <script>
