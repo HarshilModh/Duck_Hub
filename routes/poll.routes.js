@@ -5,6 +5,7 @@ import Poll from "../models/polls.model.js";
 import { createPoll, voteOnPoll } from "../data/pollController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import { userImage, uploadImagesGuard } from "../middlewares/cloudinary.js";
+import Comment from "../models/forumsComments.model.js";
 
 const router = express.Router();
 
@@ -127,6 +128,27 @@ router.post("/:pollId/vote", isLoggedIn, async (req, res) => {
       message: "Please try again:" + err.message,
     };
     return res.status(400).redirect("/forums");
+  }
+});
+
+router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
+  try {
+    const pollId = req.params.id;
+    const poll = await Poll.findById(pollId).populate("createdBy", "firstName lastName").lean();
+    const comments = await Comment.find({ forumId: pollId, commentFor: "poll" }).populate("userId", "firstName lastName")
+    .lean();
+    const loggedUserId = req.session.user?.user?._id || null;
+
+    res.render("commentDelete", {
+      poll,
+      comments,
+      isForum: false,
+      loggedUserId,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/forumComments.css">',
+    });
+  } catch (err) {
+    return res.status(500).send("Error loading comments page.");
   }
 });
 

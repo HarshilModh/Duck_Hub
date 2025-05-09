@@ -21,6 +21,8 @@ import {
   isValidID,
 } from "../utils/validation.utils.js";
 
+import xss from "xss";
+
 import { getAllTags } from "../data/tagController.js";
 import express from "express";
 import AcademicResourceVotes from "../models/academicResourceVotes.model.js";
@@ -59,7 +61,11 @@ router
   })
   .post(async (req, res) => {
     try {
-      const { userId, title, description, url, tags } = req.body;
+      let userId = xss(req.body.userId);
+      let title = xss(req.body.title);
+      let description = xss(req.body.description); 
+      let url = xss(req.body.url);
+      let tags = xss(req.body.tags); 
       let tagsArray;
       if (!tags) {
         tagsArray = [];
@@ -76,6 +82,10 @@ router
         tagsArray
       );
       if (academicResource) {
+        req.session.toast = {
+          type: "success",
+          message: "Academic resource created successfully!",
+        };
         return res.status(201).redirect("/academicResources");
       }
     } catch (e) {
@@ -138,7 +148,7 @@ router.route("/upvote/:id").put(async (req, res) => {
 
 router.route("/downvote/:id").put(async (req, res) => {
   const academicResourceId = req.params.id;
-  const userId = req.body.userId;
+  const userId = xss(req.body.userId);
   let existingVote = await AcademicResourceVotes.findOne({
     academicResourceId: academicResourceId,
     voterId: userId,
@@ -178,7 +188,17 @@ router.route("/:id").delete(async (req, res) => {
 
 router.route("/search").get(isLoggedIn, async (req, res) => {
   try {
-    const { text = "", sort = "createdAt", order = "desc" } = req.query;
+    let { text = "", sort = "createdAt", order = "desc" } = req.query;
+    text = xss(text);
+    const ALLOWED_SORTS = ["createdAt", "title", "url"];
+    const ALLOWED_ORDERS = ["asc", "desc"];
+
+    if (!ALLOWED_SORTS.includes(sort)) {
+      sort = "createdAt";
+    }
+    if (!ALLOWED_ORDERS.includes(order.toLowerCase())) {
+      order = "desc";
+    }
     const academicResources = await searchAcademicResourceFilterSort(
       text,
       sort,
@@ -203,7 +223,6 @@ router.route("/search").get(isLoggedIn, async (req, res) => {
         '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
     });
   } catch (error) {
-    // Search error
     req.session.toast = {
       type: "error",
       message: "Failed to search Academic Resources. Please try again.",

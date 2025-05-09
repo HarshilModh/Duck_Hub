@@ -16,10 +16,12 @@ import {
   deleteCourseReviewById,
   filterCourseReviews,
 } from "../data/courseReviewController.js";
+import xss from "xss";
 
 const router = express.Router();
 
 router.route("/").post(async (req, res) => {
+
   
   try {
    let userId = xss(req.body.userId);
@@ -28,6 +30,7 @@ router.route("/").post(async (req, res) => {
     let overallRating = xss(req.body.overallRating);
     let review = xss(req.body.review);
     let reviewDate = xss(req.body.reviewDate);
+
     if (
       !userId ||
       !courseId ||
@@ -35,11 +38,14 @@ router.route("/").post(async (req, res) => {
       !overallRating ||
       !review
     ) {
-      throw new Error("Missing the required fields");
+      req.session.toast = {
+        type: "error",
+        message: "Missing the required fields",
+      };
+      return res.status(400).json({
+        error: "Missing the required fields",
+      });
     }
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
   try {
     const savedReview = await createCourseReview(
       userId,
@@ -48,9 +54,16 @@ router.route("/").post(async (req, res) => {
       overallRating,
       review
     );
-
+    req.session.toast = { 
+      type: "success",
+      message: "Review created successfully",
+    };
     return res.status(200).json(savedReview);
   } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
     return res.status(400).json({ error: error.message });
   }
 });

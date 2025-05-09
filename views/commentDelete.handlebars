@@ -1,52 +1,80 @@
-<div class="forum-post-card">
-  <h3 class="forum-title">{{forum.title}}</h3>
-  <p class="forum-posted-by">
-    Posted by:
-    {{forum.userId.firstName}}_{{forum.userId.lastName}}
-  </p>
-  <p class="forum-content">{{forum.content}}</p>
+{{!-- landing.hbs --}}
 
-  {{#if forum.imageURLs.length}}
-    <div class="forum-images">
-      {{#each forum.imageURLs}}
-        <img src="{{this}}" alt="Forum Image" class="forum-image" />
+{{#if isForum}}
+  <div class="forum-post-card">
+    <h3 class="forum-title">{{forum.title}}</h3>
+    <p class="forum-posted-by">
+      Posted by: {{forum.userId.firstName}}_{{forum.userId.lastName}}
+    </p>
+    <p class="forum-content">{{forum.content}}</p>
+
+    {{#if forum.imageURLs.length}}
+      <div class="forum-images">
+        {{#each forum.imageURLs}}
+          <img src="{{this}}" alt="Forum Image" class="forum-image" />
+        {{/each}}
+      </div>
+    {{/if}}
+  </div>
+
+{{else}}
+  <div class="forum-post-card">
+    <h3 class="forum-title">{{poll.question}}</h3>
+    <p class="forum-posted-by">
+      Created by: {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}
+    </p>
+
+    {{#if poll.imageURLs.length}}
+      <div class="forum-images">
+        {{#each poll.imageURLs}}
+          <img src="{{this}}" alt="Poll Image" class="forum-image" />
+        {{/each}}
+      </div>
+    {{/if}}
+
+    <div class="poll-options">
+      {{#each poll.options}}
+        <div class="poll-option">
+          <p>{{this.answer}} &ndash; {{this.votes}} votes</p>
+        </div>
       {{/each}}
-    </div>
-  {{/if}}
-</div>
+
+  </div>
+{{/if}}
 
 <div class="comments-header">
-  <h2 class="comments-title">Comments</h2>
-</div>
+    <h2 class="comments-title">Comments</h2>
+  </div>
 
-<div class="comments-list">
-  {{#if comments.length}}
-    {{#each comments}}
-      <div class="comment-card">
-        <p class="comment-user">
-          {{this.userId.firstName}}_{{this.userId.lastName}}
-        </p>
-        <p class="comment-content">{{this.content}}</p>
+  <div class="comments-list">
+    {{#if comments.length}}
+      {{#each comments}}
+        <div class="comment-card">
+          <p class="comment-user">
+            {{this.userId.firstName}}_{{this.userId.lastName}}
+          </p>
+          <p class="comment-content">{{this.content}}</p>
 
-        {{#if this.imageURLs.length}}
-          <div class="comment-images">
-            {{#each this.imageURLs}}
-              <img src="{{this}}" alt="Comment Image" class="comment-image" />
-            {{/each}}
-          </div>
-        {{/if}}
+          {{#if this.imageURLs.length}}
+            <div class="comment-images">
+              {{#each this.imageURLs}}
+                <img src="{{this}}" alt="Comment Image" class="comment-image" />
+              {{/each}}
+            </div>
+          {{/if}}
 
-        <button type="button" class="comment-delete" data-id="{{this._id}}">
-          Delete
-        </button>
-      </div>
-    {{/each}}
-  {{else}}
-    <p>No comments yet. Be the first to comment!</p>
-  {{/if}}
-</div>
+          <button type="button" class="comment-delete" data-id="{{this._id}}">
+            Delete
+          </button>
+        </div>
+      {{/each}}
+    {{else}}
+      <p>No comments yet. Be the first to comment!</p>
+    {{/if}}
+  </div>
 
 <script>
   const loggedInUserId = "{{loggedUserId}}";
+  const isForum = {{isForum}}; 
 </script>
 <script src="/public/js/forumLanding.js"></script>

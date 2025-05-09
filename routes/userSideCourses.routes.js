@@ -5,6 +5,7 @@ import session from 'express-session';
 import xss from 'xss';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { isValidID } from '../utils/validation.utils.js';
+import xss from 'xss';
 const app = express();
 const router = express.Router();
 // Middleware to check if user is logged in
@@ -190,12 +191,12 @@ router.route('/course/addReview/:id').get(async (req, res) => {
     console.log("req.session.user", req.session.user.user._id);
     
     let courseId = req.params.id;
-    let courseCode = req.body.courseCode;
-    let courseName = req.body.courseName;
-    let review = req.body.review;
-    let difficultyRating = req.body.difficultyRating;
-    let overallRating = req.body.overallRating;
-    let isAnonymous = req.body.isAnonymous;
+    let courseCode = xss(req.body.courseCode);
+    let courseName = xss(req.body.courseName);
+    let review = xss(req.body.review);
+    let difficultyRating = xss(req.body.difficultyRating);
+    let overallRating = xss(req.body.overallRating);
+    let isAnonymous = xss(req.body.isAnonymous);
     if (req.body.isAnonymous === 'true') {
         isAnonymous = true;
     }
@@ -446,7 +447,7 @@ router.route('/reviews/:id/vote').post(async (req, res) => {
     console.log("vote review request");
     let reviewId = req.params.id;
     let userId = req.session.user.user._id;  
-    let courseId = req.body.courseId;
+    let courseId = xss(req.body.courseId);
     if (!reviewId) {
         req.session.toast = {
             type: 'error',
@@ -529,7 +530,7 @@ router.route('/reviews/:id/vote').post(async (req, res) => {
     // Fetch course details
     console.log('Fetching review with ID:', reviewId);
 
-    const vote = req.body.vote;
+    const vote = xss(req.body.vote);
     console.log("vote: ", vote);
     if (!vote) {
         req.session.toast = {
@@ -629,9 +630,9 @@ router.route('/editReview/:id').get(async (req, res) => {
     }
 }).post(async (req, res) => {
     let reviewId = req.params.id;
-    let review = req.body.review;
-    let difficultyRating = req.body.difficultyRating;
-    let overallRating = req.body.overallRating;
+    let review = xss(req.body.review);
+    let difficultyRating = xss(req.body.difficultyRating);
+    let overallRating = xss(req.body.overallRating);
     if(!reviewId) {
         req.session.toast = {
             type: 'error',

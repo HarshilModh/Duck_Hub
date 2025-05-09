@@ -180,7 +180,7 @@ export const updateReportStatus = async (reportId, status) => {
 
 export const getAllReportsForAdmin = async () => {
   const reports = await Reports.find()
-  .populate("forumId", "")               
+  .populate("forumId", "title content ")           
   // .populate("pollId")                
   // .populate("reviewId")
   // .populate("academicResourceId")

@@ -5,6 +5,7 @@ import session from 'express-session';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { checkRole } from '../middlewares/roleCheck.middleware.js';
 import Department from '../models/department.model.js';
+import xss from 'xss';
 import { courseValidation } from '../utils/validation.utils.js';
 import { isCourseCodeExists, isCourseNameExists } from '../data/courseController.js';
 
@@ -23,10 +24,10 @@ router.route('/addCourse').get(isLoggedIn,checkRole("admin"),async (req, res) =>
     
     console.log(req.body);
     
-    let courseName = req.body.courseName;
-    let courseCode = req.body.courseCode;
-    let courseDescription = req.body.courseDescription;
-    let courseDepartment = req.body.departmentId;
+    let courseName = xss(req.body.courseName);
+    let courseCode = xss(req.body.courseCode);
+    let courseDescription = xss(req.body.courseDescription);
+    let courseDepartment = xss(req.body.departmentId);
     if (!courseName || !courseCode || !courseDescription || !courseDepartment) {
         req.session.toast = {
             type: 'error',
@@ -207,13 +208,13 @@ router.route('/:id').get(async (req, res) => {
     }
 }).put(isLoggedIn,checkRole("admin"),async(req,res)=>{
     console.log('Updating course by ID');
-    const courseId = req.body.id|| req.params.id;
+    let courseId = xss(req.body.id) || req.params.id;
     console.log(courseId);
     console.log(req.body);
-    let courseName = req.body.courseName;
-    let courseCode = req.body.courseCode;
-    let courseDescription = req.body.courseDescription;
-    let courseDepartment = req.body.departmentId;
+    let courseName = xss(req.body.courseName);
+    let courseCode = xss(req.body.courseCode);
+    let courseDescription = xss(req.body.courseDescription);
+    let courseDepartment = xss(req.body.departmentId);
     if (!courseName || !courseCode || !courseDescription || !courseDepartment) {
         req.session.toast = {
             type: 'error',
