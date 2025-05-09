@@ -16,7 +16,7 @@ import {
   deleteCourseReviewById,
   filterCourseReviews,
 } from "../data/courseReviewController.js";
-import xss from "xss";
+
 
 const router = express.Router();
 
@@ -60,6 +60,13 @@ router.route("/").post(async (req, res) => {
     };
     return res.status(200).json(savedReview);
   } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.status(400).json({ error: error.message });
+  }
+}catch (error) {
     req.session.toast = {
       type: "error",
       message: error.message,
