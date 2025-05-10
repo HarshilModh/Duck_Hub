@@ -10,7 +10,7 @@ import {
 import Review from "../models/courseReviews.model.js";
 import ReviewVotes from "../models/reviewVotes.model.js";
 import Reports from "../models/reports.model.js";
-import { calculateRatings } from "../utils/calculateRatings.utils.js";
+import { calculateRatings,calculateRatingsDelete,calculateRatingsEdit } from "../utils/calculateRatings.utils.js";
 
 //Create a new course review
 export const createCourseReview = async (
@@ -57,8 +57,6 @@ export const createCourseReview = async (
     if (userReviews) {
       throw new Error("You have already reviewed this course");
     }
-
-    let totalReviews = await Review.countDocuments({ courseId: courseId });
 
     if (difficultyRating === undefined || difficultyRating === null) {
       throw new Error("You must provide a valid Difficulty Rating");
@@ -260,34 +258,10 @@ export const updateCourseReviewById = async (
     if (!course) {
       throw new Error("Course not found");
     }
-    const totalReviews = await Review.countDocuments({
-      courseId: reviewToUpdate.courseId,
-    });
-    let updatedAverageRating = 0;
-    let updatedDifficultyRating = 0;
-    if (totalReviews > 0) {
-      updatedAverageRating =
-        (course.averageRating * totalReviews - reviewToUpdate.overallRating) /
-        totalReviews;
-      updatedDifficultyRating =
-        (course.difficultyRating * totalReviews -
-          reviewToUpdate.difficultyRating) /
-        totalReviews;
-    }
-    console.log("Updated Average Rating: ", updatedAverageRating);
-    console.log("Updated Difficulty Rating: ", updatedDifficultyRating);
-    // Need to update the course with the new ratings
-    let updatedCourse = await Course.findByIdAndUpdate(
-      reviewToUpdate.courseId,
-      {
-        difficultyRating: updatedDifficultyRating,
-        averageRating: updatedAverageRating,
-        reviews: course.reviews,
-      },
-      { new: true }
-    );
-    if (!updatedCourse) {
-      throw new Error("Could not update the course with the new ratings");
+   // calculateRatingsEdit will return the updated ratings and along with that it will update the course with the new ratings
+    let {newOverallRating, newDifficultyRating} = await calculateRatingsEdit(course._id);
+    if (!newOverallRating || !newDifficultyRating) {
+      throw new Error("Could not calculate the ratings");
     }
     return reviewToUpdate;
   } catch (error) {
@@ -310,62 +284,12 @@ export const deleteCourseReviewById = async (reviewId) => {
     }
     console.log("Deleted Review: ", deletedReview);
     //deleted review is having courseId as objectId we need to convert it to string
-    let totalReviews = await Review.countDocuments({
-      courseId: deletedReview.courseId,
-    });
-    console.log("Total Reviews: ", totalReviews);
-
-    if (totalReviews === 0) {
-      //set course ratings to 0 and empty reviews
-      await Course.findByIdAndUpdate(deletedReview.courseId, {
-        difficultyRating: 0,
-        averageRating: 0,
-        reviews: [],
-      });
-      return { message: "Review deleted successfully", deletedReview };
-    } else {
-      //Need to update the logic to calculate the overall ratings here only
-      let course = await Course.findById(deletedReview.courseId);
-      if (!course) {
-        throw new Error("Course not found");
-      }
-      if (course.reviews) {
-        course.reviews = course.reviews.filter(
-          (review) => review.toString() !== reviewId.toString()
-        );
-      }
-      let newTotalReviews = await Review.countDocuments({
-        courseId: deletedReview.courseId,
-      });
-      console.log("New Total Reviews: ", newTotalReviews);
-      let updatedAverageRating = 0;
-      let updatedDifficultyRating = 0;
-      if (newTotalReviews > 0) {
-        updatedAverageRating =
-          (course.averageRating * totalReviews - deletedReview.overallRating) /
-          newTotalReviews;
-        updatedDifficultyRating =
-          (course.difficultyRating * totalReviews -
-            deletedReview.difficultyRating) /
-          newTotalReviews;
-      }
-      console.log("Updated Average Rating: ", updatedAverageRating);
-      console.log("Updated Difficulty Rating: ", updatedDifficultyRating);
-      // Need to update the course with the new ratings
-      let updatedCourse = await Course.findByIdAndUpdate(
-        deletedReview.courseId,
-        {
-          difficultyRating: updatedDifficultyRating,
-          averageRating: updatedAverageRating,
-          reviews: course.reviews,
-        },
-        { new: true }
-      );
-      if (!updatedCourse) {
-        throw new Error("Could not update the course with the new ratings");
-      }
-      return deletedReview;
+    //calculateRatingsDelete will return the updated ratings and along with that it will update the course with the new ratings
+    let {newOverallRating, newDifficultyRating} = await calculateRatingsDelete(deletedReview.courseId);
+    if (newOverallRating===undefined || newDifficultyRating===undefined) {
+      throw new Error("Could not calculate the ratings");
     }
+  return deletedReview;
   } catch (error) {
     throw new Error(`Error deleting the review: ${error.message}`);
   }

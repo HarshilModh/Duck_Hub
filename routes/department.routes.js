@@ -248,6 +248,30 @@ router.route("/editDepartment/:id").get(isLoggedIn,checkRole("admin"),async (req
         res.redirect('/departments');
     }
 });
-
+//search department regex
+router.route('/searchDepartment').get(isLoggedIn,checkRole("admin"),async (req, res) => {
+    const searchQuery = req.query.search;
+    console.log('Searching departments with query:', searchQuery);
+    try {
+        const departments = await getAllDepartments();
+        if (!departments) {
+            req.session.toast = {
+                type: 'error',
+                message: 'No departments found',
+            };
+            return res.redirect('/departments');
+        }
+        const filteredDepartments = departments.filter(department =>
+            department.departmentName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        res.render('department', { title: 'Department', departments: filteredDepartments });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch departments',
+        };
+    }
+});
 // Export the router
 export default router;
