@@ -1,19 +1,28 @@
 import express from 'express';
 import { createCourse, deleteCourseById, getAllCourses, getCourseById, updateCourseById } from '../data/courseController.js';
-import {createCourseReview,deleteCourseReviewById,downVoteReview,upVoteReview,getCourseReviewsByCourseId, getCourseReviewsByUserId, getReviewById, updateCourseReviewById} from "../data/courseReviewController.js"
+import { getAllDepartments } from '../data/departmentController.js';
+import { createCourseReview, deleteCourseReviewById, downVoteReview, upVoteReview, getCourseReviewsByCourseId, getCourseReviewsByUserId, getReviewById, updateCourseReviewById } from "../data/courseReviewController.js"
 import session from 'express-session';
 import xss from 'xss';
 import { isLoggedIn } from '../middlewares/auth.middleware.js';
 import { isValidID } from '../utils/validation.utils.js';
 
+
 const app = express();
 const router = express.Router();
 
 //load course reviews page
-router.route('/').get(isLoggedIn,async (req, res) => {
+router.route('/').get(isLoggedIn, async (req, res) => {
     console.log('Fetching all courses');
     try {
         const courses = await getAllCourses();
+        let departments = await getAllDepartments();
+        departments = departments.map((department) => {
+            return {
+                departmentId: department._id,
+                departmentName: department.departmentName,
+            };
+        });
         console.log(courses);
         if (!courses) {
             req.session.toast = {
@@ -23,8 +32,8 @@ router.route('/').get(isLoggedIn,async (req, res) => {
             return res.redirect('/users/userProfile');
         }
         console.log("rendering course page");
-        
-        res.render('userCourse', { title: 'Courses', courses });
+
+        res.render('userCourse', { title: 'Courses', courses, departments: departments });
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -35,7 +44,7 @@ router.route('/').get(isLoggedIn,async (req, res) => {
 
 });
 //load course details page with reviews
-router.route('/course/:id').get(isLoggedIn,async (req, res) => {
+router.route('/course/:id').get(isLoggedIn, async (req, res) => {
     let courseId = req.params.id;
     if (!courseId) {
         req.session.toast = {
@@ -70,7 +79,7 @@ router.route('/course/:id').get(isLoggedIn,async (req, res) => {
         let courseReviews = await getCourseReviewsByCourseId(courseId);
         if (!courseReviews || courseReviews.length === 0) {
             courseReviews = [];
-        }else{
+        } else {
             courseReviews = courseReviews.filter((review) => review.status === "active");
             courseReviews = courseReviews.map((review) => {
                 return {
@@ -92,8 +101,8 @@ router.route('/course/:id').get(isLoggedIn,async (req, res) => {
                         firstName: review?.userId?.firstName,
                         lastName: review?.userId?.lastName,
                     },
-                    
-                };                
+
+                };
             });
             for (let i = 0; i < courseReviews.length; i++) {
                 //if userid is not there in the review then set the userId to anonymous
@@ -107,7 +116,7 @@ router.route('/course/:id').get(isLoggedIn,async (req, res) => {
             }
             console.log("courseReviews: ", courseReviews);
         }
-        
+
         if (!course) {
             req.session.toast = {
                 type: 'error',
@@ -118,8 +127,8 @@ router.route('/course/:id').get(isLoggedIn,async (req, res) => {
         console.log("rendering course details page");
         console.log("courseName: ", course.courseName);
         console.log("courseCode: ", course.courseCode);
-        
-        res.render('userCourseDetails', { title: 'Course Details', course:course,courseReviews:courseReviews });
+
+        res.render('userCourseDetails', { title: 'Course Details', course: course, courseReviews: courseReviews });
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -129,7 +138,7 @@ router.route('/course/:id').get(isLoggedIn,async (req, res) => {
     }
 });
 //load add course review page
-router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
+router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
     console.log("req.session.user", req.session.user);
 
     let courseId = req.params.id;
@@ -174,8 +183,8 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
         console.log("courseName: ", course.courseName);
         console.log("courseCode: ", course.courseCode);
         console.log("courseId: ", course._id);
-        
-        res.render('addCourseReview', { title: 'Add Review', course ,courseId});
+
+        res.render('addCourseReview', { title: 'Add Review', course, courseId });
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -183,10 +192,10 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
             message: 'Failed to fetch course details',
         };
     }
-}).post(isLoggedIn,async (req, res) => {
+}).post(isLoggedIn, async (req, res) => {
     console.log("add review post request");
     console.log("req.session.user", req.session.user.user._id);
-    
+
     let courseId = req.params.id;
     let courseCode = (req.body.courseCode);
     let courseName = (req.body.courseName);
@@ -209,7 +218,7 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
     console.log("overallRating: ", overallRating);
     console.log("isAnonymous: ", isAnonymous);
 
-    
+
     if (!courseId) {
         req.session.toast = {
             type: 'error',
@@ -248,7 +257,7 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
             return res.redirect('/users/userProfile');
         }
         console.log("rendering add review page");
-        
+
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -292,9 +301,9 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
 
     const userId = (req.session.user.user._id);
     console.log("userId: ", userId);
- 
+
     try {
-        const createdReview = await createCourseReview( userId,
+        const createdReview = await createCourseReview(userId,
             courseId,
             review,
             difficultyRating,
@@ -306,13 +315,13 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
                 message: 'Failed to create review',
             };
             return res.redirect(`/userSideCourses/course/addReview/${courseId}`);
-        }else{
-        req.session.toast = {
-            type: 'success',
-            message: 'Review added successfully',
-        };
-        return res.redirect(`/userSideCourses/course/${courseId}`);
-    }
+        } else {
+            req.session.toast = {
+                type: 'success',
+                message: 'Review added successfully',
+            };
+            return res.redirect(`/userSideCourses/course/${courseId}`);
+        }
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -322,7 +331,7 @@ router.route('/course/addReview/:id').get(isLoggedIn,async (req, res) => {
         return res.redirect(`/userSideCourses/course/addReview/${courseId}`);
     }
 });
-router.route("/myReviews").get(isLoggedIn,async (req, res) => {
+router.route("/myReviews").get(isLoggedIn, async (req, res) => {
     console.log("Fetching all reviews");
     try {
         const userId = req.session.user.user._id;
@@ -362,7 +371,7 @@ router.route("/myReviews").get(isLoggedIn,async (req, res) => {
                 },
             };
         });
-        
+
         if (!courseReviews || courseReviews.length === 0) {
             req.session.toast = {
                 type: 'error',
@@ -371,7 +380,7 @@ router.route("/myReviews").get(isLoggedIn,async (req, res) => {
             return res.redirect('/users/userProfile');
         }
         console.log("rendering my reviews page");
-        
+
         res.render('MyReviews', { title: 'My Reviews', courseReviews });
     } catch (error) {
         console.error(error);
@@ -382,7 +391,7 @@ router.route("/myReviews").get(isLoggedIn,async (req, res) => {
     }
 });
 //delete review
-router.route('/deleteReview/:id').get(isLoggedIn,async (req, res) => {
+router.route('/deleteReview/:id').get(isLoggedIn, async (req, res) => {
     console.log("delete review request");
     let reviewId = req.params.id;
     if (!reviewId) {
@@ -437,13 +446,13 @@ router.route('/deleteReview/:id').get(isLoggedIn,async (req, res) => {
     return res.redirect(`/userSideCourses`);
 });
 // reviews/6811b81134bd42a91111f888/vote
-{/* <input type="hidden" name="vote" value="up"> */}
+{/* <input type="hidden" name="vote" value="up"> */ }
 
-router.route('/reviews/:id/vote').post(isLoggedIn,async (req, res) => {
+router.route('/reviews/:id/vote').post(isLoggedIn, async (req, res) => {
 
     console.log("vote review request");
     let reviewId = req.params.id;
-    let userId = req.session.user.user._id;  
+    let userId = req.session.user.user._id;
     let courseId = xss(req.body.courseId);
     if (!reviewId) {
         req.session.toast = {
@@ -494,7 +503,7 @@ router.route('/reviews/:id/vote').post(isLoggedIn,async (req, res) => {
             req.session.toast = {
                 type: 'error',
                 message: 'Invalid review ID',
-            };      
+            };
             return res.redirect(`/userSideCourses/course/${courseId}`);
         }
     }
@@ -569,11 +578,11 @@ router.route('/reviews/:id/vote').post(isLoggedIn,async (req, res) => {
             type: 'error',
             message: `Failed to add vote: ${error.message}`,
         };
-    return res.redirect(`/userSideCourses/course/${courseId}`);
+        return res.redirect(`/userSideCourses/course/${courseId}`);
     }
-    
+
 });
-router.route('/editReview/:id').get(isLoggedIn,async (req, res) => {
+router.route('/editReview/:id').get(isLoggedIn, async (req, res) => {
     console.log("edit review request");
     let reviewId = req.params.id;
     if (!reviewId) {
@@ -616,7 +625,7 @@ router.route('/editReview/:id').get(isLoggedIn,async (req, res) => {
         }
         console.log("rendering edit review page");
         console.log("review: ", review);
-        
+
         res.render('editReview', { title: 'Edit Review', review });
     } catch (error) {
         console.error(error);
@@ -625,44 +634,44 @@ router.route('/editReview/:id').get(isLoggedIn,async (req, res) => {
             message: 'Failed to fetch review details',
         };
     }
-}).post(isLoggedIn,async (req, res) => {
-        let reviewId = req.params.id;
+}).post(isLoggedIn, async (req, res) => {
+    let reviewId = req.params.id;
 
     try {
-    let review = xss(req.body.review);
-    let difficultyRating = xss(req.body.difficultyRating);
-    let overallRating = xss(req.body.overallRating);
-    if(!reviewId) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Review ID is required',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    reviewId = reviewId.trim();
+        let review = xss(req.body.review);
+        let difficultyRating = xss(req.body.difficultyRating);
+        let overallRating = xss(req.body.overallRating);
+        if (!reviewId) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Review ID is required',
+            };
+            return res.redirect('/users/userProfile');
+        }
+        reviewId = reviewId.trim();
 
-    // Fetch course details
-    if(!difficultyRating || !overallRating ) {
-        req.session.toast = {
-            type: 'error',
-            message: 'All fields are required',
-        };
-        return res.redirect(`/userSideCourses/editReview/${reviewId}`);
-    }   
-    if(isNaN(difficultyRating) || isNaN(overallRating)) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Invalid rating values',
-        };
-        return res.redirect(`/userSideCourses/editReview/${reviewId}`);
-    }
-    if(difficultyRating < 1 || difficultyRating > 3 || overallRating < 0 || overallRating > 5) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Invalid rating values',
-        };
-        return res.redirect(`/userSideCourses/editReview/${reviewId}`);
-    }
+        // Fetch course details
+        if (!difficultyRating || !overallRating) {
+            req.session.toast = {
+                type: 'error',
+                message: 'All fields are required',
+            };
+            return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+        }
+        if (isNaN(difficultyRating) || isNaN(overallRating)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid rating values',
+            };
+            return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+        }
+        if (difficultyRating < 1 || difficultyRating > 3 || overallRating < 0 || overallRating > 5) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid rating values',
+            };
+            return res.redirect(`/userSideCourses/editReview/${reviewId}`);
+        }
         if (!isValidID(reviewId)) {
             req.session.toast = {
                 type: 'error',
@@ -670,11 +679,11 @@ router.route('/editReview/:id').get(isLoggedIn,async (req, res) => {
             };
             return res.redirect('/users/userProfile');
         }
- 
-    // Feth course details
-    console.log('Fetching review with ID:', reviewId);
-    
-        const updatedReview = await updateCourseReviewById(reviewId,difficultyRating, overallRating, review);
+
+        // Feth course details
+        console.log('Fetching review with ID:', reviewId);
+
+        const updatedReview = await updateCourseReviewById(reviewId, difficultyRating, overallRating, review);
         if (!updatedReview) {
             req.session.toast = {
                 type: 'error',
@@ -695,10 +704,10 @@ router.route('/editReview/:id').get(isLoggedIn,async (req, res) => {
         };
         return res.redirect(`/userSideCourses/editReview/${reviewId}`);
     }
-    
+
 });
 //Courses by department
-router.route('/departmentCourses/:id').get(isLoggedIn,async (req, res) => {
+router.route('/departmentCourses/:id').get(isLoggedIn, async (req, res) => {
     console.log("Fetching all courses by department");
     let departmentId = req.params.id;
     if (!departmentId) {
@@ -731,7 +740,7 @@ router.route('/departmentCourses/:id').get(isLoggedIn,async (req, res) => {
     console.log('Fetching course with ID:', departmentId);
     try {
         let courses = await getAllCourses();
-        courses= courses.filter((course) => course.departmentId._id.toString() === departmentId);
+        courses = courses.filter((course) => course.departmentId._id.toString() === departmentId);
         if (!courses) {
             req.session.toast = {
                 type: 'error',
@@ -740,7 +749,7 @@ router.route('/departmentCourses/:id').get(isLoggedIn,async (req, res) => {
             return res.redirect('/users/userProfile');
         }
         console.log("rendering course page");
-        
+
         res.render('userCourse', { title: 'Courses', courses });
     } catch (error) {
         console.error(error);
@@ -752,166 +761,134 @@ router.route('/departmentCourses/:id').get(isLoggedIn,async (req, res) => {
 
 }
 );
-//Filter courses by difficulty rating range
-router.route('/filterCourses').post(isLoggedIn,async (req, res) => {
-    console.log("Fetching all courses by difficulty rating");
-    let minDifficultyRating = req.body.minDifficultyRating;
-    let maxDifficultyRating = req.body.maxDifficultyRating;
-    if (!minDifficultyRating || !maxDifficultyRating) {
-        req.session.toast = {
-            type: 'error',
-            message: 'All fields are required',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Check if minDifficultyRating and maxDifficultyRating are numbers
-    if (isNaN(minDifficultyRating) || isNaN(maxDifficultyRating)) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Invalid rating values',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Check if minDifficultyRating and maxDifficultyRating are within valid ranges
-    if (minDifficultyRating < 1 || minDifficultyRating > 3 || maxDifficultyRating < 1 || maxDifficultyRating > 3) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Invalid rating values',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Fetch course details
-    console.log('Fetching course with ID:', minDifficultyRating);
+
+//Here user can filter courses by difficulty rating, average rating and department and he can also filter by any one of them
+router.route("/filterCoursesCombined").post(isLoggedIn, async (req, res) => {
     try {
+        let minDifficultyRating = xss(req.body.minDifficultyRating);
+        let maxDifficultyRating = xss(req.body.maxDifficultyRating);
+        let minAverageRating = xss(req.body.minAverageRating);
+        let maxAverageRating = xss(req.body.maxAverageRating);
+        let departmentId = req.body.departmentId;
+        console.log("minDifficultyRating: ", minDifficultyRating);
+        console.log("maxDifficultyRating: ", maxDifficultyRating);
+        console.log("minAverageRating: ", minAverageRating);
+        console.log("maxAverageRating: ", maxAverageRating);
+        console.log("departmentId: ", departmentId);
+      //Now if we dont have any of the values then we will not filter by that value we will just filter by value we have in the request
         let courses = await getAllCourses();
-        courses= courses.filter((course) => course.difficultyRating >= minDifficultyRating && course.difficultyRating <= maxDifficultyRating);
+        if (minDifficultyRating && maxDifficultyRating) {
+            if (minDifficultyRating === maxDifficultyRating) {
+                courses = courses.filter((course) => course.difficultyRating == minDifficultyRating);
+                console.log("minDifficultyRating === maxDifficultyRating");
+                console.log("courses: ", courses);
+            }
+            else {
+                courses = courses.filter((course) => course.difficultyRating >= minDifficultyRating && course.difficultyRating <= maxDifficultyRating);
+            }
+        }
+        if (minAverageRating && maxAverageRating) {
+            if (minAverageRating === maxAverageRating) {
+                courses = courses.filter((course) => course.averageRating == minAverageRating);
+                console.log("minAverageRating === maxAverageRating");
+                console.log("courses: ", courses);
+            }
+            else {
+                courses = courses.filter((course) => course.averageRating >= minAverageRating && course.averageRating <= maxAverageRating);
+            }
+        }
+        if (departmentId) {
+            // Check if departmentId is a valid ObjectId
+            try {
+                if (!isValidID(departmentId)) {
+                    req.session.toast = {
+                        type: 'error',
+                        message: 'Invalid department ID',
+                    };
+                    return res.redirect('/userSideCourses');
+                }
+            }
+            catch (error) {
+                console.error(error);
+                req.session.toast = {
+                    type: 'error',
+                    message: 'Invalid department ID',
+                };
+                return res.redirect('/userSideCourses');
+            }
+            // Fetch course details
+            console.log('Fetching course with ID:', departmentId);
+            courses = courses.filter((course) => course.departmentId._id.toString() === departmentId);
+        }
+
+        let departments = await getAllDepartments();
+        departments = departments.map((department) => {
+            return {
+                departmentId: department._id,
+                departmentName: department.departmentName,
+            };
+        });
         if (!courses) {
             req.session.toast = {
                 type: 'error',
                 message: 'No courses found',
             };
-            return res.redirect('/users/userProfile');
+            return res.redirect('/userSideCourses');
         }
         console.log("rendering course page");
-        
-        res.render('userCourse', { title: 'Courses', courses });
-    } catch (error) {
-        console.error(error);
-        req.session.toast = {
-            type: 'error',
-            message: 'Failed to fetch courses',
-        };
-    }
 
-}
-);
-//Filter courses by average rating range
-router.route('/filterCoursesByAverageRating').post(isLoggedIn,async (req, res) => {
-    console.log("Fetching all courses by average rating");
-    let minAverageRating = req.body.minAverageRating;
-    let maxAverageRating = req.body.maxAverageRating;
-    if (!minAverageRating || !maxAverageRating) {
-        req.session.toast = {
-            type: 'error',
-            message: 'All fields are required',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Check if minAverageRating and maxAverageRating are numbers
-    if (isNaN(minAverageRating) || isNaN(maxAverageRating)) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Invalid rating values',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Check if minAverageRating and maxAverageRating are within valid ranges
-    if (minAverageRating < 0 || minAverageRating > 5 || maxAverageRating < 0 || maxAverageRating > 5) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Invalid rating values',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Fetch course details
-    console.log('Fetching course with ID:', minAverageRating);
-    try {
-        let courses = await getAllCourses();
-        courses= courses.filter((course) => course.averageRating >= minAverageRating && course.averageRating <= maxAverageRating);
-        if (!courses) {
-            req.session.toast = {
-                type: 'error',
-                message: 'No courses found',
-            };
-            return res.redirect('/users/userProfile');
-        }
-        console.log("rendering course page");
-        
-        res.render('userCourse', { title: 'Courses', courses });
-    } catch (error) {
-        console.error(error);
-        req.session.toast = {
-            type: 'error',
-            message: 'Failed to fetch courses',
-        };
-    }
-
-}
-);
-//Filter courses by Department
-router.route('/filterCoursesByDepartment').post(isLoggedIn,async (req, res) => {
-    console.log("Fetching all courses by department");
-    let departmentId = req.body.departmentId;
-    if (!departmentId) {
-        req.session.toast = {
-            type: 'error',
-            message: 'Department ID is required',
-        };
-        return res.redirect('/users/userProfile');
-    }
-    // Check if departmentId is a valid ObjectId
-    try {
-        if (!isValidID(departmentId)) {
-            req.session.toast = {
-                type: 'error',
-                message: 'Invalid department ID',
-            };
-            return res.redirect('/users/userProfile');
-        }
+        res.render('userCourse', { title: 'Courses', courses, filtered: true, departments: departments });
     }
     catch (error) {
         console.error(error);
         req.session.toast = {
             type: 'error',
-            message: 'Invalid department ID',
+            message: 'Failed to fetch courses',
         };
-        return res.redirect('/users/userProfile');
+        return res.redirect('/userSideCourses');
     }
-    // Fetch course details
-    console.log('Fetching course with ID:', departmentId);
+});
+
+//Search courses by course code or course name without filtering and even for example if user types "CS" then it will show all the courses which have CS in their course code or course name
+router.route("/searchCourses").post(isLoggedIn, async (req, res) => {
     try {
+        let search = xss(req.body.search);
+        console.log("search: ", search);
         let courses = await getAllCourses();
-        courses= courses.filter((course) => course.departmentId._id.toString() === departmentId);
+        let departments = await getAllDepartments();
+        departments = departments.map((department) => {
+            return {
+                departmentId: department._id,
+                departmentName: department.departmentName,
+            };
+        });
+        if (!search) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Search is required',
+            };
+            return res.redirect('/userSideCourses');
+        }
+        courses = courses.filter((course) => course.courseCode.toLowerCase().includes(search.toLowerCase()) || course.courseName.toLowerCase().includes(search.toLowerCase()));
         if (!courses) {
             req.session.toast = {
                 type: 'error',
                 message: 'No courses found',
             };
-            return res.redirect('/users/userProfile');
+            return res.redirect('/userSideCourses');
         }
         console.log("rendering course page");
-        
-        res.render('userCourse', { title: 'Courses', courses });
-    } catch (error) {
+
+        res.render('userCourse', { title: 'Courses', courses, filtered: true,search: search,departments: departments });
+    }
+    catch (error) {
         console.error(error);
         req.session.toast = {
             type: 'error',
             message: 'Failed to fetch courses',
         };
+        return res.redirect('/userSideCourses');
     }
-
-}
-);
-//Search courses by course code or course name
+});
 
 export default router; 

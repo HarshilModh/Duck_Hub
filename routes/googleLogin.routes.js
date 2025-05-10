@@ -25,7 +25,7 @@ router.get(
       };
       console.log('User authenticated:', req.session.user);
 
-      res.redirect('/forums'); // Redirect to the desired page after successful login
+      res.redirect('forums'); // Redirect to the desired page after successful login
     } catch (err) {
       console.log(err);
       req.session.toast = {

@@ -6,9 +6,10 @@ const reviewSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: User.modelName,
+      ref: "User",
       required: true,
       trim: true,
+      unique: false,
     },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +25,7 @@ const reviewSchema = new mongoose.Schema(
     },
     overallRating: {
       type: Number,
-      min: 0,
+      min: 1,
       max: 5,
       required: true,
     },
@@ -66,6 +67,7 @@ const reviewSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// reviewSchema.index({ userId: 1, courseId: 1 }, { unique: true });
 
 const Review = mongoose.model("Review", reviewSchema);
 
