@@ -740,6 +740,13 @@ router.route('/departmentCourses/:id').get(isLoggedIn, async (req, res) => {
     console.log('Fetching course with ID:', departmentId);
     try {
         let courses = await getAllCourses();
+        let departments = await getAllDepartments();
+        departments = departments.map((department) => {
+            return {
+                departmentId: department._id,
+                departmentName: department.departmentName,
+            };
+        });
         courses = courses.filter((course) => course.departmentId._id.toString() === departmentId);
         if (!courses) {
             req.session.toast = {
@@ -750,7 +757,7 @@ router.route('/departmentCourses/:id').get(isLoggedIn, async (req, res) => {
         }
         console.log("rendering course page");
 
-        res.render('userCourse', { title: 'Courses', courses });
+        res.render('userCourse', { title: 'Courses', courses , filtered: true, departments: departments });
     } catch (error) {
         console.error(error);
         req.session.toast = {

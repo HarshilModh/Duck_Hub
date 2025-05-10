@@ -81,7 +81,7 @@
         >
           <option value="" selected>All departments</option>
           {{#each departments}}
-            <option value="{{this._id}}">{{this.departmentName}}</option>
+            <option value="{{this.departmentId}}">{{this.departmentName}}</option>
           {{/each}}
         </select>
       </div>
@@ -122,12 +122,13 @@
             {{#if (eq ../user.role "admin")}}
               <div class="absolute bottom-4 right-4 flex space-x-2">
                 <a
-                  href="/courses/{{this._id}}/edit"
+                  href="/courses/{{this._id}}"
                   class="bg-stevensMaroon text-stevensWhite px-3 py-1 rounded-lg text-sm hover:bg-stevensMaroon/90 transition"
                 >
                   Edit
                 </a>
-                <form action="/courses/{{this._id}}?_method=DELETE" method="POST" onsubmit="return confirm('Delete “{{this.courseName}}”?');">
+                <form action="/courses/{{this._id}}" method="POST" onsubmit="return confirm('Delete “{{this.courseName}}”?');">
+                  <input type="hidden" name="_method" value="DELETE" />
                   <button
                     type="submit"
                     class="bg-red-600 text-stevensWhite px-3 py-1 rounded-lg text-sm hover:bg-red-700 transition"

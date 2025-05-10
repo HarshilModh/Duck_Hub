@@ -627,3 +627,17 @@ export const reportReview = async (reviewId, userId) => {
     throw new Error(error.message);
   }
 };
+
+//delete review by courseId
+export const deleteReviewByCourseId = async (courseId) => {
+  try {
+    courseId = isValidID(courseId, "Course ID");
+    let deletedReview = await Review.deleteMany({ courseId: courseId });
+    if (!deletedReview) {
+      throw new Error("Review not found");
+    }
+    return deletedReview;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
