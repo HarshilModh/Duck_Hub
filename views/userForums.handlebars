@@ -1,40 +1,53 @@
+{{!-- views/userForums.hbs --}}
+<div class="forum-body">
+
+  {{!-- ── YOUR FORUM POSTS ────────────────────────────────────────────────── --}}
   <section class="user-posts-section">
     <h2>Your Forum Posts</h2>
 
     {{#if forumPosts.length}}
       <div class="forum-posts-list">
         {{#each forumPosts}}
-          <div class="forum-post-card">
+          <div class="forum-post-card" data-id="{{this._id}}">
             <div class="post-actions">
-              <a href="/forums/{{_id}}/edit-choice" class="edit-button" title="Edit this post">
-                <img src="/public/images/icons/compose.png" alt="Edit icon" class="action-icon"/>
+              <a href="#"
+                 class="edit-button"
+                 data-id="{{this._id}}"
+                 data-type="forum"
+                 title="Edit this post">
+                <img src="/public/images/icons/compose.png"
+                     alt="Edit icon"
+                     class="action-icon"/>
               </a>
               <button
                 type="button"
                 class="delete-button"
-                data-id="{{_id}}"
+                data-id="{{this._id}}"
+                data-type="forum"
                 title="Delete this post"
               >
-                <img src="/public/images/icons/bin.png" alt="Trash icon" class="action-icon"/>
+                <img src="/public/images/icons/bin.png"
+                     alt="Trash icon"
+                     class="action-icon"/>
               </button>
             </div>
 
-            <h3 class="forum-title">{{title}}</h3>
+            <h3 class="forum-title">{{this.title}}</h3>
             <p class="forum-posted-by">
-              Posted by: {{userId.firstName}} {{userId.lastName}}
+              Posted by: {{this.userId.firstName}} {{this.userId.lastName}}
             </p>
-            <p class="forum-content">{{content}}</p>
+            <p class="forum-content">{{this.content}}</p>
 
-            {{#if imageURLs.length}}
+            {{#if this.imageURLs.length}}
               <div class="forum-images">
-                {{#each imageURLs}}
+                {{#each this.imageURLs}}
                   <img src="{{this}}" alt="Forum Image" class="forum-image"/>
                 {{/each}}
               </div>
             {{/if}}
 
             <a
-              href="/forums/user/comments/view/{{_id}}"
+              href="/forums/user/comments/view/{{this._id}}"
               class="comments-button"
               title="View comments for this post"
             >
@@ -50,52 +63,49 @@
     {{/if}}
   </section>
 
-  {{!-- ── YOUR POLL POSTS ───────────────────────────────────────────── --}}
-  <section class="user-posts-section" style="margin-top:40px;">
+  {{!-- ── YOUR POLL POSTS ─────────────────────────────────────────────── --}}
+  <section class="user-posts-section">
     <h2>Your Polls</h2>
 
     {{#if pollPosts.length}}
       <div class="poll-posts-list">
         {{#each pollPosts}}
-          <div class="poll-post-card">
+          <div class="poll-post-card" data-id="{{this._id}}">
             <div class="post-actions">
-              <a href="/polls/{{_id}}/edit" class="edit-button" title="Edit this poll">
-                <img src="/public/images/icons/compose.png" alt="Edit icon" class="action-icon"/>
-              </a>
               <button
                 type="button"
                 class="delete-button"
-                data-id="{{_id}}"
+                data-id="{{this._id}}"
+                data-type="poll"
                 title="Delete this poll"
               >
-                <img src="/public/images/icons/bin.png" alt="Trash icon" class="action-icon"/>
+                <img src="/public/images/icons/bin.png"
+                     alt="Trash icon"
+                     class="action-icon"/>
               </button>
             </div>
 
-            <h3 class="poll-question">{{question}}</h3>
+            <h3 class="poll-question">{{this.question}}</h3>
             <p class="poll-meta">
-              Posted By: {{createdBy.firstName}} {{createdBy.lastName}} 
+              Posted By: {{this.createdBy.firstName}} {{this.createdBy.lastName}}
             </p>
 
-            {{#if imageURLs.length}}
+            {{#if this.imageURLs.length}}
               <div class="forum-images">
-                {{#each imageURLs}}
-                  <img src="{{this}}" alt="Forum Image" class="forum-image"/>
+                {{#each this.imageURLs}}
+                  <img src="{{this}}" alt="Poll Image" class="forum-image"/>
                 {{/each}}
               </div>
             {{/if}}
 
-            {{!-- show options and vote counts if you like --}}
             <ul class="poll-options">
-              {{#each options}}
-                <li>
-                  {{this.answer}} — {{this.votes}} votes
-                </li>
+              {{#each this.options}}
+                <li>{{this.answer}} ({{this.votes}} votes)</li>
               {{/each}}
             </ul>
 
             <a
-              href="/polls/user/comments/view/{{_id}}"
+              href="/polls/user/comments/view/{{this._id}}"
               class="view-poll-button"
               title="View this poll"
             >
@@ -111,6 +121,56 @@
     {{/if}}
   </section>
 
+</div>
+
+{{!-- ── EDIT FORUM POST MODAL ────────────────────────────────────────── --}}
+<div id="editModal" class="modal hidden">
+  <div class="modal-content">
+    <button class="modal-close" title="Close">&times;</button>
+    <h3>Edit Forum Post</h3>
+    <form id="editForm" enctype="multipart/form-data">
+      <input type="hidden" name="postId" id="edit-post-id">
+
+      <div class="form-group">
+        <label for="edit-title">Title</label>
+        <input type="text" id="edit-title" name="title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="edit-content">Content</label>
+        <textarea id="edit-content" name="content" rows="5" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Existing Images</label>
+        <div id="existing-images" class="forum-images"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="new-images">Add New Images</label>
+        <input type="file" id="new-images" name="newImages" multiple accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label>Current Tags</label>
+        <div id="current-tags" class="current-tags"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="new-tags">New Tags</label>
+        <select id="new-tags" name="newTags" multiple>
+          {{#each tags}}
+            <option value="{{this._id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="editCancel">Cancel</button>
+        <button type="submit">Save</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>

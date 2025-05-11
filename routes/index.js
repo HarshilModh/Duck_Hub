@@ -31,6 +31,7 @@ const constructorMethods = (app) => {
   app.use("/campusresources", CampusResourceRoutes); // Assuming you have a campusResource.routes.js file
   app.use("/userSideCampusResources", userSideCampusResourcesRoutes); // Assuming you have a userSideCampusResources.routes.js file
   app.use("/announcements", adminAnouncementRoutes);
+  app.use("/forgot-password", forgotPasswordRoutes);
  // Google login routes
   app.use("/auth", googleLogin); 
   app.use(/(.*)/, (req, res) => {

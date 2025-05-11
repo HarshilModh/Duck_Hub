@@ -11,7 +11,7 @@ const forumSchema = new mongoose.Schema(
       ref: User.modelName,
       required: true,
       trim: true,
-      maxLength: 50,
+      maxLength: 250,
     },
     title: {
       type: String,

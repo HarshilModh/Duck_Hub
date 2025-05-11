@@ -204,11 +204,13 @@ router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
   try {
     // fetch only this user's forums & polls
     const forumPosts = await getForumPostsByUserId(userId);
-    const pollPosts = await Poll.find({ createdBy: userId }).populate("createdBy", "firstName lastName").lean();
+    const pollPosts = await Poll.find({ createdBy: userId }).populate("createdBy tags", "firstName lastName name").populate("tags", "name").lean();
+    const tags = await Tags.find({}).lean();
     const loggedUserId = req.session.user?.user?._id || null;
     res.render("userForums", {
       forumPosts,
       pollPosts,
+      tags,
       postType,
       loggedUserId,
       customStyles: '<link rel="stylesheet" href="/public/css/userForums.css">',
@@ -319,8 +321,10 @@ router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
     }
     let title = xss(req.body.title);
     let content = xss(req.body.content);
-    let tags = xss(req.body.tags);
+    let tags = xss(req.body.newTags);
     let imageURLs = [];
+
+    tags = tags.split(",").map((tag) => tag.trim());
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {

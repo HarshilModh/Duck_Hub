@@ -1,309 +1,265 @@
 /* ──────────────────── Section Wrapper & Headings ──────────────────── */
-
-/* Align sections with post-card container */
+/* Top‑level wrapper (drops any inline margin) */
 .forum-body .user-posts-section {
   max-width: 900px;
   margin: 0 auto;
   padding: 0 1rem;
 }
-
-/* Section headings (“Your Forum Posts” / “Your Polls”) */
+/* Space between the forum section and the polls section */
+.forum-body .user-posts-section + .user-posts-section {
+  margin-top: 2rem;
+}
+/* Section titles */
 .forum-body .user-posts-section h2 {
   font-size: 1.75rem;
-  margin-bottom: 1rem; /* matches gap between cards */
+  margin: 0 0 1rem;
+  color: #363D45;
 }
 
-
-/* ──────────────────── Forum Posts List & Cards ──────────────────── */
-
-/* Container for all forum posts */
-.forum-body .forum-posts-list {
-  width: 100%;
+/* ─────────────────────────── Lists ─────────────────────────── */
+/* Both forum- and poll- lists share these styles */
+.forum-body .user-posts-section .forum-posts-list,
+.forum-body .user-posts-section .poll-posts-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;    /* vertical gap between cards */
-  margin: 0;    /* flush under heading */
-  max-width: 900px;
-  padding: 0 1rem;
-  margin: 0 auto;
+  gap: 1rem;
 }
 
-/* Individual forum post card */
-.forum-body .forum-post-card {
+/* ─────────────────────────── Cards ─────────────────────────── */
+/* Shared card styles for forum and poll cards */
+.forum-body .forum-post-card,
+.forum-body .poll-post-card {
   position: relative;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  padding: 1rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 1rem 1.5rem;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-
-/* Forum title with space for icons */
-.forum-body .forum-post-card .forum-title {
-  margin: 0;
-  padding-right: 4.5rem;
-  font-weight: bold;
-  font-size: 1.25rem;
-  line-height: 1.2;
-}
-
-/* Edit & delete icon container */
-.forum-body .forum-post-card .post-actions {
+/* Edit/Delete icon container */
+.forum-body .post-actions {
   position: absolute;
   top: 1rem;
   right: 1rem;
   display: flex;
   gap: 0.5rem;
 }
-
-/* Action-icon sizing */
-.forum-body .forum-post-card .post-actions .action-icon,
-.forum-body .poll-post-card   .post-actions .action-icon {
+.forum-body .post-actions .action-icon {
   width: 24px;
   height: 24px;
-  object-fit: contain;
 }
 
-/* Action-button base */
-.forum-body .forum-post-card .post-actions button,
-.forum-body .poll-post-card   .post-actions button {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  line-height: 1;
+/* ────────────────────── Forum‑Specific Styles ────────────────────── */
+.forum-body .forum-post-card .forum-title {
+  margin: 0 0 0.5rem;
+  padding-right: 4.5rem;   /* space for the icons */
+  font-size: 1.25rem;
+  font-weight: 600;
 }
-
-/* Hover effect on icons */
-.forum-body .forum-post-card .post-actions button:hover .action-icon,
-.forum-body .poll-post-card   .post-actions button:hover .action-icon {
-  opacity: 0.8;
-  transform: scale(1.1);
-}
-
-/* “Posted by” line */
 .forum-body .forum-post-card .forum-posted-by {
   font-style: italic;
   font-size: 0.9rem;
-  margin: 0.5rem 0;
+  color: #555;
+  margin-bottom: 0.75rem;
 }
-
-/* Post content */
 .forum-body .forum-post-card .forum-content {
   font-size: 1rem;
-  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
 }
-
-/* Forum image gallery */
 .forum-body .forum-post-card .forum-images {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 .forum-body .forum-post-card .forum-image {
   width: 100px;
-  height: auto;
   border-radius: 4px;
 }
 
-/* Comments button */
+/* Centered “COMMENTS” button */
 .forum-body .forum-post-card .comments-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 120px;
-  margin: 0.75rem auto 0;
-  padding: 0.5rem 1rem;
+  display: block;
+  margin: 1rem auto 0;
+  text-align: center;
   background-color: #9d1535;
   color: #fff;
-  border: none;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+.forum-body .forum-post-card .comments-button:hover {
+  background-color: #7a1b2b;
 }
 
-
-/* ──────────────────── Poll Posts List & Cards ──────────────────── */
-
-/* Container for all poll posts */
-.forum-body .poll-posts-list {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin: 0;    /* flush under heading */
-  max-width: 900px;
-  padding: 0 1rem;
-  margin: 0 auto;
-}
-
-/* Individual poll post card */
-.forum-body .poll-post-card {
-  position: relative;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-/* Poll question/title */
+/* ────────────────────── Poll‑Specific Styles ────────────────────── */
 .forum-body .poll-post-card .poll-question {
-  margin: 0;
-  padding-right: 4.5rem;
-  font-weight: bold;
+  margin: 0 0 0.5rem;
+  padding-right: 4.5rem;   /* space for the icons */
   font-size: 1.25rem;
-  line-height: 1.2;
+  font-weight: 600;
 }
-
-/* Container for poll edit/delete icons */
-.forum-body .poll-post-card .post-actions {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Poll meta info */
 .forum-body .poll-post-card .poll-meta {
   font-style: italic;
   font-size: 0.9rem;
-  margin: 0.5rem 0;
   color: #555;
+  margin-bottom: 1rem;
 }
-
-/* Poll options list */
 .forum-body .poll-post-card .poll-options {
   list-style: disc inside;
-  margin: 0.5rem 0;
-  padding-left: 1rem;
+  margin-bottom: 1rem;
 }
 .forum-body .poll-post-card .poll-options li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
   font-size: 1rem;
 }
-
-/* Poll image gallery */
 .forum-body .poll-post-card .forum-images {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 .forum-body .poll-post-card .forum-image {
   width: 100px;
-  height: auto;
   border-radius: 4px;
 }
 
-/* View Poll button, centered */
+/* Centered “VIEW” button */
 .forum-body .poll-post-card .view-poll-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 120px;
-  margin: 0.75rem auto 0;
-  padding: 0.5rem 1rem;
+  display: block;
+  margin: 1rem auto 0;
+  text-align: center;
   background-color: #9d1535;
   color: #fff;
-  border: none;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  transition: background 0.3s;
 }
 .forum-body .poll-post-card .view-poll-button:hover {
   background-color: #7a1b2b;
 }
 
-
-/* ──────────────────── Edit Modal Styles ──────────────────── */
-
-/* Hide by default */
-.modal.hidden {
+/* ────────────────────── Modal & Form Styles ────────────────────── */
+.forum-body .modal.hidden {
   display: none;
 }
-
-/* Overlay */
-.modal {
+.forum-body .modal {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  background: rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
   z-index: 1000;
+  overflow: auto;              /* allow page scroll if modal is taller */
 }
-
-/* Modal content box */
-.modal-content {
-  background-color: #fff;
-  padding: 1.5rem;
-  border-radius: 4px;
+.forum-body .modal-content {
+  background: #fff;
+  border-radius: 8px;
+  padding: 2rem;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
+  max-height: 90vh;            /* never exceed 90% of viewport height */
+  overflow-y: auto;            /* enable scrolling inside the modal */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   position: relative;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-
-/* Close button */
-.modal-close {
+.forum-body .modal-close {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 1rem;
+  right: 1rem;
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
   color: #333;
 }
-
-/* Modal header */
-.modal-header {
-  margin: 0 0 1rem;
-  font-size: 1.25rem;
-  font-weight: bold;
+.forum-body .form-group {
+  margin-bottom: 1.25rem;
 }
-
-/* Form groups in modal */
-.form-group {
-  margin-bottom: 1rem;
-}
-.form-group label {
+.forum-body .form-group label {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
   font-weight: 500;
 }
-.form-control {
+.forum-body .form-group input[type="text"],
+.forum-body .form-group textarea,
+.forum-body .form-group input[type="file"],
+.forum-body .form-group select {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
   line-height: 1.4;
 }
-
-/* Modal buttons */
-.form-actions {
-  text-align: right;
-  margin-top: 1rem;
+.forum-body .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
-.btn {
+.forum-body .modal-actions button {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  line-height: 1.2;
-  margin-left: 0.5rem;
 }
-.btn-secondary {
+.forum-body #editCancel {
   background-color: #e0e0e0;
   color: #333;
 }
-.btn-primary {
+.forum-body button[type="submit"] {
   background-color: #9d1535;
   color: #fff;
+}
+
+/* ──────────────────── Edit Modal Image & Tag Styles ──────────────────── */
+/* Existing image thumbnails in the modal */
+#existing-images .image-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0.25rem;
+}
+/* Remove‑image “×” button */
+#existing-images .remove-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255,255,255,0.8);
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+/* Marked-for-deletion styling */
+#existing-images .image-wrapper.to-delete {
+  opacity: 0.5;
+}
+/* Tag badges for current tags */
+#current-tags .tag-badge {
+  display: inline-block;
+  background: #eee;
+  padding: 0.25rem 0.5rem;
+  margin: 0 0.25rem 0.25rem 0;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+/* New‑tags multi‑select */
+#new-tags {
+  min-height: 4rem;
+}
+
+/* Make long lists scrollable inside modal */
+#existing-images,
+.current-tags {
+  max-height: 30vh;
+  overflow-y: auto;
 }
