@@ -21,7 +21,7 @@ export async function createPoll({
   if (!Array.isArray(options) || options.length < 2) {
     throw new Error("You must provide at least two options");
   }
-  if (imageURLs) {
+  if (imageURLs && imageURLs.length > 0) {
     imageURLs = await isValidArray(imageURLs);
     imageURLs = imageURLs.map((url) => isValidString(url, "Image URL"));
   }

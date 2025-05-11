@@ -143,3 +143,10 @@
 .forum-body .create-post-page #pollFormContainer .submit-post-button {
   background-color: #004380;
 }
+
+.error-message {
+  color: #c00;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  min-height: 1em;  /* reserve the line even when empty */
+}

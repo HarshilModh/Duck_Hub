@@ -33,7 +33,7 @@ export const  createForumPost = async (
   if (!user) {
     throw new Error("No User Found With Given ID");
   }
-  if (imageURLs) {
+  if (imageURLs && imageURLs.length !== 0) {
     imageURLs = await isValidArray(imageURLs);
     imageURLs = imageURLs.map((url) => isValidString(url, "Image URL"));
   }
