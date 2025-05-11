@@ -97,7 +97,12 @@ export const createReport = async (
 export const getAllReports = async () => {
   try {
     const allReports = await Reports.find()
-      .populate("reportedBy", "firstName lastName")
+      .populate("reportedBy", "firstName lastName email")
+      .populate("forumId", "title")
+      .populate("pollId", "title content")
+      .populate("reviewId", "title content")
+      .populate("academicResourceId", "title content")
+
       .lean();
     if (!allReports) {
       throw new Error("Sorry, no Reports available right now to be displayed");

@@ -15,6 +15,7 @@ import AcademicResource from "../models/academicResources.model.js";
 import xss from "xss";
 import { isValidID } from "../utils/validation.utils.js";
 import { reportReview } from "../data/courseReviewController.js";
+import { checkRole } from "../middlewares/roleCheck.middleware.js";
 const router = express.Router();
 
 router
@@ -227,5 +228,36 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
+  //load views/reportDashboard.handlebars
+ router.route("/dashboard").get(isLoggedIn,checkRole("admin"),async (req, res) => {
+  try {
+    const loggedUserId = req.session.user?.user?._id || null;
+    let reports = await getAllReports();
+    console.log("Reports:", reports);
+    
+    const forumReports = reports.filter(
+      (report) => report.reportedContentType === "Forum"
+    );
+    const pollReports = reports.filter(
+      (report) => report.reportedContentType === "Poll"
+    );
+    const reviewReports = reports.filter(
+      (report) => report.reportedContentType === "Review"
+    );
+    const academicResourceReports = reports.filter(
+      (report) => report.reportedContentType === "AcademicResource"
+    );
+    res.render("reportDashboard", {
+      forumReports,
+      pollReports,
+      reviewReports,
+      academicResourceReports,
+      loggedUserId,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading report page");
+  }
+ });
 
 export default router;
