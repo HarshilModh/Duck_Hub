@@ -32,14 +32,6 @@
             <option value="{{this._id}}">{{this.name}}</option>
           {{/each}}
         </select>
-        {{#if isAdmin}}
-          <button type="button" id="addTagBtn">Add New Tag</button>
-        {{/if}}
-      </div>
-
-      <div id="newTagModal" style="display: none;">
-        <input type="text" id="newTagName" placeholder="Enter new tag name" />
-        <button type="button" id="saveNewTag">Save</button>
       </div>
 
       <button type="submit" class="submit-post-button">
