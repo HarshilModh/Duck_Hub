@@ -46,7 +46,7 @@ const reportsSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["under review", "resolved"],
+      enum: ["under review", "resolved", "rejected"],
       default: "under review",
     },
     resolvedAt: {

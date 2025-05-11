@@ -278,11 +278,17 @@ export const deleteCourseReviewById = async (reviewId) => {
 
     let deletedReview = await Review.findByIdAndDelete(reviewId);
     console.log("Deleted Review: ", deletedReview);
-
+ 
     if (!deletedReview) {
       throw new Error("Review not found");
     }
     console.log("Deleted Review: ", deletedReview);
+    //after deleting the review, we need to update resolve all the reports that are related to this review
+
+       await Reports.updateMany(
+      { reviewId: reviewId },
+      { $set: { status: "resolved" } }
+    );
     //deleted review is having courseId as objectId we need to convert it to string
     //calculateRatingsDelete will return the updated ratings and along with that it will update the course with the new ratings
     let {newOverallRating, newDifficultyRating} = await calculateRatingsDelete(deletedReview.courseId);
