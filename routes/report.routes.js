@@ -17,6 +17,7 @@ import xss from "xss";
 import { isValidID } from "../utils/validation.utils.js";
 import { reportReview } from "../data/courseReviewController.js";
 import { checkRole } from "../middlewares/roleCheck.middleware.js";
+import Course from "../models/courses.model.js";
 const router = express.Router();
 
 router
@@ -282,6 +283,9 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(400).redirect("/report/dashboard");
     }
     let review=await getReportsByReviewId(reviewId);
+    let courseDetails=await Course.findById(review[0].reviewId.courseId).populate("departmentId","departmentName").lean();
+    console.log("courseDetails", courseDetails);
+    
     console.log("review", review);
     
     if (!review) {
@@ -292,7 +296,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(404).redirect("/report/dashboard");
     }
     const loggedUserId = req.session.user?.user?._id || null;
-    res.render("reviewReport",);
+    res.render("reviewReport",{review,courseDetails});
   } catch (e) {
     console.error(e);
     res.status(500).send("Error loading report page");

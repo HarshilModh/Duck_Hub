@@ -268,9 +268,10 @@ for (const r of reports) {
 export const getReportsByReviewId = async (reviewId) => {
   reviewId = isValidID(reviewId, "Review ID");
   const review = await Reports.find({ reviewId })
-    .populate("reviewId", "review overallRating difficultyRating downVotes upVotes createdAt updatedAt")
+    .populate("reviewId", "review overallRating difficultyRating downVotes upVotes createdAt updatedAt courseId")
     .populate("reportedBy", "firstName lastName email")
     .lean();
+    
     console.log("review", review);
     
     
