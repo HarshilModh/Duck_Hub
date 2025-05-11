@@ -22,7 +22,7 @@ upvoteButtons.forEach((button) => {
         }
       );
 
-      if (response.ok) {
+      if (response.ok || response.status === 400) {
         const updatedPost = await response.json();
         const countSpan = button.querySelector("span");
         if (countSpan) {
@@ -59,7 +59,7 @@ downvoteButtons.forEach((button) => {
         }
       );
 
-      if (response.ok) {
+      if (response.ok || response.status === 400) {
         const updatedPost = await response.json();
         const countSpan = button.querySelector("span");
         if (countSpan) {

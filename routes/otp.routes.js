@@ -114,9 +114,7 @@ router.post("/verify-otp", async (req, res) => {
       return res.redirect("/forgot-password");
     }
 
-    // 6. Validate code
     if (otpDoc.code !== code) {
-      // decrement attempts
       otpDoc.attempts -= 1;
       await otpDoc.save();
 

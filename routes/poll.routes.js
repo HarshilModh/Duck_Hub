@@ -11,14 +11,6 @@ import { isValidArray, isValidString } from "../utils/validation.utils.js";
 
 const router = express.Router();
 
-// const uploadDir = "uploads";
-// if (!fs.existsSync(uploadDir)) {
-//   fs.mkdirSync(uploadDir);
-// }
-
-// // Setup multer for temp file storage
-// const upload = multer({ dest: "uploads/" });
-
 router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
   let { question, options, tags, createdBy } = req.body;
   question = xss(question);
@@ -48,12 +40,15 @@ router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
 
   let imageURLs = [];
 
-  if (req.files && req.files.length > 0) {
-    for (const file of req.files) {
-      const cloudinaryUrl = await userImage(file.path);
-      imageURLs.push(cloudinaryUrl);
-      fs.unlinkSync(file.path);
-    }
+  console.log("req.files", req.files.images);
+  const filesToUpload = [
+    ...(req.files.images || []),
+    ...(req.files.newImages || []),
+  ];
+  for (const file of filesToUpload) {
+    const cloudinaryUrl = await userImage(file.path);
+    imageURLs.push(cloudinaryUrl);
+    fs.unlinkSync(file.path);
   }
 
   const newPoll = await createPoll({
