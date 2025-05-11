@@ -1,5 +1,4 @@
 import express from "express";
-<<<<<<< Updated upstream
 import {
   createReport,
   getAllReports,
@@ -7,9 +6,6 @@ import {
   resolveDisapprovedReport,
   getAllReportsForAdmin
 } from "../data/reportsController.js";
-=======
-import { createReport, getAllReports, getAllReportsForAdmin} from "../data/reportsController.js";
->>>>>>> Stashed changes
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Forum from "../models/forums.model.js";
 import Reports from "../models/reports.model.js";
