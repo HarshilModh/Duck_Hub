@@ -17,20 +17,38 @@
       <div class="space-y-6">
         {{#if forumReports.length}}
           {{#each forumReports as |report|}}
-            <a href="/forums/{{report.forumId._id}}" class="block transform hover:scale-[1.01] transition">
-              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
-                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
-                  {{report.reason}}
-                </h3>
-                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full
-                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{else}}bg-red-100 text-red-800{{/if}}">
-                    {{report.status}}
-                  </span>
-                  <span>{{formatDate report.createdAt}}</span>
+            {{#if report.forumId}}
+              <a href="/report/forums/{{report.forumId._id}}" class="block transform hover:scale-[1.01] transition">
+                <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                  <h3 class="text-lg font-medium text-stevensMaroon mb-3">{{report.reason}}</h3>
+                  <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full
+                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                      {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                      {{else}}bg-red-100 text-red-800{{/if}}">
+                      {{report.status}}
+                    </span>
+                    <span>{{formatDate report.createdAt}}</span>
+                  </div>
+                </div>
+              </a>
+            {{else}}
+              <div class="bg-stevensWhite rounded-2xl shadow-md flex flex-col">
+                <div class="p-6 opacity-50 cursor-not-allowed">
+                  <h3 class="text-lg font-medium text-stevensMaroon mb-3">{{report.reason}}</h3>
+                  <p class="text-sm text-red-600 italic mb-4">Forum post has been deleted.</p>
+                  <div class="flex justify-between items-center text-sm text-stevensGray">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full
+                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                      {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                      {{else}}bg-red-100 text-red-800{{/if}}">
+                      {{report.status}}
+                    </span>
+                    <span>{{formatDate report.createdAt}}</span>
+                  </div>
                 </div>
               </div>
-            </a>
+            {{/if}}
           {{/each}}
         {{else}}
           <p class="text-center text-stevensGray">No forum reports.</p>
@@ -49,20 +67,36 @@
       <div class="space-y-6">
         {{#if pollReports.length}}
           {{#each pollReports as |report|}}
-            <a href="/polls/{{report.pollId._id}}" class="block transform hover:scale-[1.01] transition">
-              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
-                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
-                  {{report.reason}}
-                </h3>
-                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+            {{#if report.pollId}}
+              <a href="/report/polls/{{report.pollId._id}}" class="block transform hover:scale-[1.01] transition">
+                <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                  <h3 class="text-lg font-medium text-stevensMaroon mb-3">{{report.reason}}</h3>
+                  <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full
+                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                      {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                      {{else}}bg-red-100 text-red-800{{/if}}">
+                      {{report.status}}
+                    </span>
+                    <span>{{formatDate report.createdAt}}</span>
+                  </div>
+                </div>
+              </a>
+            {{else}}
+              <div class="bg-stevensWhite rounded-2xl shadow-md flex flex-col p-6 opacity-50 cursor-not-allowed">
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">{{report.reason}}</h3>
+                <p class="text-sm text-red-600 italic mb-4">Poll has been deleted.</p>
+                <div class="flex justify-between items-center text-sm text-stevensGray">
                   <span class="inline-flex items-center px-3 py-1 rounded-full
-                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{else}}bg-red-100 text-red-800{{/if}}">
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                    {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                    {{else}}bg-red-100 text-red-800{{/if}}">
                     {{report.status}}
                   </span>
                   <span>{{formatDate report.createdAt}}</span>
                 </div>
               </div>
-            </a>
+            {{/if}}
           {{/each}}
         {{else}}
           <p class="text-center text-stevensGray">No poll reports.</p>
@@ -81,14 +115,10 @@
       <div class="space-y-6">
         {{#if reviewReports.length}}
           {{#each reviewReports as |report|}}
-
-            {{!-- If review exists --}}
             {{#if report.reviewId}}
               <a href="/report/reviews/{{report.reviewId._id}}" class="block transform hover:scale-[1.01] transition">
                 <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
-                  <h3 class="text-lg font-medium text-stevensMaroon mb-4">
-                    {{report.reason}}
-                  </h3>
+                  <h3 class="text-lg font-medium text-stevensMaroon mb-4">{{report.reason}}</h3>
                   <div class="grid grid-cols-2 gap-6 text-sm text-stevensGray mb-4">
                     <div>
                       <p class="font-medium">Overall Rating</p>
@@ -101,55 +131,30 @@
                   </div>
                   <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
                     <span class="inline-flex items-center px-3 py-1 rounded-full
-                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{else}}bg-yellow-100 text-yellow-800{{/if}}">
+                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                      {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                      {{else}}bg-red-100 text-red-800{{/if}}">
                       {{report.status}}
                     </span>
                     <span>{{formatDate report.createdAt}}</span>
                   </div>
                 </div>
               </a>
-
-            {{!-- If review deleted --}}
             {{else}}
-              <div class="bg-stevensWhite rounded-2xl shadow-md flex flex-col">
-
-                <div class="p-6 opacity-50 cursor-not-allowed">
-                  <h3 class="text-lg font-medium text-stevensMaroon mb-4">
-                    {{report.reason}}
-                  </h3>
-                  <p class="text-sm text-red-600 italic mb-4">
-                    Review has been deleted.
-                  </p>
-                  <div class="flex justify-between items-center text-sm text-stevensGray">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full
-                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{else}}bg-yellow-100 text-yellow-800{{/if}}">
-                      {{report.status}}
-                    </span>
-                    <span>{{formatDate report.createdAt}}</span>
-                  </div>
+              <div class="bg-stevensWhite rounded-2xl shadow-md flex flex-col p-6 opacity-50 cursor-not-allowed">
+                <h3 class="text-lg font-medium text-stevensMaroon mb-4">{{report.reason}}</h3>
+                <p class="text-sm text-red-600 italic mb-4">Review has been deleted.</p>
+                <div class="flex justify-between items-center text-sm text-stevensGray">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                    {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                    {{else}}bg-red-100 text-red-800{{/if}}">
+                    {{report.status}}
+                  </span>
+                  <span>{{formatDate report.createdAt}}</span>
                 </div>
-
-                {{!-- Only show buttons if still under review --}}
-                {{#if (eq report.status "under review")}}
-                  <div class="px-6 py-4 border-t flex justify-end space-x-4">
-                    <form action="/reports/{{report._id}}/resolve" method="post">
-                      <button type="submit"
-                        class="bg-green-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                        Resolve
-                      </button>
-                    </form>
-                    <form action="/reports/{{report._id}}/reject" method="post">
-                      <button type="submit"
-                        class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                        Reject
-                      </button>
-                    </form>
-                  </div>
-                {{/if}}
-
               </div>
             {{/if}}
-
           {{/each}}
         {{else}}
           <p class="text-center text-stevensGray">No review reports.</p>
@@ -168,19 +173,36 @@
       <div class="space-y-6">
         {{#if academicResourceReports.length}}
           {{#each academicResourceReports as |report|}}
-            <a href="/academicResources/{{report.academicResourceId._id}}" class="block transform hover:scale-[1.01] transition">
-              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
-                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
-                  {{report.reason}}
-                </h3>
-                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-100 text-yellow-800">
-                    {{report.status}}
+            {{#if report.academicResourceId}}
+              <a href="/report/academicResources/{{report.academicResourceId._id}}" class="block transform hover:scale-[1.01] transition">
+                <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                  <h3 class="text-lg font-medium text-stevensMaroon mb-3">{{report.reason}}</h3>
+                  <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full
+                      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                      {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                      {{else}}bg-red-100 text-red-800{{/if}}">
+                      {{report.status}}
+                    </span>
+                    <span>{{formatDate report.createdAt}}</span>
+                  </div>
+                </div>
+              </a>
+            {{else}}
+              <div class="bg-stevensWhite rounded-2xl shadow-md flex flex-col p-6 opacity-50 cursor-not-allowed">
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">{{report.reason}}</h3>
+                <p class="text-sm text-red-600 italic mb-4">Resource has been deleted.</p>
+                <div class="flex justify-between items-center text-sm text-stevensGray">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800
+                    {{else if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800
+                    {{else}}bg-red-100 text-red-800{{/if}}">
+                    {{report.status}}  
                   </span>
                   <span>{{formatDate report.createdAt}}</span>
                 </div>
               </div>
-            </a>
+            {{/if}}
           {{/each}}
         {{else}}
           <p class="text-center text-stevensGray">No resource reports.</p>

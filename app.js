@@ -70,9 +70,11 @@ app.engine(
       json: (context) => JSON.stringify(context || {}),
       formatDate: (d) =>
         new Date(d).toLocaleString("en-US", { timeZone: "America/New_York" }),
-     ifEquals: function(arg1, arg2, options) {
-      return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
-    }},
+      ifEquals: function(arg1, arg2, options) {
+        return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+      },
+      and: (a, b) => a && b
+    },
   })
 );
 app.set("view engine", "handlebars");

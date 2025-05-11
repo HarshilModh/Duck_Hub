@@ -5,7 +5,9 @@ import {
   resolveApprovedReport,
   resolveDisapprovedReport,
   getAllReportsForAdmin,
-  getReportsByReviewId
+  getReportsByReviewId,
+  getReportsByForumId,
+  getReportsByAcademicResourceId
 } from "../data/reportsController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Forum from "../models/forums.model.js";
@@ -342,4 +344,145 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
   }
  }
  );
+ router.route("/reject/:id").put(isLoggedIn,checkRole("admin"),async (req, res) => {
+  let reportId = req.params.id;
+  //here we approve the report
+  //and update the status of the report
+  //and update the status of the report
+  try {
+    if (!reportId || typeof reportId !== "string" || reportId.trim() === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Report ID is required and must be a non-empty string.",
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    try {
+      reportId = isValidID(reportId, "reportId");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+   
+    await resolveDisapprovedReport(reportId);
+    req.session.toast = {
+      type: "success",
+      message: "Report rejected successfully",
+    };
+    return res.status(200).redirect("/report/dashboard");
+  } catch (e) {
+    console.error(e);
+    req.session.toast = {
+      type: "error",
+      message: e.message,
+    };
+    return res.status(500).redirect("/report/dashboard");
+  }
+ }
+ );
+
+ //load views/forumReportDetails.handlebars
+router.route("/forums/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
+  let forumId = req.params.id;
+  try {
+    if (!forumId || typeof forumId !== "string" || forumId.trim() === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Forum ID is required and must be a non-empty string.",
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    try {
+      forumId = isValidID(forumId, "forumId");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    let forum=await Forum.findById(forumId).populate("userId","firstName lastName").lean();
+    let reportCount=await Reports.countDocuments({forumId:forum._id});
+    let report=await getReportsByForumId(forumId);
+    if (!forum) {
+      req.session.toast = {
+        type: "error",
+        message: "Forum not found",
+      };
+      return res.status(404).redirect("/report/dashboard");
+    }
+    const loggedUserId = req.session.user?.user?._id || null;
+    console.log("forum", forum);
+    console.log("reportCount", reportCount);
+    console.log("report", report);
+    
+    
+    res.render("forumReportDetails",{forum,reportCount,report});
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading report page");
+  }
+ });
+
+ //load myreports.handlebars
+router.route("/myreports").get(isLoggedIn, async (req, res) => {
+  try {
+    const loggedUserId = req.session.user?.user?._id || null;
+    let reports = await getAllReports();
+    reports = reports.filter((report) => report.reportedBy._id.toString() === loggedUserId);
+    console.log("Reports:", reports);
+    
+    res.render("myReports", {
+      reports,
+      loggedUserId,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading report page");
+  }
+});
+//academicResources
+router.route("/academicResources/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
+  let academicResourceId = req.params.id;
+  try {
+    if (!academicResourceId || typeof academicResourceId !== "string" || academicResourceId.trim() === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Academic Resource ID is required and must be a non-empty string.",
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    try {
+      academicResourceId = isValidID(academicResourceId, "academicResourceId");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    let academicResource=await getReportsByAcademicResourceId(academicResourceId);
+    let reportCount=await Reports.countDocuments({academicResourceId:academicResource[0].academicResourceId._id});
+    let report=await Reports.find({academicResourceId:academicResource[0].academicResourceId._id}).populate("reportedBy","firstName lastName").lean();
+    academicResource=academicResource[0]
+    if (!academicResource) {
+      req.session.toast = {
+        type: "error",
+        message: "Academic Resource not found",
+      };
+      return res.status(404).redirect("/report/dashboard");
+    }
+    const loggedUserId = req.session.user?.user?._id || null;
+    console.log("academicResource", academicResource);
+    console.log("reportCount", reportCount);
+    console.log("report", report);
+    res.render("resourceReportsDetails",{academicResource,reportCount,report});
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading report page");
+  }
+ });
 export default router;
