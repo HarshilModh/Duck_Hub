@@ -1,93 +1,170 @@
-{{!-- views/reportDashboard.handlebars --}}
 <div class="min-h-screen bg-stevensBg font-body text-stevensGray">
-  <div class="max-w-5xl mx-auto px-6 py-10">
-    <!-- Header -->
-    <h1 class="text-3xl font-heading text-stevensMaroon mb-8">Report Details</h1>
+  <div class="max-w-5xl mx-auto px-6 py-10 space-y-12">
 
-    <!-- Report Card -->
-    <div class="bg-stevensWhite rounded-2xl shadow p-8 space-y-6">
+    <h1 class="text-3xl font-heading text-stevensMaroon text-center">
+      Report Dashboard
+    </h1>
 
-      <!-- Grid of key‑value pairs -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Report ID</p>
-          <p class="text-lg break-all">{{report._id}}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Content Type</p>
-          <p class="text-lg">{{report.reportedContentType}}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Reason</p>
-          <p class="text-lg">{{report.reason}}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Status</p>
-          <span
-            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
-            class="
-              {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
-              {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
-              {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}
-            "
-          >
-            {{report.status}}
-          </span>
-        </div>
+    {{!-- Partial to avoid repetition --}}
+    {{!-- {{> reportSection title="Forums" items=forumReports linkPrefix="/forums/" }} --}}
+    {{!-- You can factor out the below into a partial if you like --}}
 
-        {{#if report.reviewId}}
-        <div class="md:col-span-2">
-          <p class="text-sm font-medium text-stevensGray">Reported Review</p>
-          <a
-            href="/userSideCourses/reviews/{{report.reviewId}}"
-            class="text-stevensMaroon hover:underline break-all"
-          >
-            View Review &rarr;
-          </a>
-        </div>
+    {{!-- FORUMS --}}
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Forums
+        {{#if forumReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{forumReports.length}})</span>
         {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if forumReports.length}}
+          {{#each forumReports as |report|}}
+            <a href="/forums/{{report.forumId._id}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <!-- Header -->
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
+                  {{report.reason}}
+                </h3>
 
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Reported By</p>
-          <a
-            href="/users/{{report.reportedBy}}"
-            class="text-stevensMaroon hover:underline break-all"
-          >{{report.reportedBy}}</a>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Created At</p>
-          <p class="text-lg">{{formatDate report.createdAt}}</p>
-        </div>
-
-        {{#if report.resolvedAt}}
-        <div>
-          <p class="text-sm font-medium text-stevensGray">Resolved At</p>
-          <p class="text-lg">{{formatDate report.resolvedAt}}</p>
-        </div>
+                <!-- Footer -->
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
+                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
+                    {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
+                    {{report.status}}
+                  </span>
+                  <span>{{formatDate report.createdAt}}</span>
+                </div>
+              </div>
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No forum reports.</p>
         {{/if}}
       </div>
+    </section>
 
-      <!-- Action Buttons -->
-      {{#if (eq report.status "under review")}}
-      <div class="flex flex-wrap gap-4 pt-6 border-t">
-        <form action="/reports/{{report._id}}/resolve" method="post">
-          <button
-            type="submit"
-            class="bg-green-600 text-stevensWhite px-6 py-2 rounded-lg hover:bg-green-700 transition"
-          >
-            Mark as Resolved
-          </button>
-        </form>
-        <form action="/reports/{{report._id}}/reject" method="post">
-          <button
-            type="submit"
-            class="bg-red-600 text-stevensWhite px-6 py-2 rounded-lg hover:bg-red-700 transition"
-          >
-            Reject Report
-          </button>
-        </form>
+    {{!-- POLLS --}}
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Polls
+        {{#if pollReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{pollReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if pollReports.length}}
+          {{#each pollReports as |report|}}
+            <a href="/polls/{{report.pollId}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
+                  {{report.reason}}
+                </h3>
+
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
+                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
+                    {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
+                    {{report.status}}
+                  </span>
+                  <span>{{formatDate report.createdAt}}</span>
+                </div>
+              </div>
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No poll reports.</p>
+        {{/if}}
       </div>
-      {{/if}}
-    </div>
+    </section>
+
+    {{!-- REVIEWS --}}
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Reviews
+        {{#if reviewReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{reviewReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if reviewReports.length}}
+          {{#each reviewReports as |report|}}
+            <a href="/report/reviews/{{report.reviewId._id}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <h3 class="text-lg font-medium text-stevensMaroon mb-4">
+                  {{report.reason}}
+                </h3>
+
+                {{#if report.reviewId}}
+                  <div class="grid grid-cols-2 gap-6 text-sm text-stevensGray mb-4">
+                    <div>
+                      <p class="font-medium">Overall Rating</p>
+                      <p class="text-lg">{{report.reviewId.overallRating}} / 5</p>
+                    </div>
+                    <div>
+                      <p class="font-medium">Difficulty</p>
+                      <p class="text-lg">{{report.reviewId.difficultyRating}} / 3</p>
+                    </div>
+                  </div>
+                {{/if}}
+
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
+                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}">
+                    {{report.status}}
+                  </span>
+                  <span>{{formatDate report.createdAt}}</span>
+                </div>
+              </div>
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No review reports.</p>
+        {{/if}}
+      </div>
+    </section>
+
+    {{!-- RESOURCES --}}
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Resources
+        {{#if academicResourceReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{academicResourceReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if academicResourceReports.length}}
+          {{#each academicResourceReports as |report|}}
+            <a href="/academicResources/{{report.academicResourceId}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
+                  {{report.reason}}
+                </h3>
+
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full
+                    {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
+                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}">
+                    {{report.status}}
+                  </span>
+                  <span>{{formatDate report.createdAt}}</span>
+                </div>
+              </div>
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No resource reports.</p>
+        {{/if}}
+      </div>
+    </section>
+
   </div>
 </div>
