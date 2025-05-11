@@ -1,8 +1,46 @@
+{{!-- Search form --}}
+<form
+  id="searchForm"
+  action="/academicResources/search"
+  method="get"
+  class="search-form"
+>
+  <input
+    type="text"
+    name="text"
+    placeholder="Search Academic Resources…"
+    value="{{text}}"
+    class="search-input"
+  />
+  <select name="sort" class="search-select">
+    <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}
+      >Date</option
+    >
+    <option value="title" {{#if (eq sort "title")}}selected{{/if}}
+      >Title</option
+    >
+    <option value="url" {{#if (eq sort "url")}}selected{{/if}}>URL</option>
+  </select>
+  <select name="order" class="search-select">
+    <option value="asc" {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
+    <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
+  </select>
+  <button type="submit" class="search-button">Search</button>
+</form>
+
 <div class="section-heading-bar">
   <h2 id="sectionHeading">Academic Resources</h2>
-  <a href="/academicResources/create" class="create-post-button">
-    Create Academic Resource
-  </a>
+  <div class="section-buttons">
+    <a href="/academicResources/create" class="create-post-button">
+      Create Academic Resource
+    </a>
+    {{#if isAdmin}}
+      <!-- Give this an ID so our JS can find it -->
+      <a href="#" id="openTagModal" class="create-tag-button">
+        Create Tag
+      </a>
+    {{/if}}
+  </div>
 </div>
 
 <div class="forum-posts-list">
@@ -22,9 +60,7 @@
       <!-- Resource info -->
       <h3 class="forum-title">{{this.title}}</h3>
       <p class="forum-posted-by">
-        Posted by:
-        {{this.uploadedBy.firstName}}
-        {{this.uploadedBy.lastName}}
+        Posted by: {{this.uploadedBy.firstName}} {{this.uploadedBy.lastName}}
       </p>
       <p class="forum-content">{{this.description}}</p>
       <a
@@ -70,7 +106,7 @@
     <h2>Report Content</h2>
     <form id="reportForm" action="/report/AcademicResource" method="post">
       <input type="hidden" name="contentId" id="reportContentId" />
-      <input type="hidden" name="userId" value="{{loggedUserId}}" />
+      <input type="hidden" name="userId" value="{{loggedInUserId}}" />
 
       <label for="reportReason">Reason:</label>
       <textarea
@@ -89,7 +125,31 @@
   </div>
 </div>
 
+<!-- TAG CREATION MODAL -->
+<div id="tagModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2>Create New Tag</h2>
+    <form id="tagForm" action="/academicResources/tag/create" method="post">
+      <label for="tagName">Tag Name</label>
+      <input
+        type="text"
+        id="tagName"
+        name="name"
+        placeholder="Enter tag name"
+        required
+        class="search-input"
+        style="border-radius:0.375rem; margin-bottom:1rem;"
+      />
+
+      <div class="modal-buttons">
+        <button type="button" id="tagCancel">Cancel</button>
+        <button type="submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-  const loggedInUserId = "{{loggedUserId}}";
+  const loggedInUserId = "{{loggedInUserId}}";
 </script>
 <script src="/public/js/academicResourceLanding.js"></script>

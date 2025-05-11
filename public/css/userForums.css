@@ -13,7 +13,7 @@
 .forum-body .user-posts-section h2 {
   font-size: 1.75rem;
   margin: 0 0 1rem;
-  color: #363D45;
+  color: #363d45;
 }
 
 /* ─────────────────────────── Lists ─────────────────────────── */
@@ -34,7 +34,7 @@
   border: 1px solid #ddd;
   padding: 1rem 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 /* Edit/Delete icon container */
 .forum-body .post-actions {
@@ -52,7 +52,7 @@
 /* ────────────────────── Forum‑Specific Styles ────────────────────── */
 .forum-body .forum-post-card .forum-title {
   margin: 0 0 0.5rem;
-  padding-right: 4.5rem;   /* space for the icons */
+  padding-right: 4.5rem; /* space for the icons */
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -98,7 +98,7 @@
 /* ────────────────────── Poll‑Specific Styles ────────────────────── */
 .forum-body .poll-post-card .poll-question {
   margin: 0 0 0.5rem;
-  padding-right: 4.5rem;   /* space for the icons */
+  padding-right: 4.5rem; /* space for the icons */
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -151,13 +151,13 @@
 .forum-body .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   z-index: 1000;
-  overflow: auto;              /* allow page scroll if modal is taller */
+  overflow: auto; /* allow page scroll if modal is taller */
 }
 .forum-body .modal-content {
   background: #fff;
@@ -165,9 +165,9 @@
   padding: 2rem;
   width: 90%;
   max-width: 600px;
-  max-height: 90vh;            /* never exceed 90% of viewport height */
-  overflow-y: auto;            /* enable scrolling inside the modal */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  max-height: 90vh; /* never exceed 90% of viewport height */
+  overflow-y: auto; /* enable scrolling inside the modal */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 .forum-body .modal-close {
@@ -233,7 +233,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255, 255, 255, 0.8);
   border: none;
   font-size: 1rem;
   line-height: 1;

@@ -30,10 +30,12 @@ const router = express.Router();
 
 router.route("/").get(isLoggedIn, async (req, res) => {
   const academicResources = await getAllAcademicResources();
+  const isAdmin = req.session.user?.user?.role === "admin";
   const loggedUserId = req.session.user?.user?._id || null;
   res.render("AcademicResourceLanding", {
     academicResources,
-    loggedUserId,
+    loggedInUserId: loggedUserId,
+    isAdmin,
     customStyles:
       '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
   });
@@ -63,9 +65,9 @@ router
     try {
       let userId = xss(req.body.userId);
       let title = xss(req.body.title);
-      let description = xss(req.body.description); 
+      let description = xss(req.body.description);
       let url = xss(req.body.url);
-      let tags = xss(req.body.tags); 
+      let tags = xss(req.body.tags);
       let tagsArray;
       if (!tags) {
         tagsArray = [];
@@ -108,7 +110,7 @@ router.route("/tag/:tagId").get(async (req, res) => {
 router.route("/status/:status").get(async (req, res) => {
   const status = req.params.status;
   const academicResources = await getAcademicResourceByStatus(status);
-  return res.json(academicResources)
+  return res.json(academicResources);
 });
 
 router.route("/upvote/:id").put(async (req, res) => {
@@ -244,6 +246,41 @@ router.route("/:id").get(async (req, res) => {
   const academicResourceId = req.params.id;
   const academicResource = await getAcademicResourceById(academicResourceId);
   return res.status(200).json(academicResource);
+});
+
+router.route("/tag/create").post(isLoggedIn, async (req, res) => {
+  let { name } = req.body;
+  name = xss(name).trim().toUpperCase();
+  try {
+    name = isValidString(name, "Tag name");
+    if (!name) {
+      throw new Error("Tag name is required.");
+    }
+    const existingTag = await AdminTags.findOne({ name });
+    if (existingTag) {
+      req.session.toast = {
+        type: "error",
+        message: `Tag "${name}" already exists.`,
+      };
+      return res.redirect("/tags/create");
+    }
+    await AdminTags.create({
+      name,
+      createdBy: req.session.user.user._id,
+    });
+
+    req.session.toast = {
+      type: "success",
+      message: `Tag "${name}" created successfully!`,
+    };
+    return res.redirect("/academicResources");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message || "Failed to create tag.",
+    };
+    return res.redirect("/tags/create");
+  }
 });
 
 export default router;

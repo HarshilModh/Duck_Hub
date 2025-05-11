@@ -1,6 +1,6 @@
 <div class="min-h-screen flex items-center justify-center bg-stevensBg px-4">
   <form
-    action="/users/forgot-password/otp"
+    action="/forgot-password/verify-otp"
     method="POST"
     class="w-full max-w-sm bg-stevensWhite shadow rounded-2xl p-6 space-y-6"
   >
@@ -15,6 +15,7 @@
     {{/if}}
 
     <input type="hidden" name="email" value="{{email}}" />
+    <input type="hidden" name="userId" value="{{userId}}" />
 
     <div>
       <label for="otp" class="block text-stevensGray mb-1">Enter OTP</label>
