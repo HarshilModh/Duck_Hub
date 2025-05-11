@@ -38,6 +38,7 @@ import {
   downvoteComment,
   deleteCommentById,
 } from "../data/forumsCommentsController.js";
+import CommentVotes from "../models/forumCommentVotes.model.js";
 
 //TODO: Implement Router Checks
 router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
@@ -45,10 +46,9 @@ router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
     const userId = xss(req.body.userId);
     let title = xss(req.body.title);
     let content = xss(req.body.content);
-    let tags = xss(req.body.tags);
+    let tags = req.body.tags;
     let imageURLs = [];
 
-    tags = tags.split(",");
     if (!userId) {
       req.session.toast = {
         type: "error",
@@ -68,18 +68,22 @@ router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const cloudinaryUrl = await userImage(file.path);
-        imageURLs.push(cloudinaryUrl);
-        fs.unlinkSync(file.path); // deletes the reference from the uploads folder
-      }
+    console.log("req.files", req.files.images);
+    const filesToUpload = [
+      ...(req.files.images || []),
+      ...(req.files.newImages || []),
+    ];
+    for (const file of filesToUpload) {
+      const cloudinaryUrl = await userImage(file.path);
+      imageURLs.push(cloudinaryUrl);
+      fs.unlinkSync(file.path);
     }
 
     let tagsArray;
     if (!tags) {
       tagsArray = [];
     } else if (!Array.isArray(tags)) {
+      tags = tags.split(",");
       tagsArray = [tags.trim()];
     } else {
       tagsArray = tags.map((t) => t.trim());
@@ -329,23 +333,25 @@ router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
     }
     let title = xss(req.body.title);
     let content = xss(req.body.content);
-    let tags = xss(req.body.tags);
+    let tags = req.body.tags;
     let imageURLs = [];
 
-    tags = tags.split(",");
-
-    if (req.files && req.files.newImages.length > 0) {
-      for (const file of req.files.newImages) {
-        const cloudinaryUrl = await userImage(file.path);
-        imageURLs.push(cloudinaryUrl);
-        fs.unlinkSync(file.path);
-      }
+    console.log("req.files", req.files.images);
+    const filesToUpload = [
+      ...(req.files.images || []),
+      ...(req.files.newImages || []),
+    ];
+    for (const file of filesToUpload) {
+      const cloudinaryUrl = await userImage(file.path);
+      imageURLs.push(cloudinaryUrl);
+      fs.unlinkSync(file.path);
     }
 
     let tagsArray;
     if (!tags) {
       tagsArray = [];
     } else if (!Array.isArray(tags)) {
+      tags = tags.split(",");
       tagsArray = [tags.trim()];
     } else {
       tagsArray = tags.map((t) => t.trim());
@@ -454,27 +460,50 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
 router
   .route("/comments")
   .post(isLoggedIn, uploadImagesGuard, async (req, res) => {
+    let forumId = xss(req.body.forumId);
+    let userId = xss(req.body.userId);
+    let content = xss(req.body.content);
+    let imageURLs = [];
+
+    let commentFor = "forum";
+
     try {
-      let forumId = xss(req.body.forumId);
-      let userId = xss(req.body.userId);
-      let content = xss(req.body.content);
-      let imageURLs = [];
+      forumId = isValidID(forumId, "Forum ID");
+      userId = isValidID(userId, "User ID");
+      content = isValidString(content, "Content");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).send("Error adding comment: " + error.message);
+    }
 
-      let commentFor = "forum";
-
-      if (req.files && req.files.length > 0) {
-        for (const file of req.files) {
-          const cloudinaryUrl = await userImage(file.path);
-          imageURLs.push(cloudinaryUrl);
-          fs.unlinkSync(file.path); // deletes the reference from the uploads folder
-        }
+    try {
+      console.log("req.files", req.files.images);
+      const filesToUpload = [
+        ...(req.files.images || []),
+        ...(req.files.newImages || []),
+      ];
+      for (const file of filesToUpload) {
+        const cloudinaryUrl = await userImage(file.path);
+        imageURLs.push(cloudinaryUrl);
+        fs.unlinkSync(file.path);
       }
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: "Error uploading images: " + error.message,
+      };
+      return res.status(400).send("Error adding comment: " + error.message);
+    }
 
-      const exists = await Forum.exists({ _id: forumId });
-      if (!exists) {
-        commentFor = "poll";
-      }
+    const exists = await Forum.exists({ _id: forumId });
+    if (!exists) {
+      commentFor = "poll";
+    }
 
+    try {
       const newComment = await createForumComment(
         forumId,
         userId,
@@ -482,9 +511,16 @@ router
         imageURLs,
         commentFor
       );
-
+      req.session.toast = {
+        type: "success",
+        message: "Comment added successfully!",
+      };
       return res.redirect(`/forums/comments/view/${forumId}`);
     } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: "Failed to add comment. Please try again.",
+      };
       return res.status(400).send("Error adding comment: " + error.message);
     }
   });
@@ -508,33 +544,77 @@ router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
 });
 
 router.route("/comments/upvote/:commentId").put(async (req, res) => {
+  const userId = xss(req.body.userId);
+  const { commentId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  const existing = await CommentVotes.findOne({
+    commentId: commentId,
+    voterId: userId,
+  });
+
+  if (existing?.voteType === "UP") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't upvote a post twice.",
+    };
+    return res.status(400).json({ error: "Duplicate upvote" });
+  }
+
   try {
-    const { commentId } = req.params;
-    const userId = xss(req.body.userId);
-
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-
     const updatedComment = await upvoteComment(commentId, userId);
+    req.session.toast = {
+      type: "success",
+      message: "Upvoted successfully!",
+    };
     return res.status(200).json(updatedComment);
   } catch (error) {
+    console.error("Upvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to upvote comment. Please try again.",
+    };
     return res.status(500).json({ error: error.message });
   }
 });
 
 router.route("/comments/downvote/:commentId").put(async (req, res) => {
+  const userId = xss(req.body.userId);
+  const { commentId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  const existing = await CommentVotes.findOne({
+    commentId: commentId,
+    voterId: userId,
+  });
+
+  if (existing?.voteType === "DOWN") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't downvote a post twice.",
+    };
+    return res.status(400).json({ error: "Duplicate upvote" });
+  }
+
   try {
-    const { commentId } = req.params;
-    const userId = xss(req.body.userId);
-
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-
     const updatedComment = await downvoteComment(commentId, userId);
+    req.session.toast = {
+      type: "success",
+      message: "Downvoted successfully!",
+    };
     return res.status(200).json(updatedComment);
   } catch (error) {
+    console.error("Downvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to downvote comment. Please try again.",
+    };
     return res.status(500).json({ error: error.message });
   }
 });

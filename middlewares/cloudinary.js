@@ -47,11 +47,14 @@ export const userImage = async (imagePath) => {
 
 export const uploadImagesGuard = (req, res, next) => {
   upload.fields([
-    { name: "images",     maxCount: 5 },
-    { name: "newImages",  maxCount: 5 }
-  ])(req, res, err => {
+    { name: "images", maxCount: 5 },
+    { name: "newImages", maxCount: 5 },
+  ])(req, res, (err) => {
     if (err) {
-      if (err instanceof multer.MulterError && err.code === "LIMIT_UNEXPECTED_FILE") {
+      if (
+        err instanceof multer.MulterError &&
+        err.code === "LIMIT_UNEXPECTED_FILE"
+      ) {
         req.session.toast = {
           type: "error",
           message: "You can only upload up to 5 images.",
@@ -66,7 +69,4 @@ export const uploadImagesGuard = (req, res, next) => {
     }
     next();
   });
-}
-
-
-// userImage();
+};

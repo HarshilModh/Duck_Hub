@@ -12,7 +12,7 @@ import {
 import Reports from "../models/reports.model.js";
 
 // Create a new forum post
-export const  createForumPost = async (
+export const createForumPost = async (
   userId,
   title,
   content,
@@ -34,11 +34,11 @@ export const  createForumPost = async (
     throw new Error("No User Found With Given ID");
   }
   if (imageURLs && imageURLs.length !== 0) {
-    imageURLs = await isValidArray(imageURLs);
+    imageURLs = isValidArray(imageURLs, "Images");
     imageURLs = imageURLs.map((url) => isValidString(url, "Image URL"));
   }
   if (tags && tags.length !== 0) {
-    tags = await isValidArray(tags, "Tags");
+    tags = isValidArray(tags, "Tags");
     tags = tags.map((tag) => isValidID(tag, "TagID"));
   }
   //TODO: Implement code to check if a tag actually exists with the given ID. If not, simply remove the ID and proceed.
