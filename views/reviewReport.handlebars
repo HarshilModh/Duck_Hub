@@ -1,25 +1,82 @@
-<div class="mt-4">
-  <form
-    action="/report/Review"
-    method="POST"
-    class="flex items-center space-x-2"
-  >
-    <input type="hidden" name="contentId" value="{{this.review._id}}" />
-    <input type="hidden" name="userId" value="{{userId}}" />
+<div class="min-h-screen bg-stevensBg font-body text-stevensGray">
+  <div class="max-w-3xl mx-auto px-6 py-10 space-y-8">
+{{json this}}
+    <!-- Back Link -->
+    <a href="/dashboard" class="inline-block text-stevensMaroon hover:underline">
+      ← Back to Dashboard
+    </a>
 
-    <input
-      type="text"
-      name="reason"
-      placeholder="Reason for reporting…"
-      required
-      class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stevensMaroon focus:border-stevensMaroon"
-    />
+    <!-- Review Card -->
+    <div class="bg-stevensWhite rounded-2xl shadow-md p-8 space-y-6">
 
-    <button
-      type="submit"
-      class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
-    >
-      Report
-    </button>
-  </form>
+      <!-- Course & Department -->
+      <div>
+        <h1 class="text-2xl font-heading text-stevensMaroon">
+          {{review.courseId.courseName}}
+        </h1>
+        <p class="text-sm text-stevensGray">
+          Department: {{review.courseId.departmentId.name}}
+        </p>
+      </div>
+
+      <!-- Reviewer Info -->
+      <div class="flex items-center space-x-4">
+        {{#if review.isAnonymous}}
+          <div class="text-stevensGray italic">Anonymous</div>
+        {{else}}
+          <div class="font-medium">
+            Reviewed by {{review.userId.firstName}} {{review.userId.lastName}}
+          </div>
+        {{/if}}
+        {{#if review.isEdited}}
+          <span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
+            Edited
+          </span>
+        {{/if}}
+      </div>
+
+      <!-- Ratings -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Overall Rating</p>
+          <p class="text-lg">{{review.reviewId.overallRating}} / 5</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Difficulty</p>
+          <p class="text-lg">{{review.reviewId.difficultyRating}} / 3</p>
+        </div>
+      </div>
+
+      <!-- Review Text -->
+      <div>
+        <p class="text-sm font-medium text-stevensGray mb-2">Comment</p>
+        <p class="text-lg">{{review.reviewId.review}}</p>
+      </div>
+
+      <!-- Votes -->
+      <div class="flex items-center space-x-6 text-sm">
+        <div class="flex items-center space-x-1">
+          <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 10l6 6V4l-6 6zM12 4v12l6-6-6-6z" />
+          </svg>
+          <span>{{review.reviewId.upVotes}}</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 10l-6-6v12l6-6zM8 4v12l-6-6 6-6z" />
+          </svg>
+          <span>{{review.reviewId.downVotes}}</span>
+        </div>
+      </div>
+
+      <!-- Timestamps -->
+      <div class="text-xs text-stevensGray space-y-1">
+        <p>Posted: {{formatDate review.reviewId.createdAt}}</p>
+        {{#if review.updatedAt}}
+          <p>Last updated: {{formatDate review.reviewId.updatedAt}}</p>
+        {{/if}}
+      </div>
+
+    </div>
+  </div>
 </div>

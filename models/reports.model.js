@@ -9,22 +9,22 @@ const reportsSchema = new mongoose.Schema(
   {
     forumId: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "Forum",
+      ref: "Forum",
       default: null,
     },
     pollId: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "Poll",
+      ref: "Poll",
       default: null,
     },
     reviewId: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "Review",
+      ref: "Review",
       default: null,
     },
     academicResourceId: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "AcademicResource",
+      ref: "AcademicResource",
       default: null,
     },
     reportedContentType: {

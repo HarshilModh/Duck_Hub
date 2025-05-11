@@ -1,161 +1,169 @@
 <div class="min-h-screen bg-stevensBg font-body text-stevensGray">
-  <div class="max-w-5xl mx-auto px-6 py-10">
-    <h1 class="text-3xl font-heading text-stevensMaroon mb-8">Report Dashboard</h1>
+  <div class="max-w-5xl mx-auto px-6 py-10 space-y-12">
+
+    <h1 class="text-3xl font-heading text-stevensMaroon text-center">
+      Report Dashboard
+    </h1>
+
+    {{!-- Partial to avoid repetition --}}
+    {{!-- {{> reportSection title="Forums" items=forumReports linkPrefix="/forums/" }} --}}
+    {{!-- You can factor out the below into a partial if you like --}}
 
     {{!-- FORUMS --}}
-    <section class="mb-12">
-      <h2 class="text-2xl font-heading text-stevensMaroon mb-2">Forums</h2>
-      <hr class="mb-4"/>
-      {{#if forumReports.length}}
-        {{#each forumReports as |report|}}
-          <a href="/forums/{{report.forumId}}" class="block group">
-            <div class="bg-stevensWhite rounded-2xl shadow p-6 mb-6 hover:shadow-lg transition cursor-pointer">
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Forums
+        {{#if forumReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{forumReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if forumReports.length}}
+          {{#each forumReports as |report|}}
+            <a href="/forums/{{report.forumId._id}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <!-- Header -->
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
+                  {{report.reason}}
+                </h3>
 
-              <!-- Reason -->
-              <p class="text-sm font-medium text-stevensGray">Reason</p>
-              <p class="text-lg font-medium mb-4">{{report.reason}}</p>
-
-              <div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
-                <!-- Status -->
-                <div>
-                  <p class="font-medium">Status</p>
+                <!-- Footer -->
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
                   <span class="inline-flex items-center px-3 py-1 rounded-full
                     {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
                     {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
                     {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
                     {{report.status}}
                   </span>
-                </div>
-                <!-- Date -->
-                <div>
-                  <p class="font-medium">Date</p>
-                  <p>{{formatDate report.createdAt}}</p>
+                  <span>{{formatDate report.createdAt}}</span>
                 </div>
               </div>
-
-            </div>
-          </a>
-        {{/each}}
-      {{else}}
-        <p class="text-stevensGray">No forum reports.</p>
-      {{/if}}
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No forum reports.</p>
+        {{/if}}
+      </div>
     </section>
 
     {{!-- POLLS --}}
-    <section class="mb-12">
-      <h2 class="text-2xl font-heading text-stevensMaroon mb-2">Polls</h2>
-      <hr class="mb-4"/>
-      {{#if pollReports.length}}
-        {{#each pollReports as |report|}}
-          <a href="/polls/{{report.pollId}}" class="block group">
-            <div class="bg-stevensWhite rounded-2xl shadow p-6 mb-6 hover:shadow-lg transition cursor-pointer">
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Polls
+        {{#if pollReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{pollReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if pollReports.length}}
+          {{#each pollReports as |report|}}
+            <a href="/polls/{{report.pollId}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
+                  {{report.reason}}
+                </h3>
 
-              <!-- Reason -->
-              <p class="text-sm font-medium text-stevensGray">Reason</p>
-              <p class="text-lg font-medium mb-4">{{report.reason}}</p>
-
-              <div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
-                <!-- Status -->
-                <div>
-                  <p class="font-medium">Status</p>
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
                   <span class="inline-flex items-center px-3 py-1 rounded-full
                     {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
                     {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
                     {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
                     {{report.status}}
                   </span>
-                </div>
-                <!-- Date -->
-                <div>
-                  <p class="font-medium">Date</p>
-                  <p>{{formatDate report.createdAt}}</p>
+                  <span>{{formatDate report.createdAt}}</span>
                 </div>
               </div>
-
-            </div>
-          </a>
-        {{/each}}
-      {{else}}
-        <p class="text-stevensGray">No poll reports.</p>
-      {{/if}}
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No poll reports.</p>
+        {{/if}}
+      </div>
     </section>
 
     {{!-- REVIEWS --}}
-    <section class="mb-12">
-      <h2 class="text-2xl font-heading text-stevensMaroon mb-2">Reviews</h2>
-      <hr class="mb-4"/>
-      {{#if reviewReports.length}}
-        {{#each reviewReports as |report|}}
-          <a href="/userSideCourses/reviews/{{report.reviewId}}" class="block group">
-            <div class="bg-stevensWhite rounded-2xl shadow p-6 mb-6 hover:shadow-lg transition cursor-pointer">
+    <section>
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Reviews
+        {{#if reviewReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{reviewReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if reviewReports.length}}
+          {{#each reviewReports as |report|}}
+            <a href="/report/reviews/{{report.reviewId._id}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <h3 class="text-lg font-medium text-stevensMaroon mb-4">
+                  {{report.reason}}
+                </h3>
 
-              <!-- Reason -->
-              <p class="text-sm font-medium text-stevensGray">Reason</p>
-              <p class="text-lg font-medium mb-4">{{report.reason}}</p>
+                {{#if report.reviewId}}
+                  <div class="grid grid-cols-2 gap-6 text-sm text-stevensGray mb-4">
+                    <div>
+                      <p class="font-medium">Overall Rating</p>
+                      <p class="text-lg">{{report.reviewId.overallRating}} / 5</p>
+                    </div>
+                    <div>
+                      <p class="font-medium">Difficulty</p>
+                      <p class="text-lg">{{report.reviewId.difficultyRating}} / 3</p>
+                    </div>
+                  </div>
+                {{/if}}
 
-              <div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
-                <!-- Status -->
-                <div>
-                  <p class="font-medium">Status</p>
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
                   <span class="inline-flex items-center px-3 py-1 rounded-full
                     {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
-                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
-                    {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
+                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}">
                     {{report.status}}
                   </span>
-                </div>
-                <!-- Date -->
-                <div>
-                  <p class="font-medium">Date</p>
-                  <p>{{formatDate report.createdAt}}</p>
+                  <span>{{formatDate report.createdAt}}</span>
                 </div>
               </div>
-
-            </div>
-          </a>
-        {{/each}}
-      {{else}}
-        <p class="text-stevensGray">No review reports.</p>
-      {{/if}}
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No review reports.</p>
+        {{/if}}
+      </div>
     </section>
 
     {{!-- RESOURCES --}}
     <section>
-      <h2 class="text-2xl font-heading text-stevensMaroon mb-2">Resources</h2>
-      <hr class="mb-4"/>
-      {{#if academicResourceReports.length}}
-        {{#each academicResourceReports as |report|}}
-          <a href="/academicResources/{{report.academicResourceId}}" class="block group">
-            <div class="bg-stevensWhite rounded-2xl shadow p-6 mb-6 hover:shadow-lg transition cursor-pointer">
+      <h2 class="flex items-center text-2xl font-heading text-stevensMaroon mb-4">
+        Resources
+        {{#if academicResourceReports.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{academicResourceReports.length}})</span>
+        {{/if}}
+      </h2>
+      <div class="space-y-6">
+        {{#if academicResourceReports.length}}
+          {{#each academicResourceReports as |report|}}
+            <a href="/academicResources/{{report.academicResourceId}}" class="block transform hover:scale-[1.01] transition">
+              <div class="bg-stevensWhite rounded-2xl shadow-md p-6 flex flex-col">
+                
+                <h3 class="text-lg font-medium text-stevensMaroon mb-3">
+                  {{report.reason}}
+                </h3>
 
-              <!-- Reason -->
-              <p class="text-sm font-medium text-stevensGray">Reason</p>
-              <p class="text-lg font-medium mb-4">{{report.reason}}</p>
-
-              <div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
-                <!-- Status -->
-                <div>
-                  <p class="font-medium">Status</p>
+                <div class="mt-auto flex justify-between items-center text-sm text-stevensGray">
                   <span class="inline-flex items-center px-3 py-1 rounded-full
                     {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
-                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
-                    {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
+                    {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}">
                     {{report.status}}
                   </span>
-                </div>
-                <!-- Date -->
-                <div>
-                  <p class="font-medium">Date</p>
-                  <p>{{formatDate report.createdAt}}</p>
+                  <span>{{formatDate report.createdAt}}</span>
                 </div>
               </div>
-
-            </div>
-          </a>
-        {{/each}}
-      {{else}}
-        <p class="text-stevensGray">No resource reports.</p>
-      {{/if}}
+            </a>
+          {{/each}}
+        {{else}}
+          <p class="text-center text-stevensGray">No resource reports.</p>
+        {{/if}}
+      </div>
     </section>
 
   </div>

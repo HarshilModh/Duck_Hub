@@ -100,7 +100,7 @@ export const getAllReports = async () => {
       .populate("reportedBy", "firstName lastName email")
       .populate("forumId", "title")
       .populate("pollId", "title content")
-      .populate("reviewId", "title content")
+      .populate("reviewId", "review overallRating difficultyRating") 
       .populate("academicResourceId", "title content")
 
       .lean();
@@ -263,4 +263,19 @@ for (const r of reports) {
 }
 
   return grouped;
+};
+//get reports by reviewId
+export const getReportsByReviewId = async (reviewId) => {
+  reviewId = isValidID(reviewId, "Review ID");
+  const review = await Reports.find({ reviewId })
+    .populate("reviewId", "review overallRating difficultyRating downVotes upVotes createdAt updatedAt")
+    .populate("reportedBy", "firstName lastName email")
+    .lean();
+    console.log("review", review);
+    
+    
+  if (!review) {
+    throw new Error("Reports not found");
+  }
+  return review;
 };

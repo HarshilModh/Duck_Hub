@@ -4,7 +4,8 @@ import {
   getAllReports,
   resolveApprovedReport,
   resolveDisapprovedReport,
-  getAllReportsForAdmin
+  getAllReportsForAdmin,
+  getReportsByReviewId
 } from "../data/reportsController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Forum from "../models/forums.model.js";
@@ -254,6 +255,44 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       academicResourceReports,
       loggedUserId,
     });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error loading report page");
+  }
+ });
+ //load views/reviewReport.handlebars
+ router.route("/reviews/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
+  let reviewId = req.params.id;
+  try {
+  
+    if (!reviewId || typeof reviewId !== "string" || reviewId.trim() === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Review ID is required and must be a non-empty string.",
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    try {
+      reviewId = isValidID(reviewId, "reviewId");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    let review=await getReportsByReviewId(reviewId);
+    console.log("review", review);
+    
+    if (!review) {
+      req.session.toast = {
+        type: "error",
+        message: "Review not found",
+      };
+      return res.status(404).redirect("/report/dashboard");
+    }
+    const loggedUserId = req.session.user?.user?._id || null;
+    res.render("reviewReport",);
   } catch (e) {
     console.error(e);
     res.status(500).send("Error loading report page");
