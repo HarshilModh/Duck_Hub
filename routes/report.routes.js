@@ -235,6 +235,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
   try {
     const loggedUserId = req.session.user?.user?._id || null;
     let reports = await getAllReports();
+    // reports=reports.filter((report) => report.status === "under review");
     console.log("Reports:", reports);
     
     const forumReports = reports.filter(
@@ -285,7 +286,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
     let review=await getReportsByReviewId(reviewId);
     let courseDetails=await Course.findById(review[0].reviewId.courseId).populate("departmentId","departmentName").lean();
     console.log("courseDetails", courseDetails);
-    
+    let reportCount=await Reports.countDocuments({reviewId:review[0].reviewId._id});
     console.log("review", review);
     
     if (!review) {
@@ -296,11 +297,49 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(404).redirect("/report/dashboard");
     }
     const loggedUserId = req.session.user?.user?._id || null;
-    res.render("reviewReport",{review,courseDetails});
+    res.render("reviewReportDetails",{review,courseDetails,reportCount});
   } catch (e) {
     console.error(e);
     res.status(500).send("Error loading report page");
   }
  });
-
+ router.route("/resolve/:id").put(isLoggedIn,checkRole("admin"),async (req, res) => {
+  let reportId = req.params.id;
+  //here we approve the report
+  //and update the status of the report
+  //and update the status of the report
+  try {
+    if (!reportId || typeof reportId !== "string" || reportId.trim() === "") {
+      req.session.toast = {
+        type: "error",
+        message: "Report ID is required and must be a non-empty string.",
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+    try {
+      reportId = isValidID(reportId, "reportId");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).redirect("/report/dashboard");
+    }
+   
+    await resolveApprovedReport(reportId);
+    req.session.toast = {
+      type: "success",
+      message: "Report resolved successfully",
+    };
+    return res.status(200).redirect("/report/dashboard");
+  } catch (e) {
+    console.error(e);
+    req.session.toast = {
+      type: "error",
+      message: e.message,
+    };
+    return res.status(500).redirect("/report/dashboard");
+  }
+ }
+ );
 export default router;

@@ -272,7 +272,7 @@ export const getReportsByReviewId = async (reviewId) => {
     .populate("reportedBy", "firstName lastName email")
     .lean();
     
-    console.log("review", review);
+    console.log("review from controller", review);
     
     
   if (!review) {

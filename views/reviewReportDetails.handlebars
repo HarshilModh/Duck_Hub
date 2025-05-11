@@ -1,11 +1,22 @@
-{{!-- views/reports/reviewReports.handlebars --}}
+<!-- views/reports/reviewReports.handlebars -->
 <div class="min-h-screen bg-stevensBg font-body text-stevensGray">
   <div class="max-w-3xl mx-auto px-6 py-10 space-y-8">
 
-    <!-- Back Link -->
-    <a href="/dashboard" class="inline-block text-stevensMaroon hover:underline">
-      ← Back to Dashboard
-    </a>
+    <!-- Header: Back link + dynamic report count -->
+    <div class="flex items-center justify-between mb-6">
+      <a href="/dashboard" class="text-stevensMaroon hover:underline">
+        ← Back to Dashboard
+      </a>
+      <div class="text-center">
+        {{#if (eq reportCount 0)}}
+          <span class="text-lg text-stevensGray">No reports yet</span>
+        {{else if (eq reportCount 1)}}
+          <span class="text-3xl font-heading text-stevensMaroon">1 Report</span>
+        {{else}}
+          <span class="text-3xl font-heading text-stevensMaroon">{{reportCount}} Reports</span>
+        {{/if}}
+      </div>
+    </div>
 
     {{!-- Loop through each report in the `review` array --}}
     {{#each review as |report|}}
@@ -98,14 +109,18 @@
         <!-- Action Buttons -->
         {{#if (eq report.status "under review")}}
           <div class="flex justify-end space-x-4 pt-4 border-t">
-            <form action="/reports/{{report._id}}/resolve" method="post">
-              <button
+            <form action="/report/resolve/{{report._id}}" method="post">
+            {{!-- put hidden --}}
+                <input type="hidden" name="_method" value="PUT">    
+                 <button
                 type="submit"
                 class="bg-green-600 text-stevensWhite px-5 py-2 rounded-lg hover:bg-green-700 transition">
                 Resolve
               </button>
             </form>
-            <form action="/reports/{{report._id}}/reject" method="post">
+            <form action="/reports/reject/{{report._id}}" method="post">
+            {{!-- put hidden --}}
+                 <input type="hidden" name="_method" value="PUT">
               <button
                 type="submit"
                 class="bg-red-600 text-stevensWhite px-5 py-2 rounded-lg hover:bg-red-700 transition">
