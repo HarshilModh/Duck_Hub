@@ -91,20 +91,22 @@
         </div>
 
         <!-- Report Reason & Status -->
-        <div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
-          <div>
-            <p class="font-medium">Reason</p>
-            <p>{{report.reason}}</p>
-          </div>
-          <div>
-            <p class="font-medium">Status</p>
-            <span class="inline-flex items-center px-3 py-1 rounded-full
-              {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
-              {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}">
-              {{report.status}}
-            </span>
-          </div>
-        </div>
+        <!-- Report Reason & Status -->
+<div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
+  <div>
+    <p class="font-medium">Reason</p>
+    <p>{{report.reason}}</p>
+  </div>
+  <div>
+    <p class="font-medium">Status</p>
+    <span class="inline-flex items-center px-3 py-1 rounded-full
+      {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
+      {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
+      {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}">
+      {{report.status}}
+    </span>
+  </div>
+</div>
 
         <!-- Action Buttons -->
         {{#if (eq report.status "under review")}}
@@ -118,7 +120,7 @@
                 Resolve
               </button>
             </form>
-            <form action="/reports/reject/{{report._id}}" method="post">
+            <form action="/report/reject/{{report._id}}" method="post">
             {{!-- put hidden --}}
                  <input type="hidden" name="_method" value="PUT">
               <button

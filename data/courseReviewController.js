@@ -622,9 +622,10 @@ export const reportReview = async (reviewId, userId) => {
     let reportCount = await Reports.countDocuments({
       reviewId: reviewId,
     });
-    console.log("Report Count: ", reportCount);
-    
-   if (reportCount >5) {
+    console.log("Report Count from controller ", reportCount);
+    reportCount = reportCount + 1;
+    console.log("Report Count after increment ", reportCount);
+   if (reportCount >=5) {
     let review = await Review.findByIdAndUpdate(
         reviewId,
         {

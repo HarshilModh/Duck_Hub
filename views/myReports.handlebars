@@ -1,0 +1,75 @@
+{{!-- views/myReports.handlebars --}}
+<div class="min-h-screen bg-stevensBg font-body text-stevensGray">
+  <div class="max-w-3xl mx-auto px-6 py-10 space-y-6">
+    <h1 class="text-3xl font-heading text-stevensMaroon text-center mb-6">My Reports</h1>
+
+    {{#if reports.length}}
+      <div class="space-y-4">
+        {{#each reports as |report|}}
+          <div class="bg-stevensWhite rounded-2xl shadow p-6 border-l-4 {{#if (eq report.status 'under review')}}border-yellow-500 {{else if (eq report.status 'resolved')}}border-green-500 {{else}}border-gray-300{{/if}} hover:shadow-lg transition">
+            <div class="flex justify-between items-center mb-3">
+              <span class="font-heading text-lg text-stevensMaroon capitalize">{{report.reportedContentType}}</span>
+              <span class="px-2 py-1 text-sm font-semibold rounded-full {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{else if (eq report.status 'resolved')}}bg-green-100 text-green-800{{else}}bg-gray-100 text-gray-800{{/if}}">
+                {{report.status}}
+              </span>
+            </div>
+
+            <p class="text-stevensGray mb-2"><strong>Reason:</strong> {{report.reason}}</p>
+
+            <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-500">
+              <span>Submitted: <time datetime="{{report.createdAt}}">{{report.createdAt}}</time></span>
+              {{#if report.resolvedAt}}<span>Resolved: <time datetime="{{report.resolvedAt}}">{{report.resolvedAt}}</time></span>{{/if}}
+            </div>
+
+            {{!-- Review Details --}}
+            {{#if (eq report.reportedContentType "Review")}}
+              <div class="bg-stevensBg p-4 rounded-lg space-y-3">
+                <div class="flex items-center space-x-6">
+                  <div>
+                    <p class="text-sm font-medium text-stevensGray">Rating</p>
+                    <p class="text-lg text-stevensMaroon">{{report.reviewId.overallRating}}/5</p>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-stevensGray">Difficulty</p>
+                    <p class="text-lg text-stevensMaroon">{{report.reviewId.difficultyRating}}/5</p>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-stevensGray">Review</p>
+                  <p class="text-lg">{{report.reviewId.review}}</p>
+                </div>
+              </div>
+            {{/if}}
+
+            {{!-- Forum Details --}}
+            {{#if (eq report.reportedContentType "Forum")}}
+              <div class="bg-stevensBg p-4 rounded-lg space-y-3">
+                <p class="text-sm font-medium text-stevensGray">Forum Title</p>
+                <p class="text-lg">{{report.forumId.title}}</p>
+              </div>
+            {{/if}}
+
+            {{!-- Poll Details --}}
+            {{#if (eq report.reportedContentType "Poll")}}
+              <div class="bg-stevensBg p-4 rounded-lg space-y-3">
+                <p class="text-sm font-medium text-stevensGray">Poll Question</p>
+                <p class="text-lg">{{report.pollId.question}}</p>
+              </div>
+            {{/if}}
+
+            {{!-- Academic Resource Details --}}
+            {{#if (eq report.reportedContentType "AcademicResource")}}
+              <div class="bg-stevensBg p-4 rounded-lg space-y-3">
+                <p class="text-sm font-medium text-stevensGray">Resource Title</p>
+                <p class="text-lg">{{report.academicResourceId.title}}</p>
+              </div>
+            {{/if}}
+
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="text-center text-stevensGray">You have not submitted any reports yet.</p>
+    {{/if}}
+  </div>
+</div>
