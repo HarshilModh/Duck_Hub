@@ -329,25 +329,32 @@ router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
     }
     let title = xss(req.body.title);
     let content = xss(req.body.content);
-    let tags = xss(req.body.newTags);
+    let tags = xss(req.body.tags);
     let imageURLs = [];
 
-    tags = tags.split(",").map((tag) => tag.trim());
+    tags = tags.split(",");
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+    if (req.files && req.files.newImages.length > 0) {
+      for (const file of req.files.newImages) {
         const cloudinaryUrl = await userImage(file.path);
         imageURLs.push(cloudinaryUrl);
         fs.unlinkSync(file.path);
       }
     }
 
+    let tagsArray;
+    if (!tags) {
+      tagsArray = [];
+    } else if (!Array.isArray(tags)) {
+      tagsArray = [tags.trim()];
+    } else {
+      tagsArray = tags.map((t) => t.trim());
+    }
     title = isValidString(title, "Title");
     content = isValidString(content, "Content");
     if (tags && !Array.isArray(tags)) {
       tags = [tags];
     }
-    tags = await isValidArray(tags, "Tags");
     const updatedPost = await updateForumPostById(forumId, {
       title,
       content,

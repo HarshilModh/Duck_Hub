@@ -1,63 +1,82 @@
-/* ——————————————— Forum Header Bar & Controls ——————————————— */
+/* ===================================================================
+   RESET & BOX-SIZING
+   =================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===================================================================
+   SEARCH & CONTROLS FORM
+   =================================================================== */
 .forum-header-bar {
   padding: 1rem;
   margin-bottom: 1rem;
 }
 
-.forum-header-bar .controls-form {
+/* Align controls and search like previous design */
+.controls-form {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem;
   display: flex;
-  width: 100%;
+  gap: 0.75rem;
   align-items: center;
 }
 
-/* SEARCH WRAPPER (stuck to left) */
+/* SEARCH WRAPPER */
 .search-wrapper {
   display: flex;
   align-items: center;
-  margin-right: auto; /* push the other controls to the right */
+  margin-right: auto;
 }
 
 .search-section {
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .search-section input {
-  padding: 0.6rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 999px 0 0 999px;
+  flex: 1;
+  padding: 0.5rem 0.75rem;
   font-size: 1rem;
+  border: 1px solid #e4e5e6;
+  border-radius: 0.375rem 0 0 0.375rem;
   outline: none;
+  background-color: #fff;
   transition: border-color 0.2s;
 }
-
 .search-section input:focus {
   border-color: #4896cf;
 }
 
 .search-section .search-button {
-  padding: 0.6rem 0.75rem;
-  background: #4896cf;
+  padding: 0.5rem 0.75rem;
+  background-color: #a32638;
   border: none;
-  border-radius: 0 999px 999px 0;
+  border-radius: 0 0.375rem 0.375rem 0;
   cursor: pointer;
   color: #fff;
   font-size: 1rem;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
+}
+.search-section .search-button:hover,
+.search-section .search-button:focus {
+  background-color: #891f33;
 }
 
-.search-section .search-button:hover {
-  background: #004380;
-}
-
-/* FILTER WRAPPER */
+/* ===================================================================
+   FILTER WRAPPER
+   =================================================================== */
 .filter-wrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: 1rem;
 }
-
 .filter-section {
   display: flex;
   gap: 0.5rem;
@@ -72,35 +91,31 @@
   font-size: 0.9rem;
   transition: background 0.2s, color 0.2s;
 }
-
 .toggle-button:hover {
   background: #ebc73b;
   color: #363d45;
 }
-
 .toggle-button.active {
   background: #a32638;
   color: #fff;
 }
 
-/* SORT WRAPPER */
+/* ===================================================================
+   SORT WRAPPER
+   =================================================================== */
 .sort-wrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: 1rem;
 }
-
 .sort-section {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-
 .sort-section label {
   font-size: 0.9rem;
 }
-
 .sort-section select {
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
@@ -108,7 +123,9 @@
   cursor: pointer;
 }
 
-/* ——————————— Section Heading & Create Button ——————————— */
+/* ===================================================================
+   SECTION HEADING & CREATE BUTTON
+   =================================================================== */
 .section-heading-bar {
   width: 100%;
   max-width: 900px;
@@ -118,13 +135,11 @@
   justify-content: space-between;
   align-items: center;
 }
-
 .section-heading-bar h2 {
   font-size: 1.75rem;
   margin: 0;
   color: #333;
 }
-
 .create-post-button {
   padding: 0.5rem 1rem;
   background: #9d1535;
@@ -134,12 +149,13 @@
   font-size: 1rem;
   transition: background 0.3s ease;
 }
-
 .create-post-button:hover {
   background: #002f5b;
 }
 
-/* ————————————— Combined Posts List ————————————— */
+/* ===================================================================
+   COMBINED POSTS LIST
+   =================================================================== */
 .combined-posts-list {
   width: 100%;
   max-width: 900px;
@@ -150,34 +166,32 @@
   gap: 1.5rem;
 }
 
-/* ————————————— Forum & Poll Post Cards ————————————— */
+/* ===================================================================
+   POST CARDS
+   =================================================================== */
 .forum-post-card,
 .poll-post-card {
   background: #fff;
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 8px;
-  position: relative; /* for action icons */
+  position: relative;
 }
-
 .forum-title,
 .poll-question {
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
-
 .forum-posted-by,
 .poll-created-by {
   font-style: italic;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
-
 .forum-content {
   font-size: 1rem;
   margin-bottom: 0.5rem;
 }
-
 .forum-images,
 .poll-images {
   display: flex;
@@ -185,7 +199,6 @@
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
-
 .forum-image,
 .poll-image {
   width: 100px;
@@ -193,7 +206,9 @@
   border-radius: 4px;
 }
 
-/* Action icons container */
+/* ===================================================================
+   ACTION ICONS
+   =================================================================== */
 .post-actions {
   position: absolute;
   top: 0.5rem;
@@ -201,29 +216,27 @@
   display: flex;
   gap: 0.25rem;
 }
-
 .report-button {
   background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
 }
-
 .report-button:hover .action-icon {
   opacity: 0.7;
 }
-
 .action-icon {
   width: 20px;
   height: 20px;
 }
 
-/* Forum Buttons */
+/* ===================================================================
+   FORUM BUTTONS
+   =================================================================== */
 .forum-buttons {
   display: flex;
   gap: 0.5rem;
 }
-
 .vote-button {
   display: flex;
   align-items: center;
@@ -235,12 +248,10 @@
   border-radius: 4px;
   cursor: pointer;
 }
-
 .vote-icon {
   width: 18px;
   height: 18px;
 }
-
 .comment-button {
   padding: 0.4rem 0.8rem;
   border: 1px solid #a32638;
@@ -249,19 +260,19 @@
   border-radius: 4px;
   cursor: pointer;
 }
-
 .comment-button:hover {
   background: #a32638;
   color: #fff;
 }
 
-/* Poll Options List */
+/* ===================================================================
+   POLL OPTIONS
+   =================================================================== */
 .poll-options-list {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
   margin-bottom: 0.75rem;
 }
-
 .poll-options-list li {
   display: flex;
   justify-content: space-between;
@@ -271,16 +282,15 @@
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
   background: #fff;
-  font-size: 1rem;
 }
-
-/* Poll Buttons */
 .poll-buttons {
   display: flex;
   gap: 0.5rem;
 }
 
-/* Tags Styling */
+/* ===================================================================
+   TAGS
+   =================================================================== */
 .tag {
   display: inline-block;
   background-color: limegreen;
@@ -291,21 +301,9 @@
   font-size: 0.875rem;
 }
 
-/* ————————————— Responsive Tweaks ————————————— */
-@media (max-width: 600px) {
-  .search-section input {
-    width: 150px;
-  }
-  .filter-wrapper,
-  .sort-wrapper {
-    display: none; /* simplify on small screens */
-  }
-  .forum-header-bar .controls-form {
-    justify-content: space-between;
-  }
-}
-
-/* ————————————— Report Modal Styles ————————————— */
+/* ===================================================================
+   MODAL
+   =================================================================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -313,12 +311,11 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
-  display: none; /* hidden by default */
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
-
 .modal-card {
   background: #fff;
   padding: 1.5rem;
@@ -327,11 +324,9 @@
   max-width: 400px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
-
 .modal-card h2 {
   margin-top: 0;
 }
-
 .modal-card textarea {
   width: 100%;
   margin: 0.5rem 0;
@@ -339,30 +334,36 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
 }
-
 .modal-buttons button {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
-
 #reportCancel {
   background: #ccc;
 }
-
 #reportForm button[type="submit"] {
   background: #a32638;
   color: #fff;
 }
-
-/* Show the modal when active */
 .modal-overlay.active {
   display: flex;
+}
+@media (max-width: 600px) {
+  .search-section input {
+    width: 150px;
+  }
+  .filter-wrapper,
+  .sort-wrapper {
+    display: none;
+  }
+  .controls-form {
+    justify-content: space-between;
+  }
 }

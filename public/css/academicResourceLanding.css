@@ -1,243 +1,305 @@
 /* ===================================================================
    RESET & BOX-SIZING
    =================================================================== */
-   *,
-   *::before,
-   *::after {
-     box-sizing: border-box;
-     margin: 0;
-     padding: 0;
-   }
-   
-   /* ===================================================================
-      TYPOGRAPHY
-      =================================================================== */
-   body {
-     font-family: Arial, sans-serif;
-     background-color: #f9f9f9;
-     color: #333;
-     line-height: 1.5;
-   }
-   
-   /* ===================================================================
-      LAYOUT CONTAINERS
-      =================================================================== */
-   /* Header bar: title + create button */
-   .section-heading-bar {
-     max-width: 900px;
-     margin: 2rem auto 1rem;
-     padding: 0 1rem;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-   }
-   
-   /* Resource list container */
-   .forum-posts-list {
-     max-width: 900px;
-     margin: 0 auto 2rem;
-     padding: 0 1rem;
-     display: flex;
-     flex-direction: column;
-     gap: 1rem;
-   }
-   
-   /* ===================================================================
-      HEADINGS & LINKS
-      =================================================================== */
-   #sectionHeading {
-     font-size: 1.75rem;
-     color: #363d45;
-   }
-   
-   .create-post-button {
-     display: inline-block;
-     padding: 0.5rem 1rem;
-     background-color: #a32638;
-     color: #fff;
-     text-decoration: none;
-     border-radius: 0.375rem;
-     transition: background-color 0.2s ease;
-   }
-   .create-post-button:hover,
-   .create-post-button:focus {
-     background-color: #891f33;
-   }
-   
-   /* ===================================================================
-      RESOURCE CARD
-      =================================================================== */
-   .forum-post-card {
-     position: relative;
-     background-color: #fff;
-     border: 1px solid #e4e5e6;
-     border-radius: 0.5rem;
-     padding: 1.25rem;
-     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-   }
-   
-   .forum-title {
-     font-size: 1.25rem;
-     font-weight: 600;
-     margin-bottom: 0.5rem;
-     color: #333;
-   }
-   
-   .forum-posted-by {
-     font-size: 0.9rem;
-     font-style: italic;
-     margin-bottom: 0.75rem;
-     color: #555;
-   }
-   
-   .forum-content {
-     font-size: 1rem;
-     margin-bottom: 0.75rem;
-   }
-   .forum-content a {
-     color: #004380;
-     text-decoration: underline;
-   }
-   
-   /* ===================================================================
-      REPORT BUTTON
-      =================================================================== */
-   .post-actions.report-action {
-     position: absolute;
-     top: 1rem;
-     right: 1rem;
-   }
-   .report-action .report-button {
-     background: none;
-     border: none;
-     cursor: pointer;
-     padding: 0;
-   }
-   .report-action .action-icon {
-     width: 1.25rem;
-     height: 1.25rem;
-   }
-   
-   /* ===================================================================
-      VOTING BUTTONS
-      =================================================================== */
-   .vote-container {
-     display: flex;
-     gap: 1rem;           /* space between boxes */
-     margin-top: 1rem;
-   }
-   
-   .vote-container button {
-     display: flex;
-     align-items: center;
-     gap: 0.5rem;         /* space between icon & count */
-     padding: 0.5rem 0.75rem;
-     background-color: #fff;
-     border: 1px solid #e4e5e6;
-     border-radius: 0.375rem;
-     cursor: pointer;
-     transition: background-color 0.2s;
-   }
-   
-   .vote-container .vote-icon {
-     width: 1.25rem;
-     height: 1.25rem;
-   }
-   
-   .vote-container button:hover {
-     background-color: #f4f4f4;
-   }
-   
-   /* ===================================================================
-      TAGS
-      =================================================================== */
-   .tags {
-     margin-top: 1rem;
-   }
-   .tags .tag {
-     display: inline-block;
-     background-color: #e4e5e6;
-     color: #363d45;
-     padding: 0.25rem 0.5rem;
-     margin-right: 0.5rem;
-     border-radius: 0.25rem;
-     font-size: 0.875rem;
-   }
-   
-   /* ===================================================================
-      MODAL
-      =================================================================== */
-   .modal-overlay {
-     position: fixed;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background: rgba(0, 0, 0, 0.5);
-     display: none; /* toggled via JS */
-     align-items: center;
-     justify-content: center;
-     z-index: 1000;
-   }
-   
-   .modal-card {
-     background-color: #fff;
-     border-radius: 0.5rem;
-     max-width: 400px;
-     width: 90%;
-     padding: 1.5rem;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-   }
-   
-   .modal-card h2 {
-     margin-bottom: 1rem;
-     font-size: 1.25rem;
-     color: #333;
-   }
-   
-   .modal-card label {
-     display: block;
-     margin-bottom: 0.25rem;
-     font-weight: 500;
-     color: #333;
-   }
-   
-   .modal-card textarea {
-     width: 100%;
-     padding: 0.5rem;
-     border: 1px solid #ccc;
-     border-radius: 0.25rem;
-     resize: vertical;
-     font-family: inherit;
-     margin-bottom: 1rem;
-   }
-   
-   .modal-buttons {
-     display: flex;
-     justify-content: flex-end;
-     gap: 0.5rem;
-   }
-   
-   .modal-buttons button {
-     padding: 0.4rem 0.8rem;
-     border: none;
-     border-radius: 0.25rem;
-     cursor: pointer;
-   }
-   
-   #reportCancel {
-     background-color: #ccc;
-     color: #333;
-   }
-   #reportCancel:hover {
-     background-color: #b3b3b3;
-   }
-   
-   .modal-buttons button[type="submit"] {
-     background-color: #a32638;
-     color: #fff;
-   }
-   .modal-buttons button[type="submit"]:hover {
-     background-color: #891f33;
-   }
-   
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===================================================================
+   SEARCH FORM
+   =================================================================== */
+.search-form {
+  max-width: 900px;
+  margin: 1rem auto;
+  padding: 0 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #e4e5e6;
+  border-radius: 0.375rem;
+  background-color: #fff;
+}
+
+.search-select {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #e4e5e6;
+  border-radius: 0.375rem;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.search-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #a32638;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-button:hover,
+.search-button:focus {
+  background-color: #891f33;
+}
+
+/* ===================================================================
+   TYPOGRAPHY
+   =================================================================== */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* ===================================================================
+   LAYOUT CONTAINERS
+   =================================================================== */
+/* Header bar: title + create buttons */
+.section-heading-bar {
+  max-width: 900px;
+  margin: 2rem auto 1rem;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Container for resource cards */
+.forum-posts-list {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ===================================================================
+   HEADINGS & BUTTONS
+   =================================================================== */
+#sectionHeading {
+  font-size: 1.75rem;
+  color: #363d45;
+}
+
+/* Group create buttons */
+.section-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.create-post-button,
+.create-tag-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #a32638;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s ease;
+}
+
+.create-post-button:hover,
+.create-tag-button:hover,
+.create-post-button:focus,
+.create-tag-button:focus {
+  background-color: #891f33;
+}
+
+/* ===================================================================
+   RESOURCE CARD
+   =================================================================== */
+.forum-post-card {
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #e4e5e6;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.forum-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.forum-posted-by {
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 0.75rem;
+  color: #555;
+}
+
+.forum-content {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.forum-content a {
+  color: #004380;
+  text-decoration: underline;
+}
+
+/* ===================================================================
+   REPORT BUTTON
+   =================================================================== */
+.post-actions.report-action {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.report-action .report-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.report-action .action-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ===================================================================
+   VOTING BUTTONS
+   =================================================================== */
+.vote-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.vote-container button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #fff;
+  border: 1px solid #e4e5e6;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.vote-container .vote-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.vote-container button:hover {
+  background-color: #f4f4f4;
+}
+
+/* ===================================================================
+   TAGS
+   =================================================================== */
+.tags {
+  margin-top: 1rem;
+}
+
+.tags .tag {
+  display: inline-block;
+  background-color: #e4e5e6;
+  color: #363d45;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* ===================================================================
+   MODAL
+   =================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  max-width: 400px;
+  width: 90%;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.modal-card label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.modal-card textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 1rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-buttons button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+#reportCancel {
+  background-color: #ccc;
+  color: #333;
+}
+
+#reportCancel:hover {
+  background-color: #b3b3b3;
+}
+
+.modal-buttons button[type="submit"] {
+  background-color: #a32638;
+  color: #fff;
+}
+
+.modal-buttons button[type="submit"]:hover {
+  background-color: #891f33;
+}

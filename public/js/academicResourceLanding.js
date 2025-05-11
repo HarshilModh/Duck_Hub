@@ -11,28 +11,20 @@
 
   deleteButtons.forEach((button) => {
     button.addEventListener("click", async () => {
-      const resourceId = button.getAttribute("data-id");
-      if (!resourceId) {
-        throw new Error("Button has no resourceId");
-      }
+      const resourceId = button.dataset.id;
+      if (!resourceId) throw new Error("Button has no resourceId");
       const res = await fetch(`/academicResources/${resourceId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-      if (res.ok) {
-        window.location.reload();
-      } else {
-        throw new Error(newTag.error || "Something went wrong.");
-      }
+      if (res.ok) window.location.reload();
+      else throw new Error("Something went wrong.");
     });
   });
 
   reportButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
-      const contentId = e.currentTarget.dataset.id;
-      reportContentIdInput.value = contentId;
+      reportContentIdInput.value = e.currentTarget.dataset.id;
       reportModal.style.display = "flex";
     });
   });
@@ -53,7 +45,6 @@
     button.addEventListener("click", async (e) => {
       const academicResourceId = e.currentTarget.dataset.id;
       if (!loggedInUserId) return alert("Please log in to vote.");
-
       try {
         const response = await fetch(
           `/academicResources/upvote/${academicResourceId}`,
@@ -63,10 +54,8 @@
             body: JSON.stringify({ userId: loggedInUserId }),
           }
         );
-
-        if (response.ok || response.status === 400) {
-          window.location.reload();
-        } else {
+        if (response.ok || response.status === 400) window.location.reload();
+        else {
           const { error } = await response.json();
           alert(error);
         }
@@ -79,10 +68,7 @@
   downvoteButtons.forEach((button) => {
     button.addEventListener("click", async (e) => {
       const academicResourceId = e.currentTarget.dataset.id;
-      if (!loggedInUserId) {
-        return alert("Please log in to vote.");
-      }
-
+      if (!loggedInUserId) return alert("Please log in to vote.");
       try {
         const response = await fetch(
           `/academicResources/downvote/${academicResourceId}`,
@@ -92,10 +78,8 @@
             body: JSON.stringify({ userId: loggedInUserId }),
           }
         );
-
-        if (response.ok || response.status === 400) {
-          window.location.reload();
-        } else {
+        if (response.ok || response.status === 400) window.location.reload();
+        else {
           const { error } = await response.json();
           alert(error);
         }
@@ -103,5 +87,62 @@
         console.error("Error while downvoting:", err);
       }
     });
+  });
+
+  // ============================
+  // TAG CREATION MODAL HANDLING
+  // ============================
+  const openTagModalBtn = document.getElementById("openTagModal");
+  const tagModal = document.getElementById("tagModal");
+  const tagCancelBtn = document.getElementById("tagCancel");
+  const tagForm = document.getElementById("tagForm");
+  const tagNameInput = document.getElementById("tagName");
+
+  // Inline error element
+  const tagError = document.createElement("p");
+  tagError.id = "tagError";
+  tagError.style.color = "red";
+  tagError.style.marginTop = "0.25rem";
+
+  // Open modal
+  openTagModalBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    tagError.remove();
+    tagForm.reset();
+    tagModal.style.display = "flex";
+  });
+
+  // Cancel modal
+  tagCancelBtn.addEventListener("click", () => {
+    tagModal.style.display = "none";
+    tagForm.reset();
+    tagError.remove();
+  });
+
+  // Close by clicking outside
+  tagModal.addEventListener("click", (e) => {
+    if (e.target === tagModal) {
+      tagModal.style.display = "none";
+      tagForm.reset();
+      tagError.remove();
+    }
+  });
+
+  // Validate & submit
+  tagForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = tagNameInput.value.trim();
+    if (!name) {
+      if (
+        !tagNameInput.nextElementSibling ||
+        tagNameInput.nextElementSibling.id !== "tagError"
+      ) {
+        tagNameInput.insertAdjacentElement("afterend", tagError);
+      }
+      tagError.textContent = "Tag name cannot be empty or just spaces.";
+      return;
+    }
+    tagError.remove();
+    tagForm.submit();
   });
 })();

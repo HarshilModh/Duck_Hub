@@ -170,7 +170,7 @@ export const updateUser = async (userId, firstName, lastName, email) => {
       throw new Error("Email must be less than 50 characters long");
     }
     const user = await User.findById(userId);
-    if(user.googleId){
+    if (user.googleId) {
       throw new Error("User is logged in with Google. Cannot update details.");
     }
     if (!user) {
@@ -569,3 +569,56 @@ export const forgotPassword = async (email) => {
   }
   return { success: true, userId: user._id };
 };
+
+export async function validateOtp(userId, code) {
+  if (!userId || !code) {
+    throw new Error("Please provide all required fields");
+  }
+  try {
+    userId = isValidID(userId, "userId");
+    code = isValidString(code, "code");
+  } catch (e) {
+    throw new Error(e.message);
+  }
+
+  const otpDoc = await Otp.findOne({ userId }).sort({ createdAt: -1 }).lean();
+
+  if (!otpDoc) {
+    throw new Error("OTP not found or already expired");
+  }
+
+  const now = new Date();
+  if (otpDoc.expiresAt < now) {
+    await Otp.deleteOne({ _id: otpDoc._id });
+    throw new Error("OTP has expired");
+  }
+
+  if (otpDoc.attempts <= 0) {
+    await Otp.deleteOne({ _id: otpDoc._id });
+    throw new Error("No remaining attempts — please request a new OTP");
+  }
+
+  if (otpDoc.code === code) {
+    await Otp.deleteOne({ _id: otpDoc._id });
+    return;
+  }
+
+  const updated = await Otp.findByIdAndUpdate(
+    otpDoc._id,
+    { $inc: { attempts: -1 } },
+    { new: true }
+  );
+
+  if (updated.attempts <= 0) {
+    await Otp.deleteOne({ _id: otpDoc._id });
+    throw new Error(
+      "Invalid OTP. No attempts left — please request a new one."
+    );
+  } else {
+    throw new Error(
+      `Invalid OTP. You have ${updated.attempts} attempt${
+        updated.attempts > 1 ? "s" : ""
+      } left.`
+    );
+  }
+}
