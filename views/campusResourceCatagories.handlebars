@@ -6,6 +6,10 @@
     <div class="flex items-center justify-between mb-8">
       <h1 class="text-3xl font-heading">Campus Resource Categories</h1>
       {{!-- Only show Add Resource to admins --}}
+      <a
+        href="/userSideCampusResources"
+        class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+      >All Resources</a>
       {{#if user}}
         {{#if (eq user.role "admin")}}
           <a
@@ -17,6 +21,8 @@
         {{/if}}
         {{/if}}   
     </div>
+   
+    
 
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <a href="/userSideCampusResources/type/library" class="block bg-stevensWhite rounded-2xl shadow p-6 text-center hover:shadow-lg transition">

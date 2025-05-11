@@ -18,14 +18,14 @@ router.get(
       // Copy it into your own session key if you like:
       // req.session.user = req.user;
       req.session.user = { user: req.user };
-      req.locals.googleUser = req.user;
+      // res.locals.googleUser = true;
       req.session.toast = {
         type: 'success',
         message: 'Login successful',
       };
       console.log('User authenticated:', req.session.user);
 
-      res.redirect('forums'); // Redirect to the desired page after successful login
+      res.redirect('/forums'); // Redirect to the desired page after successful login
     } catch (err) {
       console.log(err);
       req.session.toast = {

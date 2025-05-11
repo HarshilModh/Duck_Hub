@@ -9,14 +9,20 @@ import { isValidID,isValidString } from '../utils/validation.utils.js';
 router.route('/').get(isLoggedIn, async (req, res) => {
   try {
     const allResources = await getAllCampusResources();
-    res.status(200).render('campusResources', { resources: allResources });
+    let isAdmin = req.session.user.user.role;
+    if (isAdmin === 'admin') {
+      isAdmin = true;
+    } else {
+      isAdmin = false;
+    }
+    res.status(200).render('campusResourcesLanding', { campusResources: allResources, isAdmin });
   } catch (error) {
     console.error(error);
     req.session.toast = {
       type: 'error',
       message: 'Error fetching campus resources: ' + error.message,
     };
-    res.redirect('/campusresources');
+    res.redirect('/users/userProfile');
   }
 }
 );
@@ -95,5 +101,47 @@ router.route('/getDetails/:id').get(isLoggedIn, async (req, res) => {
   }
 }
 );
+//search resources by form
+router.route('/search').post(isLoggedIn, async (req, res) => {
+  try{let searchQuery = xss(req.body.search);
+  if (!searchQuery) {
+    req.session.toast = {
+      type: 'error',
+      message: 'Search query is required',
+    };
+    return res.redirect('/userSideCampusResources');
+  } 
+  // Validate searchQuery
+  try {
+    searchQuery = isValidString(searchQuery, 'Search Query');
+  } catch (error) {
+    req.session.toast = {
+      type: 'error',
+      message: 'Invalid search query: ' + error.message,
+    };
+    return res.redirect('/userSideCampusResources');
+  }
+  // Fetch all resources and filter by search query
+  const allResources = await getAllCampusResources();
+  const filteredResources = allResources.filter(resource => {
+    return (
+      resource.resourceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      resource.resourceType.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+  res.status(200).render('campusResourcesLanding', { campusResources: filteredResources ,filtered: true}); 
+}
+  catch (error) {
+    console.error(error);
+    req.session.toast = {
+      type: 'error',
+      message: 'Error fetching campus resources: ' + error.message,
+    };
+    res.redirect('/campusresources');
+  }
+}
+);
+
+
 
 export default router;

@@ -613,11 +613,27 @@ export const reportReview = async (reviewId, userId) => {
   userId = isValidID(userId, "UserID");
 
   try {
-    let review = Review.findByIdAndUpdate(reviewId, {
-      $set: { status: "reported" },
-      $push: { reportedBy: userId },
+    let reportCount = await Reports.countDocuments({
+      reviewId: reviewId,
     });
-
+    console.log("Report Count: ", reportCount);
+    
+   if (reportCount >5) {
+    let review = await Review.findByIdAndUpdate(
+        reviewId,
+        {
+            $set: { status: "hidden" },
+            $push: { reportedBy: userId }
+        },
+        { new: true }
+    );
+}else {
+      let review = await Review.findByIdAndUpdate(reviewId, {
+        $push: { reports: userId },
+      });
+    }
+   
+    let review = await Review.findById(reviewId);
     if (!review) {
       throw new Error("Review not found");
     }
@@ -633,6 +649,9 @@ export const deleteReviewByCourseId = async (courseId) => {
   try {
     courseId = isValidID(courseId, "Course ID");
     let deletedReview = await Review.deleteMany({ courseId: courseId });
+    if (!deletedReview) {
+      throw new Error("Review not found");
+    }
     if (!deletedReview) {
       throw new Error("Review not found");
     }
