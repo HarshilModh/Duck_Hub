@@ -144,8 +144,9 @@ router
 
   // Handle login submissions
   .post(async (req, res) => {
-
-    let { email, password } = req.body;
+    try{
+    let email = xss(req.body.email);
+    let password = xss(req.body.password);
     if (!email || !password) {
       req.session.toast = {
         type: "error",
@@ -208,8 +209,7 @@ router
       };
       return res.redirect("/users/login");
     }
-
-    try {
+  
       const user = await loginUser(email, password);
 
       if (user) {

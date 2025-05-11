@@ -1,0 +1,93 @@
+{{!-- views/reportDashboard.handlebars --}}
+<div class="min-h-screen bg-stevensBg font-body text-stevensGray">
+  <div class="max-w-5xl mx-auto px-6 py-10">
+    <!-- Header -->
+    <h1 class="text-3xl font-heading text-stevensMaroon mb-8">Report Details</h1>
+
+    <!-- Report Card -->
+    <div class="bg-stevensWhite rounded-2xl shadow p-8 space-y-6">
+
+      <!-- Grid of key‑value pairs -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Report ID</p>
+          <p class="text-lg break-all">{{report._id}}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Content Type</p>
+          <p class="text-lg">{{report.reportedContentType}}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Reason</p>
+          <p class="text-lg">{{report.reason}}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Status</p>
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+            class="
+              {{#if (eq report.status 'resolved')}}bg-green-100 text-green-800{{/if}}
+              {{#if (eq report.status 'under review')}}bg-yellow-100 text-yellow-800{{/if}}
+              {{#if (eq report.status 'rejected')}}bg-red-100 text-red-800{{/if}}
+            "
+          >
+            {{report.status}}
+          </span>
+        </div>
+
+        {{#if report.reviewId}}
+        <div class="md:col-span-2">
+          <p class="text-sm font-medium text-stevensGray">Reported Review</p>
+          <a
+            href="/userSideCourses/reviews/{{report.reviewId}}"
+            class="text-stevensMaroon hover:underline break-all"
+          >
+            View Review &rarr;
+          </a>
+        </div>
+        {{/if}}
+
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Reported By</p>
+          <a
+            href="/users/{{report.reportedBy}}"
+            class="text-stevensMaroon hover:underline break-all"
+          >{{report.reportedBy}}</a>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Created At</p>
+          <p class="text-lg">{{formatDate report.createdAt}}</p>
+        </div>
+
+        {{#if report.resolvedAt}}
+        <div>
+          <p class="text-sm font-medium text-stevensGray">Resolved At</p>
+          <p class="text-lg">{{formatDate report.resolvedAt}}</p>
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Action Buttons -->
+      {{#if (eq report.status "under review")}}
+      <div class="flex flex-wrap gap-4 pt-6 border-t">
+        <form action="/reports/{{report._id}}/resolve" method="post">
+          <button
+            type="submit"
+            class="bg-green-600 text-stevensWhite px-6 py-2 rounded-lg hover:bg-green-700 transition"
+          >
+            Mark as Resolved
+          </button>
+        </form>
+        <form action="/reports/{{report._id}}/reject" method="post">
+          <button
+            type="submit"
+            class="bg-red-600 text-stevensWhite px-6 py-2 rounded-lg hover:bg-red-700 transition"
+          >
+            Reject Report
+          </button>
+        </form>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
