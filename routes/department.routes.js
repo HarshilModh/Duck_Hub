@@ -249,10 +249,20 @@ router.route("/editDepartment/:id").get(isLoggedIn,checkRole("admin"),async (req
     }
 });
 //search department regex
-router.route('/searchDepartment').get(isLoggedIn,checkRole("admin"),async (req, res) => {
-    const searchQuery = req.query.search;
-    console.log('Searching departments with query:', searchQuery);
-    try {
+router.route('/searchDepartment').post(isLoggedIn,checkRole("admin"),async (req, res) => {
+   
+    try { let  searchQuery = xss(req.body.search);
+        searchQuery = searchQuery.trim();
+        console.log('Search query:', searchQuery);
+        
+        if (!searchQuery) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid search query',
+            };
+            return res.redirect('/departments');
+        }
+        console.log('Searching departments with query:', searchQuery);
         const departments = await getAllDepartments();
         if (!departments) {
             req.session.toast = {
@@ -264,7 +274,7 @@ router.route('/searchDepartment').get(isLoggedIn,checkRole("admin"),async (req, 
         const filteredDepartments = departments.filter(department =>
             department.departmentName.toLowerCase().includes(searchQuery.toLowerCase())
         );
-        res.render('department', { title: 'Department', departments: filteredDepartments });
+        res.render('department', { title: 'Department', departments: filteredDepartments, searchQuery,Filtered: true });
     } catch (error) {
         console.error(error);
         req.session.toast = {

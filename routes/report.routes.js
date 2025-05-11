@@ -14,7 +14,7 @@ import Review from "../models/courseReviews.model.js";
 import AcademicResource from "../models/academicResources.model.js";
 import xss from "xss";
 import { isValidID } from "../utils/validation.utils.js";
-
+import { reportReview } from "../data/courseReviewController.js";
 const router = express.Router();
 
 router
@@ -179,6 +179,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
         userId,
         reason
       );
+      
       if (!report) {
         req.session.toast = {
           type: "error",
@@ -186,6 +187,10 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
         };
         return res.status(500).redirect("/forums");
       }
+   
+       if (contentType === "Review") {
+        await reportReview(reviewId, userId);
+      }   
       req.session.toast = {
         type: "success",
         message: "Report created: Administrator will review it shortly.",
@@ -222,4 +227,5 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   });
+
 export default router;

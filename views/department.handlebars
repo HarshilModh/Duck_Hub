@@ -1,7 +1,7 @@
 {{!-- views/departments.handlebars --}}
 
 <div class="min-h-screen bg-stevensBg font-body text-stevensMaroon">
-  <main class="max-w-6xl mx-auto px-6 py-10">
+  <div class="max-w-6xl mx-auto px-6 py-10">
 
     <!-- Header with Add button -->
     {{#if user}}
@@ -25,7 +25,38 @@
         </div>
       {{/if}}
     {{/if}}
-
+    <!-- SEARCH BAR -->
+    <form action="/departments/searchDepartment" method="POST" class="mb-8 max-w-md mx-auto">
+      <div class="flex">
+        <input
+          type="text"
+          name="search"
+          value="{{search}}"
+          placeholder="Search departments…"
+          class="flex-1 px-4 py-2 border border-stevensGray rounded-l-lg focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        />
+        <button
+          type="submit"
+          class="bg-stevensMaroon text-stevensWhite px-4 rounded-r-lg hover:bg-stevensMaroon/90 transition"
+        >
+          Search
+        </button>
+      </div>
+    </form>
+  {{#if Filtered}}
+    <div class="mb-4">
+      <h2 class="text-xl font-heading">Search Results</h2>
+    </div>
+{{!-- reset button --}}
+    <div class="mb-4">
+      <a
+        href="/departments"
+        class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+      >
+        Reset Search
+      </a>
+    </div>
+    {{/if}}
     {{#if departments.length}}
       <div class="space-y-4">
         {{#each departments}}
@@ -73,5 +104,5 @@
       <p class="text-stevensGray italic text-center">No departments found.</p>
     {{/if}}
 
-  </main>
+  </div>
 </div>

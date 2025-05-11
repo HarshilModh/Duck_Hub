@@ -53,6 +53,11 @@ app.use((req, res, next) => {
 //add user to res.locals
 app.use((req, res, next) => {
   res.locals.user = req.session.user?.user || null;
+  res.locals.googleUser = req.session.user?.user.googleId || null;
+  console.log("User in session:", req.session.user);
+  console.log("User in locals:", res.locals.user);
+  console.log("Google user in locals:", res.locals.googleUser);
+  
   next();
 });
 // 6️⃣ Register Handlebars + `json` helper
@@ -65,7 +70,9 @@ app.engine(
       json: (context) => JSON.stringify(context || {}),
       formatDate: (d) =>
         new Date(d).toLocaleString("en-US", { timeZone: "America/New_York" }),
-    },
+     ifEquals: function(arg1, arg2, options) {
+      return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+    }},
   })
 );
 app.set("view engine", "handlebars");

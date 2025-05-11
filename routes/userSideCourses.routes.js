@@ -46,6 +46,15 @@ router.route('/').get(isLoggedIn, async (req, res) => {
 //load course details page with reviews
 router.route('/course/:id').get(isLoggedIn, async (req, res) => {
     let courseId = req.params.id;
+    let isAdmin = req.session.user.user.role;
+
+    if (isAdmin === 'admin') {
+        isAdmin = true;
+    } else {
+        isAdmin = false;
+    }
+    console.log("Is admin: ", isAdmin);
+    
     if (!courseId) {
         req.session.toast = {
             type: 'error',
@@ -80,7 +89,12 @@ router.route('/course/:id').get(isLoggedIn, async (req, res) => {
         if (!courseReviews || courseReviews.length === 0) {
             courseReviews = [];
         } else {
+            if(isAdmin == true) {
+                courseReviews = courseReviews.filter((review) => review.status === "active" || review.status === "hidden");
+            }else{
             courseReviews = courseReviews.filter((review) => review.status === "active");
+
+            }
             courseReviews = courseReviews.map((review) => {
                 return {
                     reviewId: review._id,
@@ -128,7 +142,7 @@ router.route('/course/:id').get(isLoggedIn, async (req, res) => {
         console.log("courseName: ", course.courseName);
         console.log("courseCode: ", course.courseCode);
 
-        res.render('userCourseDetails', { title: 'Course Details', course: course, courseReviews: courseReviews });
+        res.render('userCourseDetails', { title: 'Course Details', course: course, courseReviews: courseReviews, isAdmin: isAdmin });
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -435,7 +449,7 @@ router.route('/deleteReview/:id').get(isLoggedIn, async (req, res) => {
             type: 'success',
             message: 'Review deleted successfully',
         };
-        return res.redirect('/userSideCourses/myReviews');
+        return res.redirect('/userSideCourses');
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -740,6 +754,13 @@ router.route('/departmentCourses/:id').get(isLoggedIn, async (req, res) => {
     console.log('Fetching course with ID:', departmentId);
     try {
         let courses = await getAllCourses();
+        let departments = await getAllDepartments();
+        departments = departments.map((department) => {
+            return {
+                departmentId: department._id,
+                departmentName: department.departmentName,
+            };
+        });
         courses = courses.filter((course) => course.departmentId._id.toString() === departmentId);
         if (!courses) {
             req.session.toast = {
@@ -750,7 +771,7 @@ router.route('/departmentCourses/:id').get(isLoggedIn, async (req, res) => {
         }
         console.log("rendering course page");
 
-        res.render('userCourse', { title: 'Courses', courses });
+        res.render('userCourse', { title: 'Courses', courses , filtered: true, departments: departments });
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -853,6 +874,7 @@ router.route("/filterCoursesCombined").post(isLoggedIn, async (req, res) => {
 router.route("/searchCourses").post(isLoggedIn, async (req, res) => {
     try {
         let search = xss(req.body.search);
+        search = search.trim();
         console.log("search: ", search);
         let courses = await getAllCourses();
         let departments = await getAllDepartments();
@@ -890,5 +912,59 @@ router.route("/searchCourses").post(isLoggedIn, async (req, res) => {
         return res.redirect('/userSideCourses');
     }
 });
+//open report page
+router.route('/reviewReport/:id').get(isLoggedIn, async (req, res) => {
+    console.log("report review request");
+    let reviewId = req.params.id;
+    let userId = req.session.user.user._id;
+    if (!reviewId) {
+        req.session.toast = {
+            type: 'error',
+            message: 'Review ID is required',
+        };
+        return res.redirect('/userSideCourses');
+    }
+    reviewId = reviewId.trim();
+    // Check if reviewId is a valid ObjectId
+    try {
+        if (!isValidID(reviewId)) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid review ID',
+            };
+            return res.redirect('/userSideCourses');
+        }
+    }
+    catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Invalid review ID',
+        };
+        return res.redirect('/userSideCourses');
+    }
+    // Fetch course details
+    console.log('Fetching review with ID:', reviewId);
+    try {
+        const review = await getReviewById(reviewId);
 
+        if (!review) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Review not found',
+            };
+            return res.redirect('/userSideCourses');
+        }
+        console.log("rendering report page");
+        console.log("review: ", review);
+
+        res.render('reviewReport', { title: 'Report Review', review,userId });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch review details',
+        };
+    }
+});
 export default router; 

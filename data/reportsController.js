@@ -25,7 +25,10 @@ export const createReport = async (
   type = reportTypeValidation(type);
   userId = isValidID(userId);
   reason = isValidString(reason);
-
+  console.log("reportTypeValidation", type);
+  console.log("userId", userId);
+  console.log("reason", reason);
+  
   try {
     let forumUpdate;
     let academicResourceUpdate;
@@ -33,6 +36,7 @@ export const createReport = async (
     if (forumUpdate && academicResourceUpdate) {
       throw new Error("Could not update content!");
     }
+    if (type === "Forum") { 
 
     let existingReport = await Reports.findOne({
       forumId: forumId,
@@ -42,7 +46,34 @@ export const createReport = async (
     if (existingReport) {
       throw new Error("You can't report a forum more than once !");
     }
-
+  }
+    if (type === "Poll") {
+      let existingReport = await Reports.findOne({
+        pollId: pollId,
+        reportedBy: userId,
+      });
+      if (existingReport) {
+        throw new Error("You can't report a poll more than once !");
+      }
+    }
+    if (type === "Review") {
+      let existingReport = await Reports.findOne({
+        reviewId: reviewId,
+        reportedBy: userId,
+      });
+      if (existingReport) {
+        throw new Error("You can't report a review more than once !");
+      }
+    }
+    if (type === "AcademicResource") {
+      let existingReport = await Reports.findOne({
+        academicResourceId: academicResourceId,
+        reportedBy: userId,
+      });
+      if (existingReport) {
+        throw new Error("You can't report a resource more than once !");
+      }
+    }
     const newReport = new Reports({
       forumId,
       pollId,

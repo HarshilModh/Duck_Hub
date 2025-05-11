@@ -7,6 +7,7 @@ import { checkRole } from '../middlewares/roleCheck.middleware.js';
 import Department from '../models/department.model.js';
 import xss from 'xss';
 import { courseValidation } from '../utils/validation.utils.js';
+import { deleteReviewByCourseId } from '../data/courseReviewController.js';
 import { isCourseCodeExists, isCourseNameExists } from '../data/courseController.js';
 
 import { isValidID, isValidString } from '../utils/validation.utils.js';
@@ -107,7 +108,7 @@ router.route('/addCourse').get(isLoggedIn,checkRole("admin"),async (req, res) =>
             type: 'success',
             message: `Course created successfully named ${newCourse.courseName} with code ${newCourse.courseCode}`,
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     } catch (error) {
         console.error(error);
         req.session.toast = {
@@ -151,14 +152,14 @@ router.route('/:id').get(async (req, res) => {
             type: 'error',
             message: 'Please provide a course ID',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     if (typeof courseId !== "string") {
         req.session.toast = {
             type: 'error',
             message: 'Course ID must be a string',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     // Validate course ID
     try {
@@ -168,14 +169,14 @@ router.route('/:id').get(async (req, res) => {
                 type: 'error',
                 message: 'Invalid course ID',
             };
-            return res.redirect('/courses');
+            return res.redirect('/userSideCourses');
         }
     } catch (error) {
         req.session.toast = {
             type: 'error',
             message: error.message,
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     try {
         const course = await getCourseById(courseId);
@@ -185,7 +186,7 @@ router.route('/:id').get(async (req, res) => {
                 type: 'error',
                 message: 'No course found with the given ID',
             };
-            return res.redirect('/courses');
+            return res.redirect('/userSideCourses');
         }
         console.log("rendering course details page", course);
 
@@ -204,7 +205,7 @@ router.route('/:id').get(async (req, res) => {
             type: 'error',
             message: 'Failed to fetch course details',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
 }).put(isLoggedIn,checkRole("admin"),async(req,res)=>{
     console.log('Updating course by ID');
@@ -220,7 +221,7 @@ router.route('/:id').get(async (req, res) => {
             type: 'error',
             message: 'Please fill all the fields',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     if (courseCode.trim().length === 0 || courseName.trim().length === 0 || courseDescription.trim().length === 0 || courseDepartment.trim().length === 0) {
         req.session.toast = {
@@ -234,7 +235,7 @@ router.route('/:id').get(async (req, res) => {
             type: 'error',
             message: 'Course code, name, description and department ID must be strings',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     courseCode = courseCode.trim()
     courseName = courseName.trim()
@@ -249,7 +250,7 @@ router.route('/:id').get(async (req, res) => {
             type: 'error',
             message: error.message,
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     
     // Check if department exists
@@ -259,7 +260,7 @@ router.route('/:id').get(async (req, res) => {
             type: 'error',
             message: 'Department does not exist',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
     
 
@@ -271,20 +272,20 @@ router.route('/:id').get(async (req, res) => {
                 type: 'error',
                 message: 'Failed to update course',
             };
-            return res.redirect('/courses');
+            return res.redirect('/userSideCourses');
         }
         req.session.toast = {
             type: 'success',
             message: `Course updated successfully`,
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     } catch (error) {
         console.error(error);
         req.session.toast = {
             type: 'error',
             message: 'Failed to update course',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
 }).delete(async (req, res) => {
     console.log('Deleting course by ID');
@@ -296,20 +297,22 @@ router.route('/:id').get(async (req, res) => {
                 type: 'error',
                 message: 'Failed to delete course',
             };
-            return res.redirect('/courses');
+            return res.redirect('/userSideCourses');
         }
+        //delete all the reviews related to the course
+        const deletedReviews = await deleteReviewByCourseId(courseId);
         req.session.toast = {
             type: 'success',
             message: `Course deleted successfully`,
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     } catch (error) {
         console.error(error);
         req.session.toast = {
             type: 'error',
             message: 'Failed to delete course',
         };
-        return res.redirect('/courses');
+        return res.redirect('/userSideCourses');
     }
 })
 

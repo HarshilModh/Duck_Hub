@@ -8,7 +8,38 @@
       <h1 class="text-4xl font-heading">Campus Resources</h1>
       <p class="text-stevensGray mt-2">Browse and manage campus resources below.</p>
     </header>
-
+    {{!-- search bar --}}
+    <form action="/userSideCampusResources/search" method="POST" class="mb-8 max-w-md mx-auto">
+      <div class="flex">
+        <input
+          type="text"
+          name="search"
+          value="{{search}}"
+          placeholder="Search campus resources…"
+          class="flex-1 px-4 py-2 border border-stevensGray rounded-l-lg focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+        />
+        <button
+          type="submit"
+          class="bg-stevensMaroon text-stevensWhite px-4 rounded-r-lg hover:bg-stevensMaroon/90 transition"
+        >
+          Search
+        </button>
+      </div>
+    </form>
+    {{!-- if searched --}}
+    {{#if filtered}}
+      <div class="mb-4">
+        <h2 class="text-xl font-heading">Search Results</h2>
+      </div>
+      <div class="mb-4">
+        <a
+          href="/userSideCampusResources"
+          class="bg-stevensMaroon text-stevensWhite px-4 py-2 rounded-lg hover:bg-stevensMaroon/90 transition"
+        >
+          Reset Search
+        </a>
+      </div>
+    {{/if}}
     {{#if campusResources.length}}
       <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {{#each campusResources}}

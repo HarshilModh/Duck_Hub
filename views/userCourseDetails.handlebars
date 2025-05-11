@@ -1,4 +1,4 @@
-{{!-- views/courseDetails.handlebars ------------------------------------}}
+{{!-- views/courseDetails.handlebars --}}
 <div class="max-w-3xl mx-auto px-4 py-8 space-y-8">
 
   <!-- Course Header -->
@@ -71,8 +71,13 @@
                     Edited
                   </span>
                 {{/if}}
+               {{#ifEquals this.status "hidden"}}
+  <span class="px-2 py-0.5 text-xs bg-orange-100 text-gray-800 rounded-full">
+    Hidden
+  </span>
+{{/ifEquals}}
               </div>
-              <time class="text-xs text-gray-500">{{this.createdAt}}</time>
+              <time class="text-xs text-gray-500">{{formatDate this.createdAt "MMM D, YYYY"}}</time>
             </div>
 
             <!-- Review Text -->
@@ -91,32 +96,72 @@
                 <span>🎯</span>
               </div>
             </div>
+        {{#if ../isAdmin}}
+  {{!-- Delete button --}}
+  <form
+    action="/userSideCourses/deleteReview/{{this.reviewId}}"
+    method="get"
+    class="mt-4"
+  >
+    <!-- Method override for Express' method‑override middleware -->
 
+
+    <button
+      type="submit"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+             border border-red-600 text-red-600
+             hover:bg-red-600 hover:text-white
+             active:bg-red-700
+             focus:outline-none focus:ring-2 focus:ring-red-400
+             transition"
+      aria-label="Delete this review"
+    >
+      <!-- Heroicons outline trash icon -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="h-5 w-5"
+      >
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+        <path d="M10 11v6" />
+        <path d="M14 11v6" />
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+      </svg>
+
+      <span>Delete Review</span>
+    </button>
+  </form>
+{{/if}}
+
+         
             <!-- Votes & Report -->
             <div class="flex items-center gap-4 text-sm pt-2">
               <form action="/userSideCourses/reviews/{{this.reviewId}}/vote" method="post" class="flex items-center gap-1">
                 <input type="hidden" name="vote" value="up">
                 <input type="hidden" name="courseId" value="{{this.courseId}}">
-
                 <button type="submit" class="hover:text-green-600 transition">▲</button>
                 <span>{{this.upVotes}}</span>
               </form>
 
-              <form action="/userSideCourses/reviews/{{this.reviewId}}/vote" method="post" class="flex items">
-              
+              <form action="/userSideCourses/reviews/{{this.reviewId}}/vote" method="post" class="flex items-center gap-1">
                 <input type="hidden" name="vote" value="down">
                 <input type="hidden" name="courseId" value="{{this.courseId}}">
-
                 <button type="submit" class="hover:text-red-600 transition">▼</button>
                 <span>{{this.downVotes}}</span>
               </form>
 
               <span class="flex-1"></span>
 
-              <form action="/reviews/{{this.reviewId}}/report" method="post">
-                <button type="submit" class="text-xs text-gray-500 hover:text-red-600 transition">
+              {{!-- Report button using your backend route --}}
+              <a href="/userSideCourses/reviewReport/{{this.reviewId}}">
                   🚩 Report
-                </button>
+                </a>
               </form>
             </div>
           </li>
