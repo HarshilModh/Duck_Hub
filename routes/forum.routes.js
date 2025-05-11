@@ -4,7 +4,7 @@ import xss from "xss";
 import fs from "fs";
 import Forum from "../models/forums.model.js";
 import ForumVotes from "../models/forumVotes.model.js";
-import { userImage, uploadImagesGuard} from "../middlewares/cloudinary.js";
+import { userImage, uploadImagesGuard } from "../middlewares/cloudinary.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Tags from "../models/tags.model.js";
 import Poll from "../models/polls.model.js";
@@ -40,74 +40,71 @@ import {
 } from "../data/forumsCommentsController.js";
 
 //TODO: Implement Router Checks
-router
-  .route("/")
-  .post(isLoggedIn, uploadImagesGuard, async (req, res) => {
-    try {
-      const userId = xss(req.body.userId);
-      let title = xss(req.body.title);
-      let content = xss(req.body.content);
-      let tags = xss(req.body.tags);
-      let imageURLs = [];
+router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
+  try {
+    const userId = xss(req.body.userId);
+    let title = xss(req.body.title);
+    let content = xss(req.body.content);
+    let tags = xss(req.body.tags);
+    let imageURLs = [];
 
-      if (!userId) {
-        req.session.toast = {
-          type: "error",
-          message: "Please login to create a post.",  
-        }
-        return res.status(401).json({ error: "Unauthorized" });
-      }
-
-      try {
-        title = isValidString(title, "Title");
-        content = isValidString(content, "Content");
-      } catch (error) {
-        req.session.toast = {
-          type: "error",
-          message: error.message,
-        };  
-        return res.status(400).json({ error: error.message });
-      }
-
-      if (req.files && req.files.length > 0) {
-        for (const file of req.files) {
-          const cloudinaryUrl = await userImage(file.path);
-          imageURLs.push(cloudinaryUrl);
-          fs.unlinkSync(file.path); // deletes the reference from the uploads folder
-        }
-      }
-
-      tags = tags.split(",").map((tag) => tag.trim());
-
-      let tagsArray;
-      if (!tags) {
-        tagsArray = [];
-      } else if (!Array.isArray(tags)) {
-        tagsArray = [tags.trim()];
-      } else {
-        tagsArray = tags.map((t) => t.trim());
-      }
-
-      const post = await createForumPost(
-        userId,
-        title,
-        content,
-        imageURLs,
-        tagsArray
-      );
-      req.session.toast = {
-        type: "success",
-        message: "Post created successfully!",
-      };
-      return res.status(201).json(post);
-    } catch (err) {
+    tags = tags.split(",");
+    if (!userId) {
       req.session.toast = {
         type: "error",
-        message: "Failed to create post. Please try again.",
+        message: "Please login to create a post.",
       };
-      return res.status(500).json({ error: err.message });
+      return res.status(401).json({ error: "Unauthorized" });
     }
-  });
+
+    try {
+      title = isValidString(title, "Title");
+      content = isValidString(content, "Content");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message,
+      };
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const cloudinaryUrl = await userImage(file.path);
+        imageURLs.push(cloudinaryUrl);
+        fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+      }
+    }
+
+    let tagsArray;
+    if (!tags) {
+      tagsArray = [];
+    } else if (!Array.isArray(tags)) {
+      tagsArray = [tags.trim()];
+    } else {
+      tagsArray = tags.map((t) => t.trim());
+    }
+
+    const post = await createForumPost(
+      userId,
+      title,
+      content,
+      imageURLs,
+      tagsArray
+    );
+    req.session.toast = {
+      type: "success",
+      message: "Post created successfully!",
+    };
+    return res.status(201).json(post);
+  } catch (err) {
+    req.session.toast = {
+      type: "error",
+      message: "Failed to create post. Please try again.",
+    };
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 router.get("/create", isLoggedIn, async (req, res) => {
   try {
@@ -199,12 +196,23 @@ router.route("/:id").get(async (req, res) => {
 
 router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
   const { userId } = req.params;
-  const { postType } = req.query; 
+  const { postType } = req.query;
 
   try {
+    // Validate userId
+    if (!userId) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid User ID !!!",
+      };
+      return res.redirect("/forums");
+    }
     // fetch only this user's forums & polls
     const forumPosts = await getForumPostsByUserId(userId);
-    const pollPosts = await Poll.find({ createdBy: userId }).populate("createdBy tags", "firstName lastName name").populate("tags", "name").lean();
+    const pollPosts = await Poll.find({ createdBy: userId })
+      .populate("createdBy tags", "firstName lastName name")
+      .populate("tags", "name")
+      .lean();
     const tags = await Tags.find({}).lean();
     const loggedUserId = req.session.user?.user?._id || null;
     res.render("userForums", {
@@ -436,41 +444,43 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
   }
 });
 
-router.route("/comments").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
-  try {
-    let forumId = xss(req.body.forumId);
-    let userId = xss(req.body.userId);
-    let content = xss(req.body.content);
-    let imageURLs = [];
+router
+  .route("/comments")
+  .post(isLoggedIn, uploadImagesGuard, async (req, res) => {
+    try {
+      let forumId = xss(req.body.forumId);
+      let userId = xss(req.body.userId);
+      let content = xss(req.body.content);
+      let imageURLs = [];
 
-    let commentFor = "forum";
+      let commentFor = "forum";
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const cloudinaryUrl = await userImage(file.path);
-        imageURLs.push(cloudinaryUrl);
-        fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          const cloudinaryUrl = await userImage(file.path);
+          imageURLs.push(cloudinaryUrl);
+          fs.unlinkSync(file.path); // deletes the reference from the uploads folder
+        }
       }
+
+      const exists = await Forum.exists({ _id: forumId });
+      if (!exists) {
+        commentFor = "poll";
+      }
+
+      const newComment = await createForumComment(
+        forumId,
+        userId,
+        content,
+        imageURLs,
+        commentFor
+      );
+
+      return res.redirect(`/forums/comments/view/${forumId}`);
+    } catch (error) {
+      return res.status(400).send("Error adding comment: " + error.message);
     }
-
-    const exists = await Forum.exists({ _id: forumId });
-    if (!exists) {
-      commentFor = "poll";
-    }
-
-    const newComment = await createForumComment(
-      forumId,
-      userId,
-      content,
-      imageURLs,
-      commentFor
-    );
-
-    return res.redirect(`/forums/comments/view/${forumId}`);
-  } catch (error) {
-    return res.status(400).send("Error adding comment: " + error.message);
-  }
-});
+  });
 
 router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
   const userId = req.session.user?.user?._id;
@@ -493,7 +503,7 @@ router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
 router.route("/comments/upvote/:commentId").put(async (req, res) => {
   try {
     const { commentId } = req.params;
-    const  userId  = xss(req.body.userId);
+    const userId = xss(req.body.userId);
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -509,7 +519,7 @@ router.route("/comments/upvote/:commentId").put(async (req, res) => {
 router.route("/comments/downvote/:commentId").put(async (req, res) => {
   try {
     const { commentId } = req.params;
-    const  userId  = xss(req.body.userId);
+    const userId = xss(req.body.userId);
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });

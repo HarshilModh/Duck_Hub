@@ -14,16 +14,18 @@
       <div class="form-group">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" required />
+        <div class="error-message"></div>
       </div>
 
       <div class="form-group">
         <label for="content">Content:</label>
         <textarea id="content" name="content" required></textarea>
+        <div class="error-message"></div>
       </div>
 
       <div class="form-group">
         <label for="tags">Select Tags:</label>
-        <select id="tags" name="tags[]" multiple required>
+        <select id="tags" name="tags[]" multiple>
           <option value="" disabled>Select one or more tags</option>
           {{#each tags}}
             <option value="{{this._id}}">{{this.name}}</option>
@@ -68,10 +70,12 @@
       <div class="form-group">
         <label for="question">Question:</label>
         <input id="question" name="question" type="text" required />
+        <div class="error-message"></div>
       </div>
 
       <div id="options-wrapper" class="form-group">
         <label>Options:</label>
+        <div class="error-message"></div>
         <div class="option-row">
           <input name="options[]" type="text" required placeholder="Option 1" />
           <button type="button" class="remove-option">✕</button>
@@ -87,7 +91,7 @@
 
       <div class="form-group">
         <label for="pollTags">Select Tags:</label>
-        <select id="pollTags" name="tags[]" multiple required>
+        <select id="pollTags" name="tags[]" multiple>
           <option value="" disabled>Select one or more tags</option>
           {{#each tags}}
             <option value="{{this._id}}">{{this.name}}</option>
