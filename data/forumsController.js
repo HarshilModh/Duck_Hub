@@ -84,6 +84,7 @@ export const getForumPostById = async (id) => {
   id = isValidID(id, "Forum ID");
   const forumPost = await Forum.findById(id)
     .populate("userId", "firstName lastName")
+    .populate("tags", "name")
     .lean();
   if (!forumPost) {
     throw new Error("Forum post not found");
@@ -111,13 +112,6 @@ export const updateForumPostById = async (forumId, updatedPost) => {
       );
     }
 
-    if (updatedPost.imageURLs && updatedPost.imageURLs.length !== 0) {
-      existingForum.imageURLs = await isValidArray(
-        updatedPost.imageURLs,
-        "Image URLs"
-      );
-    }
-
     if (updatedPost.tags && updatedPost.tags.length !== 0) {
       updatedPost.tags = await isValidArray(updatedPost.tags, "Tags");
       existingForum.tags = updatedPost.tags.map((tag) =>
@@ -133,18 +127,23 @@ export const updateForumPostById = async (forumId, updatedPost) => {
 
 // Delete a forum post by ID
 export const deleteForumPostById = async (id) => {
-  try {
-    const validId = isValidID(id, "Forum Post ID");
+  const validId = isValidID(id, "Forum Post ID");
 
+  const forumExists = await Forum.exists({ _id: validId });
+  if (forumExists) {
     const deletedPost = await Forum.findByIdAndDelete(validId);
     if (!deletedPost) {
-      throw new Error("Forum post not found");
+      throw new Error("Failed to delete forum post—even though it existed");
     }
-
     return { message: "Forum post deleted successfully", deletedPost };
-  } catch (error) {
-    throw new Error(`Error deleting forum post: ${error.message}`);
   }
+
+  const pollExists = await Poll.exists({ _id: validId });
+  if (pollExists) {
+    const deletedPost = await Poll.findByIdAndDelete(validId);
+    return { message: "Poll deleted successfully", deletedPost };
+  }
+  throw new Error("No forum post or poll found with that ID");
 };
 
 // Filter forum posts by keyword in title or content
@@ -172,6 +171,7 @@ export const getForumPostsByUserId = async (userId) => {
   try {
     posts = await Forum.find({ userId: userId })
       .populate("userId", "firstName lastName")
+      .populate("tags", "name")
       .lean();
   } catch (error) {
     throw new Error("Failed to fetch forum posts: " + error.message);

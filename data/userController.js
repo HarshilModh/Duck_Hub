@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/user.model.js";
+import Otp from "../models/otp.model.js";
 import { randomInt } from "crypto";
 import { sendMail } from "./mailTriggerController.js";
 import MissingRequest from "../models/MissingRequest.model.js";

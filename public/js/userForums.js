@@ -1,133 +1,150 @@
 // public/js/userForums.js
 
-// ----- DELETE POST -----
-document.querySelectorAll(".delete-button").forEach((button) => {
-  button.addEventListener("click", async (e) => {
+// ————————— DELETE LOGIC (unchanged) —————————
+document.querySelectorAll(".delete-button").forEach(button => {
+  button.addEventListener("click", async e => {
     e.preventDefault();
+    if (!confirm("Are you sure you want to delete this?")) return;
 
-    const confirmed = confirm("Are you sure you want to delete this post?");
-    if (!confirmed) return;
+    const forumId   = button.dataset.id;
+    const type = button.dataset.type;  
 
-    const forumId = button.getAttribute("data-id");
 
     try {
-      const response = await fetch(`/forums/${forumId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (response.ok) {
-        const postCard = button.closest(".forum-post-card");
-        postCard.remove();
+      const res = await fetch(`/forums/${forumId}`, { method: "DELETE" });
+      if (res.ok) {
+        const selector = type === "poll"
+          ? ".poll-post-card"
+          : ".forum-post-card";
+        button.closest(selector)?.remove();
       } else {
-        const error = await response.json();
-        alert("Failed to delete post: " + (error.error || response.statusText));
+        const err = await res.json();
+        alert("Delete failed: " + (err.error || res.statusText));
       }
-    } catch (err) {
-      console.error("Error deleting post:", err);
-      alert("Something went wrong while deleting the post.");
+    } catch(err) {
+      console.error(err);
+      alert("Something went wrong deleting.");
     }
   });
 });
 
-// ----- EDIT POST (Modal) -----
-document.addEventListener("DOMContentLoaded", () => {
-  const editModal = document.getElementById("editModal");
-  const editForm = document.getElementById("editPostForm");
-  const titleInput = document.getElementById("editTitle");
-  const contentInput = document.getElementById("editContent");
-  const existingImagesContainer = document.getElementById(
-    "existingImagesContainer"
-  );
-  const newImagesInput = document.getElementById("editImages"); // your file‑input
-  const closeBtn = document.getElementById("editModalClose");
-  const cancelBtn = document.getElementById("editModalCancel");
+// ————————— EDIT MODAL LOGIC —————————
+const editModal       = document.getElementById("editModal");
+const closeModalBtn   = editModal.querySelector(".modal-close");
+const cancelEditBtn   = document.getElementById("editCancel");
+const editForm        = document.getElementById("editForm");
+const existingImages  = document.getElementById("existing-images");
+const currentTags     = document.getElementById("current-tags");
+const newTagsSelect   = document.getElementById("new-tags");
 
-  let imagesToDelete = [];
+let currentEditId = null;
 
-  // Create (or grab) hidden input to send deleted image URLs
-  let deleteInput = document.getElementById("deleteImagesInput");
-  if (!deleteInput) {
-    deleteInput = document.createElement("input");
-    deleteInput.type = "hidden";
-    deleteInput.name = "deleteImages";
-    deleteInput.id = "deleteImagesInput";
-    editForm.appendChild(deleteInput);
-  }
-  // On form submit, store the deletion list
-  editForm.addEventListener("submit", () => {
-    deleteInput.value = JSON.stringify(imagesToDelete);
+// 1) Open & populate the edit modal when an edit-button is clicked
+document.querySelectorAll(".edit-button").forEach(btn => {
+  btn.addEventListener("click", async e => {
+    e.preventDefault();
+    const postId = btn.dataset.id;
+    currentEditId = postId;
+
+    try {
+      // use your GET /:id endpoint
+      const res = await fetch(`/forums/${postId}`);
+      if (!res.ok) throw new Error("Failed to load post data");
+      const post = await res.json();
+
+      // Fill form fields
+      document.getElementById("edit-title").value   = post.title;
+      document.getElementById("edit-content").value = post.content;
+
+      // Render existing images
+      existingImages.innerHTML = "";
+      post.imageURLs.forEach((url, idx) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "image-wrapper";
+
+        const img = document.createElement("img");
+        img.src = url;
+        img.className = "forum-image";
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "remove-image";
+        removeBtn.textContent = "×";
+        removeBtn.dataset.index = idx;
+
+        wrapper.append(img, removeBtn);
+        existingImages.append(wrapper);
+      });
+
+      // Render current tags (by name)
+      currentTags.innerHTML = "";
+      (post.tags || []).forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "tag-badge";
+        span.textContent = tag.name;
+        currentTags.append(span);
+      });
+
+      // Clear previously selected new-tags
+      Array.from(newTagsSelect.options).forEach(opt => {
+        opt.selected = false;
+      });
+
+      // Show modal
+      editModal.classList.remove("hidden");
+    } catch (err) {
+      console.error(err);
+      alert("Unable to load post for editing.");
+    }
+  });
+});
+
+// 2) Close modal
+closeModalBtn.addEventListener("click", () => {
+  editModal.classList.add("hidden");
+});
+cancelEditBtn.addEventListener("click", () => {
+  editModal.classList.add("hidden");
+});
+
+// 3) Toggle mark-to-delete on existing images
+existingImages.addEventListener("click", e => {
+  if (!e.target.classList.contains("remove-image")) return;
+  const wrapper = e.target.closest(".image-wrapper");
+  wrapper.classList.toggle("to-delete");
+  // Change symbol: × <-> ↺
+  e.target.textContent = wrapper.classList.contains("to-delete") ? "↺" : "×";
+});
+
+// 4) Submit edited data via AJAX (PUT /forums/:id)
+editForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!currentEditId) return alert("No post selected");
+
+  const formData = new FormData(editForm);
+
+  // Append deleted image indices
+  existingImages.querySelectorAll(".image-wrapper.to-delete").forEach(w => {
+    formData.append("deleteImageIds", w.querySelector(".remove-image").dataset.index);
   });
 
-  function openModal() {
-    editModal.classList.remove("hidden");
-  }
-  function closeModal() {
-    editModal.classList.add("hidden");
-    imagesToDelete = []; // reset on close
-  }
+  // The <select name="newTags" multiple> and
+  // <input type="file" name="newImages" multiple> are
+  // already in the FormData by default.
 
-  closeBtn.addEventListener("click", closeModal);
-  cancelBtn.addEventListener("click", closeModal);
-
-  document.querySelectorAll(".edit-button").forEach((button) => {
-    button.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const postId = button.getAttribute("data-id");
-
-      try {
-        const res = await fetch(`/forums/${postId}`);
-        if (!res.ok) throw new Error("Network response was not ok");
-        const post = await res.json();
-
-        // Populate title & content
-        titleInput.value = post.title;
-        contentInput.value = post.content;
-
-        // Show existing images with a '×' to remove
-        existingImagesContainer.innerHTML = "";
-        imagesToDelete = [];
-        if (post.imageURLs && post.imageURLs.length) {
-          post.imageURLs.forEach((url) => {
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("existing-image-wrapper");
-            wrapper.dataset.url = url;
-            wrapper.style.position = "relative";
-
-            // Remove button
-            const removeBtn = document.createElement("button");
-            removeBtn.type = "button";
-            removeBtn.classList.add("remove-existing-image");
-            removeBtn.textContent = "×";
-            removeBtn.style.position = "absolute";
-            removeBtn.style.top = "4px";
-            removeBtn.style.right = "4px";
-            removeBtn.addEventListener("click", () => {
-              imagesToDelete.push(url);
-              wrapper.remove();
-            });
-
-            // Thumbnail
-            const img = document.createElement("img");
-            img.src = url;
-            img.classList.add("modal-preview-image");
-
-            wrapper.append(removeBtn, img);
-            existingImagesContainer.appendChild(wrapper);
-          });
-        }
-
-        // Clear any previously selected new files
-        if (newImagesInput) newImagesInput.value = "";
-
-        // Set form action to PUT route
-        editForm.action = `/forums/${postId}?_method=PUT`;
-
-        openModal();
-      } catch (err) {
-        console.error(err);
-        alert("Failed to load post data for editing.");
-      }
+  try {
+    const res = await fetch(`/forums/${currentEditId}`, {
+      method: "PUT",
+      body: formData
     });
-  });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Update failed");
+    }
+    // on success, refresh page or update card
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save edits: " + err.message);
+  }
 });

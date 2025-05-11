@@ -46,7 +46,10 @@ export const userImage = async (imagePath) => {
 };
 
 export const uploadImagesGuard = (req, res, next) => {
-  upload.array("images", 5)(req, res, (err) => {
+  upload.fields([
+    { name: "images",     maxCount: 5 },
+    { name: "newImages",  maxCount: 5 }
+  ])(req, res, err => {
     if (err) {
       if (err instanceof multer.MulterError && err.code === "LIMIT_UNEXPECTED_FILE") {
         req.session.toast = {

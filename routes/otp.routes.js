@@ -22,18 +22,13 @@ router.post("/otp", isNotLoggedIn, async (req, res) => {
   }
 
   try {
-    //  ➤ Generate & send OTP
     await forgotPassword(email);
-
-    //  ➤ Save email in session for the next step
     req.session.passwordResetEmail = email;
-
-    //  ➤ Notify and go to OTP‐entry page
     req.session.toast = {
       type: "success",
       message: "OTP sent! Check your email.",
     };
-    return res.redirect("/users/forgot-password/otp");
+    return res.redirect("/forgot-password/otp");
   } catch (err) {
     console.error("forgotPassword error:", err);
     req.session.toast = {
@@ -43,12 +38,9 @@ router.post("/otp", isNotLoggedIn, async (req, res) => {
     return res.redirect("/users/forgot-password");
   }
 });
-
-// 2️⃣ GET: render the OTP entry form
 router.get("/otp", isNotLoggedIn, (req, res) => {
   const email = req.session.passwordResetEmail;
   if (!email) {
-    // No email on file? start over
     req.session.toast = {
       type: "error",
       message: "Please enter your email first.",

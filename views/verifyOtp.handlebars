@@ -1,0 +1,35 @@
+{{!-- views/auth/enter-otp.hbs --}}
+<div class="otp-container" style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ccc; border-radius: 4px;">
+  <h2>Verify Your Account</h2>
+
+  {{#if error}}
+    <div class="alert alert-danger" style="color: #b00; margin-bottom: 1rem;">
+      {{error}}
+    </div>
+  {{/if}}
+
+  <form action="/verify-otp" method="POST">
+    {{!-- Pass the userId along so your route knows whose OTP to check --}}
+    <input type="hidden" name="userId" value="{{userId}}" />
+
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label for="code">Enter 6‑Digit Code</label>
+      <input
+        type="text"
+        id="code"
+        name="code"
+        maxlength="6"
+        required
+        pattern="\d{6}"
+        title="Six digit OTP"
+        class="form-control"
+        style="width: 100%; padding: 0.5rem; font-size: 1rem;"
+        placeholder="123456"
+      />
+    </div>
+
+    <button type="submit" style="padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer;">
+      Verify
+    </button>
+  </form>
+</div>
