@@ -154,10 +154,9 @@ body {
   text-decoration: underline;
 }
 
-.forum-post-card {
-  position: relative;
-}
-
+/* ===================================================================
+   POST ACTION ICONS
+   =================================================================== */
 .post-actions.report-action {
   position: absolute;
   top: 1rem;
@@ -170,7 +169,7 @@ body {
 .post-actions.delete-action {
   position: absolute;
   top: 1rem;
-  right: 1rem; /* flush against right edge */
+  right: 1rem;
   display: inline-flex;
   align-items: center;
   z-index: 10;
@@ -223,17 +222,19 @@ body {
    TAGS
    =================================================================== */
 .tags {
-  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* space between tags */
+  margin: 0.75rem 0; /* space above & below the tag row */
 }
-
 .tags .tag {
   display: inline-block;
-  background-color: #e4e5e6;
-  color: #363d45;
+  background-color: limegreen;
+  color: #fff;
   padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
+  margin: 0; /* reset any right-margin in child */
 }
 
 /* ===================================================================

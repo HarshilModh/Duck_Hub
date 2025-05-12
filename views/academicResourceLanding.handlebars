@@ -74,6 +74,17 @@
       <p class="forum-posted-by">
         Posted by: {{this.uploadedBy.firstName}} {{this.uploadedBy.lastName}}
       </p>
+
+      {{!-- Tags list: moved here, right after “Posted by” --}}
+      {{#if this.tags.length}}
+        <div class="tags">
+          {{#each this.tags}}
+            <span class="tag">{{this.name}}</span>
+          {{/each}}
+        </div>
+      {{/if}}
+
+      <!-- Description and link -->
       <p class="forum-content">{{this.description}}</p>
       <a
         class="forum-content"
@@ -100,13 +111,6 @@
             class="vote-icon"
           /><span>{{this.downVotes}}</span>
         </button>
-      </div>
-
-      <!-- Tags list -->
-      <div class="tags">
-        {{#each this.tags}}
-          <span class="tag">{{this.name}}</span>
-        {{/each}}
       </div>
     </div>
   {{/each}}

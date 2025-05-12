@@ -143,6 +143,7 @@ router.route("/").get(isLoggedIn, async (req, res) => {
 
 router.get("/search", isLoggedIn, async (req, res, next) => {
   try {
+    const isAdmin = req.session.user?.user?.role === "admin";
     const {
       text = "",
       postType,
@@ -178,6 +179,7 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       forumPosts,
       pollPosts,
       text,
+      isAdmin,
       postType,
       sort,
       order,
