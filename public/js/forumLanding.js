@@ -1,4 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ------------------------ Delete Post Logic ------------------------
+  document.querySelectorAll(".delete-button").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const postId = btn.dataset.id;
+      const type = btn.dataset.type; // "Forum" or "Poll"
+      if (!postId) return;
+
+      if (!confirm("Are you sure you want to delete this post?")) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/forums/${postId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          // remove the card from the DOM
+          const selector =
+            type === "Poll" ? ".poll-post-card" : ".forum-post-card";
+          const card = btn.closest(selector);
+          if (card) card.remove();
+        } else {
+          console.error(data.message || "Delete failed");
+          alert(data.message || "Failed to delete post.");
+        }
+      } catch (err) {
+        console.error("Error deleting post:", err);
+        alert("Something went wrong while deleting.");
+      }
+    });
+  });
+
   // Voting and comment navigation
   const upvoteButtons = document.querySelectorAll(".upvote-button");
   const downvoteButtons = document.querySelectorAll(".downvote-button");
@@ -99,10 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".report-button").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const contentId = e.currentTarget.dataset.id;
-      const type = e.currentTarget.dataset.type; // "forum" or "poll"
+      const type = e.currentTarget.dataset.type;
       reportForm.action = `/report/${type}`;
       reportContentIdInput.value = contentId;
-      reportModal.style.display = "flex"; // show modal overlay
+      reportModal.style.display = "flex";
     });
   });
 
@@ -117,33 +151,4 @@ document.addEventListener("DOMContentLoaded", () => {
       reportForm.reset();
     }
   });
-
-  // ------------------------ (Optional) Poll voting handlers ------------------------
-  // const pollOptions = document.querySelectorAll(".option-vote-form");
-  // pollOptions.forEach((btn) => {
-  //   btn.addEventListener("click", async () => {
-  //     const pollId = btn.dataset.pollId;
-  //     const optionId = btn.dataset.optionId;
-  //
-  //     if (!loggedInUserId) {
-  //       return alert("Please log in to vote.");
-  //     }
-  //
-  //     try {
-  //       const res = await fetch(`/polls/${pollId}/vote`, {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ optionId, userId: loggedInUserId }),
-  //       });
-  //       if (res.ok) window.location.reload();
-  //       else {
-  //         const err = await res.json();
-  //         alert("Error: " + (err.error || err.message || res.statusText));
-  //       }
-  //     } catch (e) {
-  //       console.error(e);
-  //       alert("Something went wrong. Please try again.");
-  //     }
-  //   });
-  // });
 });

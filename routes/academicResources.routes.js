@@ -32,7 +32,7 @@ router.route("/").get(isLoggedIn, async (req, res) => {
   const academicResources = await getAllAcademicResources();
   const isAdmin = req.session.user?.user?.role === "admin";
   const loggedUserId = req.session.user?.user?._id || null;
-  res.render("AcademicResourceLanding", {
+  res.render("academicResourceLanding", {
     academicResources,
     loggedInUserId: loggedUserId,
     isAdmin,

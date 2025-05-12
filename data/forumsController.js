@@ -132,6 +132,10 @@ export const deleteForumPostById = async (id) => {
   const forumExists = await Forum.exists({ _id: validId });
   if (forumExists) {
     const deletedPost = await Forum.findByIdAndDelete(validId);
+    await Reports.updateMany(
+      { forumId: validId },
+      { $set: { status: "resolved" } }
+    );
     if (!deletedPost) {
       throw new Error("Failed to delete forum post—even though it existed");
     }
@@ -141,6 +145,10 @@ export const deleteForumPostById = async (id) => {
   const pollExists = await Poll.exists({ _id: validId });
   if (pollExists) {
     const deletedPost = await Poll.findByIdAndDelete(validId);
+    await Reports.updateMany(
+      { pollId: validId },
+      { $set: { status: "resolved" } }
+    );
     return { message: "Poll deleted successfully", deletedPost };
   }
   throw new Error("No forum post or poll found with that ID");

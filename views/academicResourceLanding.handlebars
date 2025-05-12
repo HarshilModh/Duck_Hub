@@ -13,12 +13,8 @@
     class="search-input"
   />
   <select name="sort" class="search-select">
-    <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}
-      >Date</option
-    >
-    <option value="title" {{#if (eq sort "title")}}selected{{/if}}
-      >Title</option
-    >
+    <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Date</option>
+    <option value="title" {{#if (eq sort "title")}}selected{{/if}}>Title</option>
     <option value="url" {{#if (eq sort "url")}}selected{{/if}}>URL</option>
   </select>
   <select name="order" class="search-select">
@@ -35,7 +31,6 @@
       Create Academic Resource
     </a>
     {{#if isAdmin}}
-      <!-- Give this an ID so our JS can find it -->
       <a href="#" id="openTagModal" class="create-tag-button">
         Create Tag
       </a>
@@ -55,6 +50,23 @@
             class="action-icon"
           />
         </button>
+      </div>
+
+      <!-- Delete icon (only for admins) -->
+      <div class="post-actions delete-action">
+        {{#if ../isAdmin}}
+          <button
+            class="delete-button"
+            data-id="{{this._id}}"
+            title="Delete Academic Resource"
+          >
+            <img
+              src="/public/images/icons/bin.png"
+              alt="Delete Icon"
+              class="action-icon"
+            />
+          </button>
+        {{/if}}
       </div>
 
       <!-- Resource info -->

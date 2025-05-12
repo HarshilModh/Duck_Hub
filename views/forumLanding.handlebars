@@ -65,6 +65,20 @@
           <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
         </button>
       </div>
+
+      <div class="post-actions delete-action">
+        {{#if ../isAdmin}}
+          <button
+            class="delete-button"
+            data-id="{{this._id}}"
+            data-type="Forum"
+            title="Delete"
+          >
+            <img src="/public/images/icons/bin.png" alt="Delete Icon" class="action-icon" />
+          </button>
+        {{/if}}
+      </div>
+
       <h3 class="forum-title">{{this.title}}</h3>
       <p class="forum-posted-by">Posted by: {{this.userId.firstName}} {{this.userId.lastName}}</p>
 
@@ -110,6 +124,20 @@
               <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
             </button>
           </div>
+
+          <div class="post-actions delete-action">
+            {{#if ../../isAdmin}}
+              <button
+                class="delete-button"
+                data-id="{{poll._id}}"
+                data-type="Poll"
+                title="Delete"
+              >
+                <img src="/public/images/icons/bin.png" alt="Delete Icon" class="action-icon" />
+              </button>
+            {{/if}}
+          </div>
+
           <h3 class="poll-question">{{poll.question}}</h3>
           <p class="poll-created-by">Created by: {{poll.createdBy.firstName}} {{poll.createdBy.lastName}}</p>
 
@@ -164,6 +192,20 @@
             <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon" />
           </button>
         </div>
+
+        <div class="post-actions delete-action">
+          {{#if ../isAdmin}}
+            <button
+              class="delete-button"
+              data-id="{{this._id}}"
+              data-type="Poll"
+              title="Delete"
+            >
+              <img src="/public/images/icons/bin.png" alt="Delete Icon" class="action-icon" />
+            </button>
+          {{/if}}
+        </div>
+
         <h3 class="poll-question">{{this.question}}</h3>
         <p class="poll-created-by">Created by: {{this.createdBy.firstName}} {{this.createdBy.lastName}}</p>
 
@@ -209,7 +251,7 @@
 <div id="reportModal" class="modal-overlay" style="display:none;">
   <div class="modal-card">
     <h2>Reason For Reporting :</h2>
-    <form id="reportForm" method="post"><!-- action set dynamically via JS -->
+    <form id="reportForm" method="post">
       <input type="hidden" name="contentId" id="reportContentId" />
       <input type="hidden" name="userId" value="{{loggedUserId}}" />
       <textarea
