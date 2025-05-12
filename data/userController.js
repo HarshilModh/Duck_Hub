@@ -32,6 +32,8 @@ export const createUser = async (
   email = email.trim();
   password = password.trim();
   confirmPassword = confirmPassword.trim();
+  let nameRegex = /^[a-zA-Z]+$/;
+
   if (password.length < 8) {
     throw new Error("Password must be at least 8 characters long");
   }
@@ -58,6 +60,21 @@ export const createUser = async (
   }
   if (password.trim().length === 0) {
     throw new Error("Password cannot be empty");
+  }
+  if (email.length < 5) {
+    throw new Error("Email must be at least 5 characters long");
+  }
+  if (email.length > 50) {
+    throw new Error("Email must be less than 50 characters long");
+  }
+  if (!nameRegex.test(firstName)) {
+    throw new Error("First name can only contain letters");
+  } 
+  if (!nameRegex.test(lastName)) {  
+    throw new Error("Last name can only contain letters");
+  }
+  if (!isValidEmail(email)) {
+    throw new Error("Invalid email format");
   }
   if (!isValidPassword(password)) {
     throw new Error(
@@ -142,6 +159,8 @@ export const updateUser = async (userId, firstName, lastName, email) => {
     firstName = firstName.trim();
     lastName = lastName.trim();
     email = email.trim();
+    let nameRegex = /^[a-zA-Z]+$/;
+
     if (firstName.length < 2) {
       throw new Error("First name must be at least 2 characters long");
     }
@@ -168,6 +187,12 @@ export const updateUser = async (userId, firstName, lastName, email) => {
     }
     if (email.length > 50) {
       throw new Error("Email must be less than 50 characters long");
+    }
+    if (!nameRegex.test(firstName)) {
+      throw new Error("First name can only contain letters");
+    }
+    if (!nameRegex.test(lastName)) {
+      throw new Error("Last name can only contain letters");
     }
     const user = await User.findById(userId);
     if (user.googleId) {
@@ -396,10 +421,10 @@ export const getUserByEmail = async (email) => {
 };
 //Search user by name
 //Akbar
-export const searchUserByName = async (req, res) => {};
+export const searchUserByName = async (req, res) => { };
 //Get all users by role
 //Akbar
-export const getUsersByRole = async (req, res) => {};
+export const getUsersByRole = async (req, res) => { };
 
 export const addMissingRequest = async (
   userId,
@@ -408,22 +433,33 @@ export const addMissingRequest = async (
   description
 ) => {
   try {
+    console.log("userId", userId);
+    console.log("itemType", itemType);
+    console.log("itemName", itemName);
+    console.log("description", description);
+
     if (!userId || !itemType || !itemName) {
       throw new Error("Please provide all required fields");
     }
     try {
       userId = isValidID(userId, "userId");
     } catch (e) {
+      console.log(e);
+
       throw new Error(e.message);
     }
     try {
       itemType = isValidString(itemType, "itemType");
     } catch (e) {
+      console.log(e);
+
       throw new Error(e.message);
     }
     try {
       itemName = isValidString(itemName, "itemName");
     } catch (e) {
+      console.log(e);
+
       throw new Error(e.message);
     }
 
@@ -454,6 +490,8 @@ export const addMissingRequest = async (
     }
     return missingRequest;
   } catch (e) {
+    console.log(e);
+
     throw new Error(e.message);
   }
 };
@@ -622,8 +660,7 @@ export async function validateOtp(userId, code) {
     );
   } else {
     throw new Error(
-      `Invalid OTP. You have ${updated.attempts} attempt${
-        updated.attempts > 1 ? "s" : ""
+      `Invalid OTP. You have ${updated.attempts} attempt${updated.attempts > 1 ? "s" : ""
       } left.`
     );
   }

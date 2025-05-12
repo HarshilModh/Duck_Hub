@@ -2,6 +2,8 @@
   <form
     action="/report/Review"
     method="POST"
+    name="reportReviewForm"
+    id="reportReviewForm"
     class="flex items-center space-x-2"
   >
     <input type="hidden" name="contentId" value="{{this.review._id}}" />
@@ -11,15 +13,18 @@
       type="text"
       name="reason"
       placeholder="Reason for reporting…"
-      required
+      id="reason"
       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stevensMaroon focus:border-stevensMaroon"
     />
 
     <button
       type="submit"
+      id="reportReviewButton"
       class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
     >
       Report
     </button>
   </form>
 </div>
+
+<script src="/js/addReportReviewAjax.js"></script>

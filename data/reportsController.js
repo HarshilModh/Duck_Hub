@@ -145,7 +145,7 @@ export const deleteReportById = async (reportId) => {
     throw new Error(`Error deleting report: ${error.message}`);
   }
 };
-
+//check on this
 export const getReportById = async (reportId) => {
   reportId = isValidID(reportId, "Report ID");
   reports = await Reports.findbyId(reportId)
@@ -363,4 +363,17 @@ export const getReportsByAcademicResourceId = async (academicResourceId) => {
     throw new Error("Reports not found");
   }
   return resource;
+};
+//get reports by pollId
+export const getReportsByPollId = async (pollId) => {
+  pollId = isValidID(pollId, "Poll ID");
+  const poll = await Reports.find({ pollId }).populate(
+    "pollId",
+    "title content"
+  ).populate("reportedBy", "firstName lastName email")
+    .lean();
+  if (!poll) {
+    throw new Error("Reports not found");
+  }
+  return poll;
 };
