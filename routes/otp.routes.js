@@ -1,9 +1,11 @@
 import { isNotLoggedIn } from "../middlewares/auth.middleware.js";
-import { isValidString } from "../utils/validation.utils.js";
+import { isValidString, isValidPassword } from "../utils/validation.utils.js";
 import { forgotPassword } from "../data/userController.js";
 import express from "express";
 import mongoose from "mongoose";
 import Otp from "../models/otp.model.js";
+import bcrypt from "bcrypt";
+import User from "../models/user.model.js";
 import xss from "xss";
 const router = express.Router();
 
@@ -71,11 +73,9 @@ router.get("/otp", isNotLoggedIn, (req, res) => {
 
 router.post("/verify-otp", async (req, res) => {
   try {
-    // 1. Sanitize inputs
     const userId = xss(req.body.userId);
     const code = xss(req.body.otp);
 
-    // 2. Validate userId
     if (!mongoose.isValidObjectId(userId)) {
       req.session.toast = {
         type: "error",
@@ -84,8 +84,7 @@ router.post("/verify-otp", async (req, res) => {
       return res.redirect("/forgot-password");
     }
 
-    // 3. Lookup latest OTP
-    const otpDoc = await Otp.findOne({ userId }).sort({ createdAt: -1 }).lean();
+    const otpDoc = await Otp.findOne({ userId }).lean();
     if (!otpDoc) {
       req.session.toast = {
         type: "error",
@@ -94,17 +93,15 @@ router.post("/verify-otp", async (req, res) => {
       return res.redirect("/forgot-password");
     }
 
-    // 4. Check attempts
     if (otpDoc.attempts <= 0) {
       await Otp.deleteOne({ _id: otpDoc._id });
       req.session.toast = {
         type: "error",
-        message: "OTP attempts exhausted. Please request a new code.",
+        message: "No more attempts. Please request a new code.",
       };
       return res.redirect("/forgot-password");
     }
 
-    // 5. Check expiration
     if (otpDoc.expiresAt < new Date()) {
       await Otp.deleteOne({ _id: otpDoc._id });
       req.session.toast = {
@@ -116,7 +113,7 @@ router.post("/verify-otp", async (req, res) => {
 
     if (otpDoc.code !== code) {
       otpDoc.attempts -= 1;
-      await otpDoc.save();
+      await Otp.updateOne({ _id: otpDoc._id }, { $inc: { attempts: -1 } });
 
       if (otpDoc.attempts <= 0) {
         await Otp.deleteOne({ _id: otpDoc._id });
@@ -133,7 +130,7 @@ router.post("/verify-otp", async (req, res) => {
           otpDoc.attempts > 1 ? "s" : ""
         } remaining.`,
       };
-      return res.redirect("back");
+      return res.redirect("/forgot-password/otp");
     }
 
     await Otp.deleteOne({ _id: otpDoc._id });
@@ -148,7 +145,111 @@ router.post("/verify-otp", async (req, res) => {
       type: "error",
       message: "Something went wrong. Please try again.",
     };
-    return res.redirect("back");
+    return res.redirect("/forgot-password");
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  let userId = xss(req.body.userId);
+  let password = xss(req.body.password);
+  let confirmPassword = xss(req.body.confirmPassword);
+
+  if (!mongoose.isValidObjectId(userId)) {
+    req.session.toast = {
+      type: "error",
+      message: "Invalid request. Please request a new OTP.",
+    };
+    return res.render("resetPass", {
+      error: null,
+      userId,
+      customStyles: '<link rel="stylesheet" href="/public/css/resetPass.css">',
+    });
+  }
+
+  try {
+    password = isValidString(password, "password");
+    confirmPassword = isValidString(confirmPassword, "confirmPassword");
+  } catch (e) {
+    req.session.toast = {
+      type: "error",
+      message: e.message,
+    };
+    return res.render("resetPass", {
+      error: null,
+      userId,
+      customStyles: '<link rel="stylesheet" href="/public/css/resetPass.css">',
+    });
+  }
+
+  if (password.length < 8 || password.length > 1024) {
+    req.session.toast = {
+      type: "error",
+      message: "Password must be between 8 and 1024 characters.",
+    };
+    return res.render("resetPass", {
+      error: null,
+      userId,
+      customStyles: '<link rel="stylesheet" href="/public/css/resetPass.css">',
+    });
+  }
+
+  if (!isValidPassword(password)) {
+    req.session.toast = {
+      type: "error",
+      message:
+        "Password must include at least one uppercase letter, one number, etc.",
+    };
+    return res.render("resetPass", {
+      error: null,
+      userId,
+      customStyles: '<link rel="stylesheet" href="/public/css/resetPass.css">',
+    });
+  }
+
+  if (password !== confirmPassword) {
+    req.session.toast = {
+      type: "error",
+      message: "Passwords do not match.",
+    };
+    return res.render("resetPass", {
+      error: null,
+      userId,
+      customStyles: '<link rel="stylesheet" href="/public/css/resetPass.css">',
+    });
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, salt);
+    const updated = await User.findByIdAndUpdate(userId, { password: hashed });
+    if (!updated) {
+      req.session.toast = {
+        type: "error",
+        message: "Failed to update password. Please try again.",
+      };
+      return res.render("resetPass", {
+        error: null,
+        userId,
+        customStyles:
+          '<link rel="stylesheet" href="/public/css/resetPass.css">',
+      });
+    }
+    req.session.toast = {
+      type: "success",
+      message: "Password updated! Please log in with your new password.",
+    };
+    return res.redirect("/users/login");
+  } catch (e) {
+    console.error(e);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to update password. Please try again.",
+    };
+    return res.render("resetPass", {
+      error: null,
+      userId,
+      customStyles: '<link rel="stylesheet" href="/public/css/resetPass.css">',
+    });
   }
 });
 

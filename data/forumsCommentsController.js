@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 import forumCommentsModel from "../models/forumsComments.model.js";
 import CommentVotes from "../models/forumCommentVotes.model.js";
+import Reports from "../models/reports.model.js";
 import { isValidString } from "../utils/validation.utils.js";
 import { isValidID } from "../utils/validation.utils.js";
-
+import Forum from "../models/forums.model.js";
+import Poll from "../models/polls.model.js";
 export const createForumComment = async (
   forumId,
   userId,
@@ -324,6 +326,78 @@ export const getCommentsByDownvotes = async (minDownvotes) => {
       .find({ downVotes: { $gte: minDownvotes } })
       .populate("userId", "firstName lastName");
     return comments;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const reportPoll = async (pollId, userId) => {
+  pollId = isValidID(pollId, "PollID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let reportCount = await Reports.countDocuments({
+      pollId: pollId,
+    });
+    console.log("Report Count: ", reportCount);
+
+    if (reportCount > 5) {
+      let poll = await Poll.findByIdAndUpdate(
+        pollId,
+        {
+          $set: { status: "hidden" },
+          $push: { reportedBy: userId },
+        },
+        { new: true }
+      );
+    } else {
+      let poll = await Poll.findByIdAndUpdate(pollId, {
+        $push: { reportedBy: userId },
+      });
+    }
+
+    let poll = await Poll.findById(pollId);
+    if (!poll) {
+      throw new Error("Poll not found");
+    }
+
+    return poll;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const reportForum = async (forumId, userId) => {
+  forumId = isValidID(forumId, "ForumID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let reportCount = await Reports.countDocuments({
+      forumId: forumId,
+    });
+    console.log("Report Count: ", reportCount);
+
+    if (reportCount > 5) {
+      let forum = await Forum.findByIdAndUpdate(
+        forumId,
+        {
+          $set: { status: "hidden" },
+          $push: { reportedBy: userId },
+        },
+        { new: true }
+      );
+    } else {
+      let forum = await Forum.findByIdAndUpdate(forumId, {
+        $push: { reportedBy: userId },
+      });
+    }
+
+    let forum = await Forum.findById(forumId);
+    if (!forum) {
+      throw new Error("Forum not found");
+    }
+
+    return forum;
   } catch (error) {
     throw new Error(error.message);
   }

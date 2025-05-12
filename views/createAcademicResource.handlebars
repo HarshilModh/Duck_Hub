@@ -1,7 +1,15 @@
+<!-- views/academicResources/create.hbs -->
 <div class="create-post-page">
   <h2>Create a New Academic Resource</h2>
 
   <div id="forumFormContainer">
+    <!-- validation errors will appear here -->
+    <div
+      id="formErrors"
+      class="form-errors"
+      style="color: red; margin-bottom: 1rem;"
+    ></div>
+
     <form
       method="POST"
       action="/academicResources/create"

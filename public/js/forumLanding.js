@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const upvoteButtons = document.querySelectorAll(".upvote-button");
   const downvoteButtons = document.querySelectorAll(".downvote-button");
   const commentButtons = document.querySelectorAll(".comment-button");
-  // const pollOptions = document.querySelectorAll(".option-vote-form");
 
   commentButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
@@ -100,6 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".report-button").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const contentId = e.currentTarget.dataset.id;
+      const type = e.currentTarget.dataset.type; // "forum" or "poll"
+      reportForm.action = `/report/${type}`;
       reportContentIdInput.value = contentId;
       reportModal.style.display = "flex"; // show modal overlay
     });
@@ -116,30 +117,33 @@ document.addEventListener("DOMContentLoaded", () => {
       reportForm.reset();
     }
   });
-  //   pollOptions.forEach((btn) => {
-  //     btn.addEventListener("click", async () => {
-  //       const pollId = btn.dataset.pollId;
-  //       const optionId = btn.dataset.optionId;
 
-  //       if (!loggedInUserId) {
-  //         return alert("Please log in to vote.");
+  // ------------------------ (Optional) Poll voting handlers ------------------------
+  // const pollOptions = document.querySelectorAll(".option-vote-form");
+  // pollOptions.forEach((btn) => {
+  //   btn.addEventListener("click", async () => {
+  //     const pollId = btn.dataset.pollId;
+  //     const optionId = btn.dataset.optionId;
+  //
+  //     if (!loggedInUserId) {
+  //       return alert("Please log in to vote.");
+  //     }
+  //
+  //     try {
+  //       const res = await fetch(`/polls/${pollId}/vote`, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ optionId, userId: loggedInUserId }),
+  //       });
+  //       if (res.ok) window.location.reload();
+  //       else {
+  //         const err = await res.json();
+  //         alert("Error: " + (err.error || err.message || res.statusText));
   //       }
-
-  //       try {
-  //         const res = await fetch(`/polls/${pollId}/vote`, {
-  //           method: "POST",
-  //           headers: { "Content-Type": "application/json" },
-  //           body: JSON.stringify({ optionId, userId: loggedInUserId }),
-  //         });
-  //         if (res.ok) window.location.reload();
-  //         else {
-  //           const err = await res.json();
-  //           alert("Error: " + (err.error || err.message || res.statusText));
-  //         }
-  //       } catch (e) {
-  //         console.error(e);
-  //         alert("Something went wrong. Please try again.");
-  //       }
-  //     });
+  //     } catch (e) {
+  //       console.error(e);
+  //       alert("Something went wrong. Please try again.");
+  //     }
   //   });
+  // });
 });

@@ -7,7 +7,7 @@ import {
   getAllReportsForAdmin,
   getReportsByReviewId,
   getReportsByForumId,
-  getReportsByAcademicResourceId
+  getReportsByAcademicResourceId,
 } from "../data/reportsController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Forum from "../models/forums.model.js";
@@ -19,6 +19,8 @@ import xss from "xss";
 import { isValidID } from "../utils/validation.utils.js";
 import { reportReview } from "../data/courseReviewController.js";
 import { checkRole } from "../middlewares/roleCheck.middleware.js";
+import { reportForum, reportPoll } from "../data/forumsCommentsController.js";
+import { reportResource } from "../data/academicResourcesController.js";
 import Course from "../models/courses.model.js";
 const router = express.Router();
 
@@ -184,7 +186,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
         userId,
         reason
       );
-      
+
       if (!report) {
         req.session.toast = {
           type: "error",
@@ -192,10 +194,16 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
         };
         return res.status(500).redirect("/forums");
       }
-   
-       if (contentType === "Review") {
+
+      if (contentType === "Review") {
         await reportReview(reviewId, userId);
-      }   
+      } else if (contentType === "Forum") {
+        await reportForum(forumId, userId);
+      } else if (contentType === "Poll") {
+        await reportPoll(pollId, userId);
+      } else if (contentType === "AcademicResource") {
+        await reportResource(academicResourceId, userId);
+      }
       req.session.toast = {
         type: "success",
         message: "Report created: Administrator will review it shortly.",
@@ -218,223 +226,237 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
   }
 });
 
-  router
-  .route("/view")
-  .get(async (req, res) => {
+router.route("/view").get(async (req, res) => {
+  try {
+    const groupedReports = await getAllReportsForAdmin();
+    return res.render("reportLandingAdmin", {
+      reports: groupedReports,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/reportLandingAdmin.css">',
+    });
+  } catch (err) {
+    console.error("Error fetching reports:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+//load views/reportDashboard.handlebars
+router
+  .route("/dashboard")
+  .get(isLoggedIn, checkRole("admin"), async (req, res) => {
     try {
-      const groupedReports = await getAllReportsForAdmin();
-      return res.render("reportLandingAdmin", {
-        reports: groupedReports,
-        customStyles: '<link rel="stylesheet" href="/public/css/reportLandingAdmin.css">'
+      const loggedUserId = req.session.user?.user?._id || null;
+      let reports = await getAllReports();
+      // reports=reports.filter((report) => report.status === "under review");
+      console.log("Reports:", reports);
+
+      const forumReports = reports.filter(
+        (report) => report.reportedContentType === "Forum"
+      );
+      const pollReports = reports.filter(
+        (report) => report.reportedContentType === "Poll"
+      );
+      const reviewReports = reports.filter(
+        (report) => report.reportedContentType === "Review"
+      );
+      const academicResourceReports = reports.filter(
+        (report) => report.reportedContentType === "AcademicResource"
+      );
+      res.render("reportDashboard", {
+        forumReports,
+        pollReports,
+        reviewReports,
+        academicResourceReports,
+        loggedUserId,
       });
-    } catch (err) {
-      console.error("Error fetching reports:", err);
-      return res.status(500).json({ error: "Internal server error" });
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error loading report page");
     }
   });
-  //load views/reportDashboard.handlebars
- router.route("/dashboard").get(isLoggedIn,checkRole("admin"),async (req, res) => {
-  try {
-    const loggedUserId = req.session.user?.user?._id || null;
-    let reports = await getAllReports();
-    // reports=reports.filter((report) => report.status === "under review");
-    console.log("Reports:", reports);
-    
-    const forumReports = reports.filter(
-      (report) => report.reportedContentType === "Forum"
-    );
-    const pollReports = reports.filter(
-      (report) => report.reportedContentType === "Poll"
-    );
-    const reviewReports = reports.filter(
-      (report) => report.reportedContentType === "Review"
-    );
-    const academicResourceReports = reports.filter(
-      (report) => report.reportedContentType === "AcademicResource"
-    );
-    res.render("reportDashboard", {
-      forumReports,
-      pollReports,
-      reviewReports,
-      academicResourceReports,
-      loggedUserId,
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).send("Error loading report page");
-  }
- });
- //load views/reviewReport.handlebars
- router.route("/reviews/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
-  let reviewId = req.params.id;
-  try {
-  
-    if (!reviewId || typeof reviewId !== "string" || reviewId.trim() === "") {
-      req.session.toast = {
-        type: "error",
-        message: "Review ID is required and must be a non-empty string.",
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
+//load views/reviewReport.handlebars
+router
+  .route("/reviews/:id")
+  .get(isLoggedIn, checkRole("admin"), async (req, res) => {
+    let reviewId = req.params.id;
     try {
-      reviewId = isValidID(reviewId, "reviewId");
-    } catch (error) {
-      req.session.toast = {
-        type: "error",
-        message: error.message,
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
-    let review=await getReportsByReviewId(reviewId);
-    let courseDetails=await Course.findById(review[0].reviewId.courseId).populate("departmentId","departmentName").lean();
-    console.log("courseDetails", courseDetails);
-    let reportCount=await Reports.countDocuments({reviewId:review[0].reviewId._id});
-    console.log("review", review);
-    
-    if (!review) {
-      req.session.toast = {
-        type: "error",
-        message: "Review not found",
-      };
-      return res.status(404).redirect("/report/dashboard");
-    }
-    const loggedUserId = req.session.user?.user?._id || null;
-    res.render("reviewReportDetails",{review,courseDetails,reportCount});
-  } catch (e) {
-    console.error(e);
-    res.status(500).send("Error loading report page");
-  }
- });
- router.route("/resolve/:id").put(isLoggedIn,checkRole("admin"),async (req, res) => {
-  let reportId = req.params.id;
-  //here we approve the report
-  //and update the status of the report
-  //and update the status of the report
-  try {
-    if (!reportId || typeof reportId !== "string" || reportId.trim() === "") {
-      req.session.toast = {
-        type: "error",
-        message: "Report ID is required and must be a non-empty string.",
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
-    try {
-      reportId = isValidID(reportId, "reportId");
-    } catch (error) {
-      req.session.toast = {
-        type: "error",
-        message: error.message,
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
-   
-    await resolveApprovedReport(reportId);
-    req.session.toast = {
-      type: "success",
-      message: "Report resolved successfully",
-    };
-    return res.status(200).redirect("/report/dashboard");
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: e.message,
-    };
-    return res.status(500).redirect("/report/dashboard");
-  }
- }
- );
- router.route("/reject/:id").put(isLoggedIn,checkRole("admin"),async (req, res) => {
-  let reportId = req.params.id;
-  //here we approve the report
-  //and update the status of the report
-  //and update the status of the report
-  try {
-    if (!reportId || typeof reportId !== "string" || reportId.trim() === "") {
-      req.session.toast = {
-        type: "error",
-        message: "Report ID is required and must be a non-empty string.",
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
-    try {
-      reportId = isValidID(reportId, "reportId");
-    } catch (error) {
-      req.session.toast = {
-        type: "error",
-        message: error.message,
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
-   
-    await resolveDisapprovedReport(reportId);
-    req.session.toast = {
-      type: "success",
-      message: "Report rejected successfully",
-    };
-    return res.status(200).redirect("/report/dashboard");
-  } catch (e) {
-    console.error(e);
-    req.session.toast = {
-      type: "error",
-      message: e.message,
-    };
-    return res.status(500).redirect("/report/dashboard");
-  }
- }
- );
+      if (!reviewId || typeof reviewId !== "string" || reviewId.trim() === "") {
+        req.session.toast = {
+          type: "error",
+          message: "Review ID is required and must be a non-empty string.",
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      try {
+        reviewId = isValidID(reviewId, "reviewId");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      let review = await getReportsByReviewId(reviewId);
+      let courseDetails = await Course.findById(review[0].reviewId.courseId)
+        .populate("departmentId", "departmentName")
+        .lean();
+      console.log("courseDetails", courseDetails);
+      let reportCount = await Reports.countDocuments({
+        reviewId: review[0].reviewId._id,
+      });
+      console.log("review", review);
 
- //load views/forumReportDetails.handlebars
-router.route("/forums/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
-  let forumId = req.params.id;
-  try {
-    if (!forumId || typeof forumId !== "string" || forumId.trim() === "") {
-      req.session.toast = {
-        type: "error",
-        message: "Forum ID is required and must be a non-empty string.",
-      };
-      return res.status(400).redirect("/report/dashboard");
+      if (!review) {
+        req.session.toast = {
+          type: "error",
+          message: "Review not found",
+        };
+        return res.status(404).redirect("/report/dashboard");
+      }
+      const loggedUserId = req.session.user?.user?._id || null;
+      res.render("reviewReportDetails", { review, courseDetails, reportCount });
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error loading report page");
     }
+  });
+router
+  .route("/resolve/:id")
+  .put(isLoggedIn, checkRole("admin"), async (req, res) => {
+    let reportId = req.params.id;
+    //here we approve the report
+    //and update the status of the report
+    //and update the status of the report
     try {
-      forumId = isValidID(forumId, "forumId");
-    } catch (error) {
-      req.session.toast = {
-        type: "error",
-        message: error.message,
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
-    let forum=await Forum.findById(forumId).populate("userId","firstName lastName").lean();
-    let reportCount=await Reports.countDocuments({forumId:forum._id});
-    let report=await getReportsByForumId(forumId);
-    if (!forum) {
-      req.session.toast = {
-        type: "error",
-        message: "Forum not found",
-      };
-      return res.status(404).redirect("/report/dashboard");
-    }
-    const loggedUserId = req.session.user?.user?._id || null;
-    console.log("forum", forum);
-    console.log("reportCount", reportCount);
-    console.log("report", report);
-    
-    
-    res.render("forumReportDetails",{forum,reportCount,report});
-  } catch (e) {
-    console.error(e);
-    res.status(500).send("Error loading report page");
-  }
- });
+      if (!reportId || typeof reportId !== "string" || reportId.trim() === "") {
+        req.session.toast = {
+          type: "error",
+          message: "Report ID is required and must be a non-empty string.",
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      try {
+        reportId = isValidID(reportId, "reportId");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
 
- //load myreports.handlebars
+      await resolveApprovedReport(reportId);
+      req.session.toast = {
+        type: "success",
+        message: "Report resolved successfully",
+      };
+      return res.status(200).redirect("/report/dashboard");
+    } catch (e) {
+      console.error(e);
+      req.session.toast = {
+        type: "error",
+        message: e.message,
+      };
+      return res.status(500).redirect("/report/dashboard");
+    }
+  });
+
+router
+  .route("/reject/:id")
+  .put(isLoggedIn, checkRole("admin"), async (req, res) => {
+    let reportId = req.params.id;
+    //here we approve the report
+    //and update the status of the report
+    //and update the status of the report
+    try {
+      if (!reportId || typeof reportId !== "string" || reportId.trim() === "") {
+        req.session.toast = {
+          type: "error",
+          message: "Report ID is required and must be a non-empty string.",
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      try {
+        reportId = isValidID(reportId, "reportId");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+
+      await resolveDisapprovedReport(reportId);
+      req.session.toast = {
+        type: "success",
+        message: "Report rejected successfully",
+      };
+      return res.status(200).redirect("/report/dashboard");
+    } catch (e) {
+      console.error(e);
+      req.session.toast = {
+        type: "error",
+        message: e.message,
+      };
+      return res.status(500).redirect("/report/dashboard");
+    }
+  });
+
+//load views/forumReportDetails.handlebars
+router
+  .route("/forums/:id")
+  .get(isLoggedIn, checkRole("admin"), async (req, res) => {
+    let forumId = req.params.id;
+    try {
+      if (!forumId || typeof forumId !== "string" || forumId.trim() === "") {
+        req.session.toast = {
+          type: "error",
+          message: "Forum ID is required and must be a non-empty string.",
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      try {
+        forumId = isValidID(forumId, "forumId");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      let forum = await Forum.findById(forumId)
+        .populate("userId", "firstName lastName")
+        .lean();
+      let reportCount = await Reports.countDocuments({ forumId: forum._id });
+      let report = await getReportsByForumId(forumId);
+      if (!forum) {
+        req.session.toast = {
+          type: "error",
+          message: "Forum not found",
+        };
+        return res.status(404).redirect("/report/dashboard");
+      }
+      const loggedUserId = req.session.user?.user?._id || null;
+      console.log("forum", forum);
+      console.log("reportCount", reportCount);
+      console.log("report", report);
+
+      res.render("forumReportDetails", { forum, reportCount, report });
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error loading report page");
+    }
+  });
+
+//load myreports.handlebars
 router.route("/myreports").get(isLoggedIn, async (req, res) => {
   try {
     const loggedUserId = req.session.user?.user?._id || null;
     let reports = await getAllReports();
-    reports = reports.filter((report) => report.reportedBy._id.toString() === loggedUserId);
+    reports = reports.filter(
+      (report) => report.reportedBy._id.toString() === loggedUserId
+    );
     console.log("Reports:", reports);
-    
+
     res.render("myReports", {
       reports,
       loggedUserId,
@@ -445,44 +467,66 @@ router.route("/myreports").get(isLoggedIn, async (req, res) => {
   }
 });
 //academicResources
-router.route("/academicResources/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
-  let academicResourceId = req.params.id;
-  try {
-    if (!academicResourceId || typeof academicResourceId !== "string" || academicResourceId.trim() === "") {
-      req.session.toast = {
-        type: "error",
-        message: "Academic Resource ID is required and must be a non-empty string.",
-      };
-      return res.status(400).redirect("/report/dashboard");
-    }
+router
+  .route("/academicResources/:id")
+  .get(isLoggedIn, checkRole("admin"), async (req, res) => {
+    let academicResourceId = req.params.id;
     try {
-      academicResourceId = isValidID(academicResourceId, "academicResourceId");
-    } catch (error) {
-      req.session.toast = {
-        type: "error",
-        message: error.message,
-      };
-      return res.status(400).redirect("/report/dashboard");
+      if (
+        !academicResourceId ||
+        typeof academicResourceId !== "string" ||
+        academicResourceId.trim() === ""
+      ) {
+        req.session.toast = {
+          type: "error",
+          message:
+            "Academic Resource ID is required and must be a non-empty string.",
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      try {
+        academicResourceId = isValidID(
+          academicResourceId,
+          "academicResourceId"
+        );
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      let academicResource = await getReportsByAcademicResourceId(
+        academicResourceId
+      );
+      let reportCount = await Reports.countDocuments({
+        academicResourceId: academicResource[0].academicResourceId._id,
+      });
+      let report = await Reports.find({
+        academicResourceId: academicResource[0].academicResourceId._id,
+      })
+        .populate("reportedBy", "firstName lastName")
+        .lean();
+      academicResource = academicResource[0];
+      if (!academicResource) {
+        req.session.toast = {
+          type: "error",
+          message: "Academic Resource not found",
+        };
+        return res.status(404).redirect("/report/dashboard");
+      }
+      const loggedUserId = req.session.user?.user?._id || null;
+      console.log("academicResource", academicResource);
+      console.log("reportCount", reportCount);
+      console.log("report", report);
+      res.render("resourceReportsDetails", {
+        academicResource,
+        reportCount,
+        report,
+      });
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error loading report page");
     }
-    let academicResource=await getReportsByAcademicResourceId(academicResourceId);
-    let reportCount=await Reports.countDocuments({academicResourceId:academicResource[0].academicResourceId._id});
-    let report=await Reports.find({academicResourceId:academicResource[0].academicResourceId._id}).populate("reportedBy","firstName lastName").lean();
-    academicResource=academicResource[0]
-    if (!academicResource) {
-      req.session.toast = {
-        type: "error",
-        message: "Academic Resource not found",
-      };
-      return res.status(404).redirect("/report/dashboard");
-    }
-    const loggedUserId = req.session.user?.user?._id || null;
-    console.log("academicResource", academicResource);
-    console.log("reportCount", reportCount);
-    console.log("report", report);
-    res.render("resourceReportsDetails",{academicResource,reportCount,report});
-  } catch (e) {
-    console.error(e);
-    res.status(500).send("Error loading report page");
-  }
- });
+  });
 export default router;

@@ -8,7 +8,7 @@
     </div>
   {{/if}}
 
-  <form action="/reset-password" method="POST">
+  <form action="/forgot-password/reset-password" method="POST">
 
     <input type="hidden" name="userId" value="{{userId}}" />
 
@@ -34,7 +34,7 @@
         required
         minlength="8"
         class="form-control"
-        placeholder="Re‑enter your new password"
+        placeholder="Re-enter your new password"
       />
     </div>
 
@@ -43,3 +43,5 @@
     </button>
   </form>
 </div>
+
+<script src="/public/js/resetPass.js"></script>
