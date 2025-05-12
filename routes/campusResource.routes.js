@@ -19,6 +19,8 @@ const router = express.Router();
 const app = express();
 
 // Route to create a new campus resource
+//test xss
+//testing xss does working fine
 router.use(isLoggedIn, checkRole('admin')).get("/", async (req, res) => {
   return res.render("addCampusResources", {
     title: "Campus Resource",
@@ -316,6 +318,8 @@ router.get("/", async (req, res) => {
   }
 });
 //load edit campus resource page
+//test xss
+//testing done working fine
 router.route("/edit/:id").get(isLoggedIn, checkRole("admin"), async (req, res) => {
   let id = req.params.id;
   if (!id) {
@@ -602,6 +606,8 @@ router.get("/:id", async (req, res) => {
 });
 
 // Route to update a campus resource
+//test xss
+
 router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;

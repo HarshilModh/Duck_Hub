@@ -16,6 +16,8 @@ const router = express.Router();
 // Render course page and print all courses
 
 //load add course page
+//test xss
+//testing done working fine
 router.route('/addCourse').get(isLoggedIn,checkRole("admin"),async (req, res) => {
     const departments = await getAllDepartments();
     res.render('addCourse', { title: 'Add Course', departments });
@@ -119,6 +121,8 @@ router.route('/addCourse').get(isLoggedIn,checkRole("admin"),async (req, res) =>
     }
 });
 //load course page
+//test xss for put
+//teting done working fine
 router.route('/').get(async (req, res) => {
     console.log('Fetching all courses');
     try {
@@ -143,7 +147,7 @@ router.route('/').get(async (req, res) => {
     }
 
 });
-router.route('/:id').get(async (req, res) => {
+router.route('/:id').get(isLoggedIn,checkRole("admin"),async (req, res) => {
     console.log('Fetching course by ID');
     let courseId = req.params.id;
     courseId = courseId.trim();

@@ -126,6 +126,8 @@ export const getAllReports = async () => {
     if (!allReports) {
       throw new Error("Sorry, no Reports available right now to be displayed");
     }
+    console.log("allReports", allReports);
+    
     return allReports;
   } catch (e) {
     throw new Error(e.message);
@@ -358,7 +360,7 @@ export const getReportsByAcademicResourceId = async (academicResourceId) => {
     throw new Error(error.message);
   }
   const resource = await Reports.find({ academicResourceId })
-    .populate("academicResourceId", "title url description")
+    .populate("academicResourceId", "title url")
     .populate("reportedBy", "firstName lastName email")
     .lean();
   if (!resource) {

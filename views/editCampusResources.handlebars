@@ -29,7 +29,7 @@
       </div>
 
       <!-- Resource Type -->
-      <div>
+      {{!-- <div>
         <label for="resourceType" class="block text-stevensGray font-medium mb-2">
           Resource Type
         </label>
@@ -52,9 +52,55 @@
           <option value="Event Space"         {{#if (eq resource.resourceType "Event Space")}}selected{{/if}}>Event Space</option>
           <option value="Study Room"          {{#if (eq resource.resourceType "Study Room")}}selected{{/if}}>Study Room</option>
           <option value="Computer Lab"        {{#if (eq resource.resourceType "Computer Lab")}}selected{{/if}}>Computer Lab</option>
-          <option value="Other"               {{#if (eq resource.resourceType "other")}}selected{{/if}}>Other</option>
+          <option value="Other"               {{#if (eq resource.resourceType "other")}}selected{{/if}}>other</option>
         </select>
-      </div>
+      </div> --}}
+    <div>
+      <label for="resourceType" class="block text-stevensGray font-medium mb-2">
+        Resource Type
+      </label>
+    <select
+    id="resourceType"
+    name="resourceType"
+    class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-stevensMaroon"
+   >
+    <option value="" disabled>Select a type</option>
+    <option value="library"                {{#if (eq resource.resourceType "library")}}selected{{/if}}>Library</option>
+    <option value="gym"                    {{#if (eq resource.resourceType "gym")}}selected{{/if}}>Gym</option>
+    <option value="Dining Hall"            {{#if (eq resource.resourceType "Dining Hall")}}selected{{/if}}>Dining Hall</option>
+    <option value="Academic Building"      {{#if (eq resource.resourceType "Academic Building")}}selected{{/if}}>Academic Building</option>
+    <option value="Student Center"         {{#if (eq resource.resourceType "Student Center")}}selected{{/if}}>Student Center</option>
+    <option value="Health Center"          {{#if (eq resource.resourceType "Health Center")}}selected{{/if}}>Health Center</option>
+    <option value="Recreational Facility"  {{#if (eq resource.resourceType "Recreational Facility")}}selected{{/if}}>Recreational Facility</option>
+    <option value="Parking Lot"            {{#if (eq resource.resourceType "Parking Lot")}}selected{{/if}}>Parking Lot</option>
+    <option value="Dorms"                  {{#if (eq resource.resourceType "Dorms")}}selected{{/if}}>Dorms</option>
+    <option value="Event Space"            {{#if (eq resource.resourceType "Event Space")}}selected{{/if}}>Event Space</option>
+    <option value="Study Room"             {{#if (eq resource.resourceType "Study Room")}}selected{{/if}}>Study Room</option>
+    <option value="Computer Lab"           {{#if (eq resource.resourceType "Computer Lab")}}selected{{/if}}>Computer Lab</option>
+    <option value="Auditorium"             {{#if (eq resource.resourceType "Auditorium")}}selected{{/if}}>Auditorium</option>
+    <option value="Classroom"              {{#if (eq resource.resourceType "Classroom")}}selected{{/if}}>Classroom</option>
+    <option value="Laboratory"             {{#if (eq resource.resourceType "Laboratory")}}selected{{/if}}>Laboratory</option>
+    <option value="Office Space"           {{#if (eq resource.resourceType "Office Space")}}selected{{/if}}>Office Space</option>
+    <option value="Sports Field"           {{#if (eq resource.resourceType "Sports Field")}}selected{{/if}}>Sports Field</option>
+    <option value="Theater"                {{#if (eq resource.resourceType "Theater")}}selected{{/if}}>Theater</option>
+    <option value="Art Studio"             {{#if (eq resource.resourceType "Art Studio")}}selected{{/if}}>Art Studio</option>
+    <option value="Music Room"             {{#if (eq resource.resourceType "Music Room")}}selected{{/if}}>Music Room</option>
+    <option value="Conference Room"        {{#if (eq resource.resourceType "Conference Room")}}selected{{/if}}>Conference Room</option>
+    <option value="Workshop"               {{#if (eq resource.resourceType "Workshop")}}selected{{/if}}>Workshop</option>
+    <option value="Outdoor Space"          {{#if (eq resource.resourceType "Outdoor Space")}}selected{{/if}}>Outdoor Space</option>
+    <option value="Playground"             {{#if (eq resource.resourceType "Playground")}}selected{{/if}}>Playground</option>
+    <option value="Fitness Center"         {{#if (eq resource.resourceType "Fitness Center")}}selected{{/if}}>Fitness Center</option>
+    <option value="Swimming Pool"          {{#if (eq resource.resourceType "Swimming Pool")}}selected{{/if}}>Swimming Pool</option>
+    <option value="Cafeteria"              {{#if (eq resource.resourceType "Cafeteria")}}selected{{/if}}>Cafeteria</option>
+    <option value="Bookstore"              {{#if (eq resource.resourceType "Bookstore")}}selected{{/if}}>Bookstore</option>
+    <option value="Counseling Center"      {{#if (eq resource.resourceType "Counseling Center")}}selected{{/if}}>Counseling Center</option>
+    <option value="Career Services"        {{#if (eq resource.resourceType "Career Services")}}selected{{/if}}>Career Services</option>
+    <option value="International Student Office" {{#if (eq resource.resourceType "International Student Office")}}selected{{/if}}>International Student Office</option>
+    <option value="Student Union"          {{#if (eq resource.resourceType "Student Union")}}selected{{/if}}>Student Union</option>
+    <option value="Campus Security"        {{#if (eq resource.resourceType "Campus Security")}}selected{{/if}}>Campus Security</option>
+    <option value="other"                  {{#if (eq resource.resourceType "other")}}selected{{/if}}>Other</option>
+  </select>
+</div>
 
       <!-- Map for picking location -->
       <div>

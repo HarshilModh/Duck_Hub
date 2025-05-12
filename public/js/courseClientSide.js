@@ -65,9 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!isValidString(courseDescription)) {
                 throw new Error("Course description can only contain letters, numbers, and spaces");
             }
-            const validCoruseCodeRegex = /^[A-Z]{2,4}\d{3}$/; // Example: CS101, MATH202
+            // Example: CS101, CS201, CS301 or cs101, cs201, cs301 uppercase and lowercase both
+            const validCoruseCodeRegex =/^[A-Za-z]{2,4}\d{3}$/; // Adjust the regex as needed
             if (!validCoruseCodeRegex.test(courseCode)) {
-                throw new Error("Course code must be in the format of 2-4 uppercase letters followed by 3 digits (e.g., CS101)");
+                throw new Error("Course code must be in the format of 2-4 letters followed by 3 digits (e.g., CS101)");
             }
             if (!courseDepartment) {
                 throw new Error("Please select a department");
@@ -78,12 +79,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (courseDepartment.length === 0) {
                 throw new Error("Please select a department");
             }
+            courseForm.submit();  
+
         } catch (error) {
             showToast("error", error.message);
             return;
         }
 
         // If validation passes, submit the form
-        courseForm.submit();    
+          
     });
     });

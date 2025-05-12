@@ -151,7 +151,8 @@ router.route('/course/:id').get(isLoggedIn, async (req, res) => {
         };
     }
 });
-//load add course review page
+// xss pending test xss testing done working fine
+//load add course review page xss pending
 router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
     console.log("req.session.user", req.session.user);
 
@@ -211,12 +212,12 @@ router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
     console.log("req.session.user", req.session.user.user._id);
 
     let courseId = req.params.id;
-    let courseCode = (req.body.courseCode);
-    let courseName = (req.body.courseName);
-    let review = (req.body.review);
-    let difficultyRating = (req.body.difficultyRating);
-    let overallRating = (req.body.overallRating);
-    let isAnonymous = (req.body.isAnonymous);
+    let courseCode = xss(req.body.courseCode);
+    let courseName = xss(req.body.courseName);
+    let review = xss(req.body.review);
+    let difficultyRating = xss(req.body.difficultyRating);
+    let overallRating = xss(req.body.overallRating);
+    let isAnonymous = xss(req.body.isAnonymous);
     if (req.body.isAnonymous === 'true') {
         isAnonymous = true;
     }
@@ -461,7 +462,8 @@ router.route('/deleteReview/:id').get(isLoggedIn, async (req, res) => {
 });
 // reviews/6811b81134bd42a91111f888/vote
 {/* <input type="hidden" name="vote" value="up"> */ }
-
+//test xss
+//testing done working fine
 router.route('/reviews/:id/vote').post(isLoggedIn, async (req, res) => {
 
     console.log("vote review request");
@@ -596,6 +598,8 @@ router.route('/reviews/:id/vote').post(isLoggedIn, async (req, res) => {
     }
 
 });
+//test xss
+//testing done working fine
 router.route('/editReview/:id').get(isLoggedIn, async (req, res) => {
     console.log("edit review request");
     let reviewId = req.params.id;
@@ -782,7 +786,8 @@ router.route('/departmentCourses/:id').get(isLoggedIn, async (req, res) => {
 
 }
 );
-
+//test xss
+//testing done working fine
 //Here user can filter courses by difficulty rating, average rating and department and he can also filter by any one of them
 router.route("/filterCoursesCombined").post(isLoggedIn, async (req, res) => {
     try {
@@ -869,7 +874,8 @@ router.route("/filterCoursesCombined").post(isLoggedIn, async (req, res) => {
         return res.redirect('/userSideCourses');
     }
 });
-
+//test xss
+//testing done working fine
 //Search courses by course code or course name without filtering and even for example if user types "CS" then it will show all the courses which have CS in their course code or course name
 router.route("/searchCourses").post(isLoggedIn, async (req, res) => {
     try {

@@ -39,18 +39,13 @@ router
   })
   // Handle signup submissions
   .post(async (req, res) => {
-    const { firstName, lastName, email, password, confirmPassword } = req.body;
-
-    // Basic presence check
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      req.session.toast = {
-        type: "error",
-        message: "Please fill all the fields",
-      };
-      return res.redirect("/users/signUp");
-    }
-
-    //  Trimmed validations
+    try{
+      let firstName = xss(req.body.firstName);
+      let lastName = xss(req.body.lastName);
+      let email = xss(req.body.email);
+      let password = xss(req.body.password);
+      let confirmPassword = xss(req.body.confirmPassword);
+       //  Trimmed validations
     const f = firstName.trim();
     const l = lastName.trim();
     const e = email.trim();
@@ -108,9 +103,7 @@ router
       };
       return res.redirect("/users/signUp");
     }
-    // All validations passed — attempt to create user
-    try {
-      const newUser = await createUser(f, l, e, p, cp);
+    const newUser = await createUser(f, l, e, p, cp);
       if (newUser) {
         req.session.toast = {
           type: "success",
@@ -124,11 +117,12 @@ router
         };
         return res.redirect("/users/signUp");
       }
-    } catch (err) {
-      console.error("Error creating user:", err);
+    }
+    catch (e) {
+      console.error("Error in signup route:", e);
       req.session.toast = {
         type: "error",
-        message: "Server error. Please try again later.",
+        message: `Error: ${e.message}`,
       };
       return res.redirect("/users/signUp");
     }
@@ -492,7 +486,7 @@ router
       console.error(e);
       req.session.toast = {
         type: "error",
-        message: "Error updating profile",
+        message: `Error updating profile: ${e.message}`,
       };
       return res.redirect("/users/editProfile");
     }
@@ -877,6 +871,13 @@ router
       req.session.toast = {
         type: "error",
         message: "New passwords do not match",
+      };
+      return res.redirect("/users/changePassword");
+    }
+    if(!isValidPassword(newPassword1)) {
+      req.session.toast = {
+        type: "error",
+        message: "Invalid new password format",
       };
       return res.redirect("/users/changePassword");
     }

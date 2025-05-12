@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!isValidString(departmentName)) {
                 throw new Error("Department name can only contain letters, numbers, and spaces");
             }
+            departmentForm.submit();
         }
         catch (error) {
             showToast("error", error.message);
