@@ -1,6 +1,3 @@
-//imageURLs
-//string of image, not list
-
 import mongoose from "mongoose";
 import User from "./user.model.js";
 import Forum from "./forums.model.js";
@@ -46,19 +43,10 @@ const commentsSchema = new mongoose.Schema(
       enum: ["poll", "forum"],
       required: true,
     },
-    // didn't add status since the other models have it but not sure if comments need it
-    // leaving commented out just in case we need it later
-    // status: {
-    //   type: String,
-    //   enum: ["active", "reported", "removed"],
-    //   default: "active",
-    // },
   },
   { timestamps: true }
 );
 
-// make the model from our schema
 const Comment = mongoose.model("Comment", commentsSchema);
 
-// exporing the model
 export default Comment;
