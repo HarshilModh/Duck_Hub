@@ -54,13 +54,15 @@ router.route("/userSideDepartment").get(isLoggedIn,async (req, res) => {
         };
     }
 });
+//test xss
+//testing done working fine
 router.route('/addDepartment').get(isLoggedIn,checkRole("admin"),(req, res) => {
     console.log('Rendering create department page');
     res.render('addDepartment', { title: 'Create Department' });
 }
 ).post(isLoggedIn,checkRole("admin"),async (req, res) => {
 
-    let name = req.body.departmentName;
+    let name = xss(req.body.departmentName);
    if (!name) {
         req.session.toast = {
             type: 'error',
@@ -154,6 +156,8 @@ router.route('/deleteDepartment/:id').delete(isLoggedIn,checkRole("admin"),async
     }
 });
 //edit department
+//test xss
+//testing done working fine
 router.route("/editDepartment/:id").get(isLoggedIn,checkRole("admin"),async (req, res) => {
     let departmentId = req.params.id;
     if (!departmentId) {
@@ -249,6 +253,8 @@ router.route("/editDepartment/:id").get(isLoggedIn,checkRole("admin"),async (req
     }
 });
 //search department regex
+//test xss
+//testing done working fine
 router.route('/searchDepartment').post(isLoggedIn,checkRole("admin"),async (req, res) => {
    
     try { let  searchQuery = xss(req.body.search);

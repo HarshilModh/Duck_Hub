@@ -18,6 +18,7 @@ const app = express();
 dotenv.config();
 
 // 2️⃣ Standard middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

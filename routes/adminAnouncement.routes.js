@@ -14,6 +14,8 @@ import { checkRole } from '../middlewares/roleCheck.middleware.js';
 const router = express.Router();
 const app = express();
 //load add announcement page
+//test xss
+//testing done working fine
 router.route('/add').get(isLoggedIn, checkRole('admin'), (req, res) => {
   res.render('addAnouncement', {
     title: 'Add Announcement',

@@ -77,7 +77,7 @@
   </span>
 {{/ifEquals}}
               </div>
-              <time class="text-xs text-gray-500">{{formatDate this.createdAt "MMM D, YYYY"}}</time>
+              <p class="text-xs text-gray-500">{{formatDate this.createdAt}}</p>
             </div>
 
             <!-- Review Text -->
@@ -162,7 +162,7 @@
               <a href="/userSideCourses/reviewReport/{{this.reviewId}}">
                   🚩 Report
                 </a>
-              </form>
+        
             </div>
           </li>
         {{/each}}

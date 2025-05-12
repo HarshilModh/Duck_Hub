@@ -337,6 +337,12 @@ export const updatePassword = async (userId, currentPassword, newPassword2) => {
   if (currentPassword === newPassword2) {
     throw new Error("New password cannot be same as current password");
   }
+  //Check for valid password
+  if (!isValidPassword(newPassword2)) {
+    throw new Error(
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    );
+  }
 
   const user = await User.findById(userId);
   if (!user) {

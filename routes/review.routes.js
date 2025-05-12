@@ -19,7 +19,8 @@ import {
 
 import { reportReview } from "../data/courseReviewController.js";
 const router = express.Router();
-
+//test xss
+//testing done working fine
 router.route("/").post(async (req, res) => {
 
   
@@ -92,7 +93,8 @@ router.route("/:id").get(async (req, res) => {
     return res.status(404).json({ error: error.message });
   }
 });
-
+//test xss
+//testing done working fine
 router.route("/:id").put(async (req, res) => {
   try {
     const updatedReview = await updateCourseReviewById(req.params.id, req.body);

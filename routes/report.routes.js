@@ -451,6 +451,8 @@ router
 router.route("/myreports").get(isLoggedIn, async (req, res) => {
   try {
     const loggedUserId = req.session.user?.user?._id || null;
+    console.log("loggedUserId", loggedUserId);
+    
     let reports = await getAllReports();
     reports = reports.filter(
       (report) => report.reportedBy._id.toString() === loggedUserId
