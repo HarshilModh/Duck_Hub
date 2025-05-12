@@ -149,4 +149,9 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
   }
 });
 
+router.route("/:id").delete(async (req, res) => {
+  const result = await deleteForumPostById(req.params.id);
+  return res.json(result);
+});
+
 export default router;

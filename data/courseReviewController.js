@@ -10,7 +10,11 @@ import {
 import Review from "../models/courseReviews.model.js";
 import ReviewVotes from "../models/reviewVotes.model.js";
 import Reports from "../models/reports.model.js";
-import { calculateRatings,calculateRatingsDelete,calculateRatingsEdit } from "../utils/calculateRatings.utils.js";
+import {
+  calculateRatings,
+  calculateRatingsDelete,
+  calculateRatingsEdit,
+} from "../utils/calculateRatings.utils.js";
 
 //Create a new course review
 export const createCourseReview = async (
@@ -124,11 +128,13 @@ export const createCourseReview = async (
     }
     // calculateRatings will return the updated ratings and along with that it will update the course with the new ratings
 
-    let {newOverallRating, newDifficultyRating} = await calculateRatings(courseId);
+    let { newOverallRating, newDifficultyRating } = await calculateRatings(
+      courseId
+    );
     if (!newOverallRating || !newDifficultyRating) {
       throw new Error("Could not calculate the ratings");
     }
-    
+
     return savedReview;
   } catch (error) {
     throw new Error(error.message);
@@ -258,8 +264,10 @@ export const updateCourseReviewById = async (
     if (!course) {
       throw new Error("Course not found");
     }
-   // calculateRatingsEdit will return the updated ratings and along with that it will update the course with the new ratings
-    let {newOverallRating, newDifficultyRating} = await calculateRatingsEdit(course._id);
+    // calculateRatingsEdit will return the updated ratings and along with that it will update the course with the new ratings
+    let { newOverallRating, newDifficultyRating } = await calculateRatingsEdit(
+      course._id
+    );
     if (!newOverallRating || !newDifficultyRating) {
       throw new Error("Could not calculate the ratings");
     }
@@ -278,24 +286,25 @@ export const deleteCourseReviewById = async (reviewId) => {
 
     let deletedReview = await Review.findByIdAndDelete(reviewId);
     console.log("Deleted Review: ", deletedReview);
- 
+
     if (!deletedReview) {
       throw new Error("Review not found");
     }
     console.log("Deleted Review: ", deletedReview);
     //after deleting the review, we need to update resolve all the reports that are related to this review
 
-       await Reports.updateMany(
+    await Reports.updateMany(
       { reviewId: reviewId },
       { $set: { status: "resolved" } }
     );
     //deleted review is having courseId as objectId we need to convert it to string
     //calculateRatingsDelete will return the updated ratings and along with that it will update the course with the new ratings
-    let {newOverallRating, newDifficultyRating} = await calculateRatingsDelete(deletedReview.courseId);
-    if (newOverallRating===undefined || newDifficultyRating===undefined) {
+    let { newOverallRating, newDifficultyRating } =
+      await calculateRatingsDelete(deletedReview.courseId);
+    if (newOverallRating === undefined || newDifficultyRating === undefined) {
       throw new Error("Could not calculate the ratings");
     }
-  return deletedReview;
+    return deletedReview;
   } catch (error) {
     throw new Error(`Error deleting the review: ${error.message}`);
   }
@@ -625,21 +634,21 @@ export const reportReview = async (reviewId, userId) => {
     console.log("Report Count from controller ", reportCount);
     reportCount = reportCount + 1;
     console.log("Report Count after increment ", reportCount);
-   if (reportCount >=5) {
-    let review = await Review.findByIdAndUpdate(
+    if (reportCount >= 5) {
+      let review = await Review.findByIdAndUpdate(
         reviewId,
         {
-            $set: { status: "hidden" },
-            $push: { reportedBy: userId }
+          $set: { status: "hidden" },
+          $push: { reports: userId },
         },
         { new: true }
-    );
-}else {
+      );
+    } else {
       let review = await Review.findByIdAndUpdate(reviewId, {
         $push: { reports: userId },
       });
     }
-   
+
     let review = await Review.findById(reviewId);
     if (!review) {
       throw new Error("Review not found");

@@ -9,12 +9,9 @@ document.querySelectorAll(".delete-button").forEach((button) => {
     const id = button.dataset.id;
     const type = button.dataset.type;
     try {
-      const res = await fetch(
-        `/${type === "poll" ? "polls" : "forums"}/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`/forums/${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         const selector =
           type === "poll" ? ".poll-post-card" : ".forum-post-card";

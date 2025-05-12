@@ -401,6 +401,42 @@ export const changeAcademicResourceStatus = async (
   status
 ) => {};
 
+export const reportResource = async (resourceId, userId) => {
+  resourceId = isValidID(resourceId, "ResourceID");
+  userId = isValidID(userId, "UserID");
+
+  try {
+    let reportCount = await Reports.countDocuments({
+      academicResourceId: resourceId,
+    });
+    console.log("Report Count: ", reportCount);
+
+    if (reportCount > 5) {
+      let resource = await AcademicResource.findByIdAndUpdate(
+        resourceId,
+        {
+          $set: { status: "hidden" },
+          $push: { reportedBy: userId },
+        },
+        { new: true }
+      );
+    } else {
+      let resource = await AcademicResource.findByIdAndUpdate(resourceId, {
+        $push: { reportedBy: userId },
+      });
+    }
+
+    let resource = await AcademicResource.findById(resourceId);
+    if (!resource) {
+      throw new Error("Resource not found");
+    }
+
+    return resource;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export const searchAcademicResourceFilterSort = async (
   text = "",
   sort = "createdAt",

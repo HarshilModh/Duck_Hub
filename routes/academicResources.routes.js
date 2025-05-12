@@ -62,20 +62,34 @@ router
     }
   })
   .post(async (req, res) => {
+    let userId = xss(req.body.userId);
+    let title = xss(req.body.title);
+    let description = xss(req.body.description);
+    let url = xss(req.body.url);
+    let tags = xss(req.body.tags);
+
     try {
-      let userId = xss(req.body.userId);
-      let title = xss(req.body.title);
-      let description = xss(req.body.description);
-      let url = xss(req.body.url);
-      let tags = xss(req.body.tags);
-      let tagsArray;
-      if (!tags) {
-        tagsArray = [];
-      } else if (!Array.isArray(tags)) {
-        tagsArray = [tags.trim()];
-      } else {
-        tagsArray = tags.map((t) => t.trim());
-      }
+      userId = isValidID(userId, "User ID");
+      title = isValidString(title, "Title");
+      description = isValidString(description, "Description");
+      url = isValidString(url, "URL");
+    } catch (error) {
+      req.session.toast = {
+        type: "error",
+        message: error.message || "Invalid input data.",
+      };
+      return res.status(400).redirect("/academicResources/create");
+    }
+
+    let tagsArray;
+    if (!tags) {
+      tagsArray = [];
+    } else if (!Array.isArray(tags)) {
+      tagsArray = [tags.trim()];
+    } else {
+      tagsArray = tags.map((t) => t.trim());
+    }
+    try {
       const academicResource = await createAcademicResource(
         userId,
         title,
@@ -90,8 +104,15 @@ router
         };
         return res.status(201).redirect("/academicResources");
       }
-    } catch (e) {
-      return res.status(500).json({ error: e.message });
+    } catch (error) {
+      console.error("Error creating academic resource:", error);
+      req.session.toast = {
+        type: "error",
+        message:
+          error.message ||
+          "Failed to create academic resource. Please try again.",
+      };
+      return res.status(500).redirect("/academicResources/create");
     }
   });
 

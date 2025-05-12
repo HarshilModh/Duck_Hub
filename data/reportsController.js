@@ -32,7 +32,7 @@ export const createReport = async (
   console.log("reportTypeValidation", type);
   console.log("userId", userId);
   console.log("reason", reason);
-  
+
   try {
     let forumUpdate;
     let academicResourceUpdate;
@@ -40,17 +40,16 @@ export const createReport = async (
     if (forumUpdate && academicResourceUpdate) {
       throw new Error("Could not update content!");
     }
-    if (type === "Forum") { 
+    if (type === "Forum") {
+      let existingReport = await Reports.findOne({
+        forumId: forumId,
+        reportedBy: userId,
+      });
 
-    let existingReport = await Reports.findOne({
-      forumId: forumId,
-      reportedBy: userId,
-    });
-
-    if (existingReport) {
-      throw new Error("You can't report a forum more than once !");
+      if (existingReport) {
+        throw new Error("You can't report a forum more than once !");
+      }
     }
-  }
     if (type === "Poll") {
       let existingReport = await Reports.findOne({
         pollId: pollId,
@@ -74,10 +73,10 @@ export const createReport = async (
         academicResourceId: academicResourceId,
         reportedBy: userId,
       });
-       if (existingReport) {
+      if (existingReport) {
         throw new Error("You can't report a resource more than once !");
       }
-      //add userId to academicResource reportedBy 
+      //add userId to academicResource reportedBy
       let academicResource = await AcademicResource.findByIdAndUpdate(
         academicResourceId,
         { $addToSet: { reportedBy: userId } },
@@ -87,8 +86,6 @@ export const createReport = async (
         throw new Error("Could not update academic resource");
       }
 
-      
-       
       if (existingReport) {
         throw new Error("You can't report a resource more than once !");
       }
@@ -119,7 +116,7 @@ export const getAllReports = async () => {
       .populate("reportedBy", "firstName lastName email")
       .populate("forumId", "title")
       .populate("pollId", "title content")
-      .populate("reviewId", "review overallRating difficultyRating") 
+      .populate("reviewId", "review overallRating difficultyRating")
       .populate("academicResourceId", "title content")
 
       .lean();
@@ -254,8 +251,7 @@ export const resolveDisapprovedReport = async (reportId) => {
       }
     }
     return report;
-  }
-  catch (error) {
+  } catch (error) {
     throw new Error(error.message);
   }
 };
@@ -274,51 +270,50 @@ export const updateReportStatus = async (reportId, status) => {
 
 export const getAllReportsForAdmin = async () => {
   const reports = await Reports.find()
-  .populate("forumId", "title content ")           
-  // .populate("pollId")                
-  // .populate("reviewId")
-  // .populate("academicResourceId")
-  // .populate("reportedBy", "firstName lastName email")
-  .lean();
+    .populate("forumId", "title content ")
+    // .populate("pollId")
+    // .populate("reviewId")
+    // .populate("academicResourceId")
+    // .populate("reportedBy", "firstName lastName email")
+    .lean();
 
-const grouped = {
-  Forums: [],
-  Polls: [],
-  Reviews: [],
-  Resources: []
-};
-
-for (const r of reports) {
-
-  const entry = {
-    reportId: r._id,
-    reason: r.reason,
-    status: r.status,
-    reportedBy: r.reportedBy,
-    createdAt: r.createdAt,
-    updatedAt: r.updatedAt,
-    content: null       
+  const grouped = {
+    Forums: [],
+    Polls: [],
+    Reviews: [],
+    Resources: [],
   };
 
-  switch (r.reportedContentType) {
-    case "Forum":
-      entry.content = r.forumId;
-      grouped.Forums.push(entry);
-      break;
-    case "Poll":
-      entry.content = r.pollId;
-      grouped.Polls.push(entry);
-      break;
-    case "Review":
-      entry.content = r.reviewId;
-      grouped.Reviews.push(entry);
-      break;
-    case "AcademicResource":
-      entry.content = r.academicResourceId;
-      grouped.Resources.push(entry);
-      break;
+  for (const r of reports) {
+    const entry = {
+      reportId: r._id,
+      reason: r.reason,
+      status: r.status,
+      reportedBy: r.reportedBy,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      content: null,
+    };
+
+    switch (r.reportedContentType) {
+      case "Forum":
+        entry.content = r.forumId;
+        grouped.Forums.push(entry);
+        break;
+      case "Poll":
+        entry.content = r.pollId;
+        grouped.Polls.push(entry);
+        break;
+      case "Review":
+        entry.content = r.reviewId;
+        grouped.Reviews.push(entry);
+        break;
+      case "AcademicResource":
+        entry.content = r.academicResourceId;
+        grouped.Resources.push(entry);
+        break;
+    }
   }
-}
 
   return grouped;
 };
@@ -326,13 +321,15 @@ for (const r of reports) {
 export const getReportsByReviewId = async (reviewId) => {
   reviewId = isValidID(reviewId, "Review ID");
   const review = await Reports.find({ reviewId })
-    .populate("reviewId", "review overallRating difficultyRating downVotes upVotes createdAt updatedAt courseId")
+    .populate(
+      "reviewId",
+      "review overallRating difficultyRating downVotes upVotes createdAt updatedAt courseId"
+    )
     .populate("reportedBy", "firstName lastName email")
     .lean();
-    
-    console.log("review from controller", review);
-    
-    
+
+  console.log("review from controller", review);
+
   if (!review) {
     throw new Error("Reports not found");
   }
@@ -353,8 +350,7 @@ export const getReportsByForumId = async (forumId) => {
 export const getReportsByAcademicResourceId = async (academicResourceId) => {
   try {
     academicResourceId = isValidID(academicResourceId, "Academic Resource ID");
-  }
-  catch (error) {
+  } catch (error) {
     throw new Error(error.message);
   }
   const resource = await Reports.find({ academicResourceId })
