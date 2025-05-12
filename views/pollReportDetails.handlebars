@@ -1,0 +1,115 @@
+{{!-- views/pollReportDetails.handlebars --}}
+<div class="min-h-screen bg-stevensBg font-body text-stevensGray">
+  <div class="max-w-3xl mx-auto px-6 py-10 space-y-8">
+
+    <!-- Back to Dashboard -->
+    <div>
+      <a href="/reportDashboard" class="text-stevensMaroon hover:underline">
+        ← Back to Report Dashboard
+      </a>
+    </div>
+
+    <!-- Poll Details -->
+    <div class="bg-stevensWhite rounded-2xl shadow-md p-8 space-y-6">
+      <h1 class="text-2xl font-heading text-stevensMaroon">
+        {{poll.question}}
+      </h1>
+      <div class="flex items-center space-x-4 text-sm text-stevensGray">
+        <span>By {{poll.createdBy.firstName}} {{poll.createdBy.lastName}}</span>
+        <span>·</span>
+        <span>Posted: {{formatDate poll.createdAt}}</span>
+        {{#if poll.updatedAt}}
+          <span>· Updated: {{formatDate poll.updatedAt}}</span>
+        {{/if}}
+      </div>
+
+      {{!-- Options List --}}
+      <ul class="mt-4 space-y-2">
+        {{#each poll.options as |opt|}}
+          <li class="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2">
+            <span class="text-lg">{{opt.answer}}</span>
+            <span class="text-sm text-stevensGray">{{opt.votes}} votes</span>
+          </li>
+        {{/each}}
+      </ul>
+
+      {{!-- Votes --}}
+      <div class="mt-4 flex items-center space-x-6 text-sm text-stevensGray">
+        <div class="flex items-center space-x-1">
+          <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10l6 6V4l-6 6zM12 4v12l6-6-6-6z"/></svg>
+          <span>{{poll.upVotes}}</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10l-6-6v12l6-6zM8 4v12l-6-6 6-6z"/></svg>
+          <span>{{poll.downVotes}}</span>
+        </div>
+      </div>
+
+      {{!-- Status Badge --}}
+      <div class="mt-4 inline-flex items-center px-3 py-1 rounded-full
+        {{#if (eq poll.status 'active')}}bg-green-100 text-green-800
+        {{else if (eq poll.status 'archived')}}bg-gray-100 text-gray-800
+        {{else}}bg-yellow-100 text-yellow-800{{/if}}">
+        {{poll.status}}
+      </div>
+    </div>
+
+    <!-- Reports for this Poll -->
+    <section class="space-y-6">
+      <h2 class="text-2xl font-heading text-stevensMaroon">
+        Reports
+        {{#if report.length}}
+          <span class="ml-2 text-sm text-stevensGray">({{report.length}})</span>
+        {{/if}}
+      </h2>
+
+      {{#if report.length}}
+        {{#each report as |r|}}
+          <div class="bg-stevensWhite rounded-2xl shadow-md p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-stevensGray">
+                Reported by {{r.reportedBy.firstName}} {{r.reportedBy.lastName}}
+              </span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full
+                {{#if (eq r.status 'resolved')}}bg-green-100 text-green-800
+                {{else if (eq r.status 'under review')}}bg-yellow-100 text-yellow-800
+                {{else}}bg-red-100 text-red-800{{/if}}">
+                {{r.status}}
+              </span>
+            </div>
+            <p class="text-sm">
+              <strong>Reason:</strong> {{r.reason}}
+            </p>
+            <p class="text-xs text-stevensGray">
+              Reported on {{formatDate r.createdAt}}
+            </p>
+
+            {{#if (and r.pollId (eq r.status 'under review'))}}
+              <div class="flex justify-end space-x-4 pt-4 border-t">
+                <form action="/report/resolve/{{r._id}}" method="post">
+                  <input type="hidden" name="_method" value="PUT">
+                  <button
+                    type="submit"
+                    class="bg-green-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    Resolve
+                  </button>
+                </form>
+                <form action="/report/reject/{{r._id}}" method="post">
+                  <input type="hidden" name="_method" value="PUT">
+                  <button
+                    type="submit"
+                    class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition">
+                    Reject
+                  </button>
+                </form>
+              </div>
+            {{/if}}
+          </div>
+        {{/each}}
+      {{else}}
+        <p class="text-center text-stevensGray">No reports for this poll.</p>
+      {{/if}}
+    </section>
+
+  </div>
+</div>

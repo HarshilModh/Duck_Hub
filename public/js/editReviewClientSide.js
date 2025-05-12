@@ -9,10 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
             style: { background: type === "error" ? "#dc2626" : "#16a34a" },
         }).showToast();
     }
-    const addReviewForm = document.getElementById("editCourseReviewForm");
-    const reviewTextInput = document.getElementById("review");
-    const overallRatingInput = document.getElementById("overallRating");
-    const DifficultyInput = document.getElementById("difficultyRating");
+    // Get the input elements with value
+    const reviewTextInput = document.getElementById("reviewText").value;
+    const overallRatingInput = document.getElementById("overallRating").value;
+    const DifficultyInput = document.getElementById("difficulty").value;
+    const addReviewForm = document.getElementById("addReviewForm");
+   
+    
   
     if (!addReviewForm) {
         console.error("Add Review Form not found");

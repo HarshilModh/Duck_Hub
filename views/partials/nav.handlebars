@@ -20,6 +20,7 @@
                                               class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Resources</a></li>
             <li><a href="/academicResources"    class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Academics</a></li>
             <li><a href="/report/dashboard"          class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Reports</a></li>
+            <li><a href="/users/missingRequestDashboard"  class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Requests</a></li>
           {{else}}
             <li><a href="/forums"                      class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Forums</a></li>
             <li><a href="/departments/userSideDepartment"
@@ -79,6 +80,11 @@
             >
               <li><a href="/users/userProfile" class="block px-4 py-2 hover:bg-stevensBg">Profile</a></li>
               <li><a href="/forums/user/{{user._id}}" class="block px-4 py-2 hover:bg-stevensBg">My Forums</a></li>
+            {{!-- myRequests --}}
+              <li><a href="/users/missingRequestuser" class="block px-4 py-2 hover:bg-stevensBg">My Requests</a></li>
+              {{!-- my reports --}}
+              <li><a href="/report/myreports" class="block px-4 py-2 hover:bg-stevensBg">My Reports</a></li>
+              {{!-- my reviews --}}
               {{#if (eq user.role "admin")}}
                 <li><a href="/users/adminDashboard" class="block px-4 py-2 hover:bg-stevensBg">Admin</a></li>
               {{/if}}

@@ -135,7 +135,6 @@ router
   .get(async (req, res) => {
     res.render("login", { title: "Login" });
   })
-
   // Handle login submissions
   .post(async (req, res) => {
     try{
@@ -229,7 +228,7 @@ router
       // Unexpected error: show generic error toast
       req.session.toast = {
         type: "error",
-        message: `${e}`,
+        message: `Password or email is incorrect`,
       };
       return res.redirect("/users/login");
     }
@@ -582,7 +581,14 @@ router
     let itemName = xss(req.body.itemName);
     let description = xss(req.body.description);
     let userId = req.session.user.user._id;
+    console.log("missing request recieved from clienside");
+    console.log("itemType", itemType);
+    console.log("itemName", itemName);
+    console.log("description", description);
+    console.log("userId", userId);
+    
     if (!itemType || !itemName || !description) {
+      
       req.session.toast = {
         type: "error",
         message: "Please fill all the fields",
@@ -592,6 +598,8 @@ router
     try {
       userId = isValidID(userId, "userId");
     } catch (e) {
+      console.log("error in userId validation", e);
+      
       req.session.toast = {
         type: "error",
         message: "Invalid user ID",
@@ -601,6 +609,7 @@ router
     try {
       itemType = isValidString(itemType, "itemType");
     } catch (e) {
+      console.log(e);
       req.session.toast = {
         type: "error",
         message: "Invalid item type",
@@ -610,6 +619,7 @@ router
     try {
       itemName = isValidString(itemName, "itemName");
     } catch (e) {
+      console.log(e);
       req.session.toast = {
         type: "error",
         message: "Invalid item name",
@@ -619,6 +629,7 @@ router
     try {
       description = isValidString(description, "description");
     } catch (e) {
+      console.log(e);
       req.session.toast = {
         type: "error",
         message: "Invalid description",
@@ -639,6 +650,7 @@ router
         };
         return res.redirect("/users/userProfile");
       } else {
+        console.log("error in creating missing request");
         req.session.toast = {
           type: "error",
           message: "Error creating missing request",
@@ -906,7 +918,7 @@ router
       console.error(e);
       req.session.toast = {
         type: "error",
-        message: "Error changing password",
+        message: "Error changing password: "+e.message,
       };
       return res.redirect("/users/changePassword");
     }

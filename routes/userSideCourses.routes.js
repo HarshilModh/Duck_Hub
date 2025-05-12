@@ -804,6 +804,20 @@ router.route("/filterCoursesCombined").post(isLoggedIn, async (req, res) => {
       //Now if we dont have any of the values then we will not filter by that value we will just filter by value we have in the request
         let courses = await getAllCourses();
         if (minDifficultyRating && maxDifficultyRating) {
+            if (minDifficultyRating < 1 || minDifficultyRating > 3 || maxDifficultyRating < 1 || maxDifficultyRating > 3) {
+                req.session.toast = {
+                    type: 'error',
+                    message: 'Difficulty rating must be between 1 and 3',
+                };
+                return res.redirect('/userSideCourses');
+            }
+            if (minDifficultyRating > maxDifficultyRating) {
+                req.session.toast = {
+                    type: 'error',
+                    message: 'Min difficulty rating cannot be greater than max difficulty rating',
+                };
+                return res.redirect('/userSideCourses');
+            }
             if (minDifficultyRating === maxDifficultyRating) {
                 courses = courses.filter((course) => course.difficultyRating == minDifficultyRating);
                 console.log("minDifficultyRating === maxDifficultyRating");
@@ -814,6 +828,20 @@ router.route("/filterCoursesCombined").post(isLoggedIn, async (req, res) => {
             }
         }
         if (minAverageRating && maxAverageRating) {
+            if (minAverageRating < 1 || minAverageRating > 5 || maxAverageRating < 1 || maxAverageRating > 5) {
+                req.session.toast = {
+                    type: 'error',
+                    message: 'Average rating must be between 0 and 5',
+                };
+                return res.redirect('/userSideCourses');
+            }   
+            if (minAverageRating > maxAverageRating) {
+                req.session.toast = {
+                    type: 'error',  
+                    message: 'Min average rating cannot be greater than max average rating',
+                };
+                return res.redirect('/userSideCourses');
+            }
             if (minAverageRating === maxAverageRating) {
                 courses = courses.filter((course) => course.averageRating == minAverageRating);
                 console.log("minAverageRating === maxAverageRating");

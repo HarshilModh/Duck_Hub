@@ -255,7 +255,7 @@ router.route("/editDepartment/:id").get(isLoggedIn,checkRole("admin"),async (req
 //search department regex
 //test xss
 //testing done working fine
-router.route('/searchDepartment').post(isLoggedIn,checkRole("admin"),async (req, res) => {
+router.route('/searchDepartment').post(isLoggedIn,async (req, res) => {
    
     try { let  searchQuery = xss(req.body.search);
         searchQuery = searchQuery.trim();
@@ -281,6 +281,40 @@ router.route('/searchDepartment').post(isLoggedIn,checkRole("admin"),async (req,
             department.departmentName.toLowerCase().includes(searchQuery.toLowerCase())
         );
         res.render('department', { title: 'Department', departments: filteredDepartments, searchQuery,Filtered: true });
+    } catch (error) {
+        console.error(error);
+        req.session.toast = {
+            type: 'error',
+            message: 'Failed to fetch departments',
+        };
+    }
+});
+router.route('/searchDepartmentForUser').post(isLoggedIn,async (req, res) => {
+   
+    try { let  searchQuery = xss(req.body.search);
+        searchQuery = searchQuery.trim();
+        console.log('Search query:', searchQuery);
+        
+        if (!searchQuery) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Invalid search query',
+            };
+            return res.redirect('/departments/userSideDepartment');
+        }
+        console.log('Searching departments with query:', searchQuery);
+        const departments = await getAllDepartments();
+        if (!departments) {
+            req.session.toast = {
+                type: 'error',
+                message: 'No departments found',
+            };
+            return res.redirect('/departments/userSideDepartment');
+        }
+        const filteredDepartments = departments.filter(department =>
+            department.departmentName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        res.render('departmentUserSide', { title: 'Department', departments: filteredDepartments, searchQuery,Filtered: true });
     } catch (error) {
         console.error(error);
         req.session.toast = {

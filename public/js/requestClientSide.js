@@ -1,57 +1,55 @@
-document.addEventListener("DOMContentLoaded", function () {
-    function showToast(type, msg) {
-        Toastify({
-            close: true,
-            text: msg,
-            duration: 4000,
-            gravity: "top",      // top | bottom
-            position: "right",   // left | center | right
-            style: { background: type === "error" ? "#dc2626" : "#16a34a" },
-        }).showToast();
-    }
-    const requestForm = document.getElementById("requestForm");
-    const requestTypeInput = document.getElementById("itemType");
-    const requestNameInput = document.getElementById("itemName");
-    const descriptionInput = document.getElementById("description");
-    
-    if (!requestForm) {
-        console.error("Request Form not found");
-        return;
-    }
-    requestForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        try {
-            // Retrieve and trim all the input values
-            const requestName = requestNameInput.value.trim();
-            const requestType = requestTypeInput.value.trim();
-            const description = descriptionInput.value.trim();
 
-            // Validate required fields
-            if (!requestName || !requestType || !description) {
-                throw new Error("Please fill in all fields");
-            }
+$(document).ready(function () {
+  const $form   = $("#requestForm");
+  const $submit = $form.find("button[type='submit']");  // your “Add” button
+  const toastMs = 2000;                                 // toast visible time
+  const redirectAfter = "/users/missingRequestUser";    // or read from server
 
-            // Validate individual fields
-            if (typeof requestName !== "string" || typeof requestType !== "string" || typeof description !== "string") {
-                throw new Error("Request Name, Request Type, and Description must be strings");
-            }
-            if(requestName.length === 0) {
-                throw new Error("Request Name cannot be empty");
-            }
-            if(requestType.length === 0) {
-                throw new Error("Request Type cannot be empty");
-            }
-            if(description.length === 0) {
-                throw new Error("Description cannot be empty");
-            }
-            if (requestType !== "Course" && requestType !== "Department" && requestType !== "Other") {
-                throw new Error("Request Type must be either Course, Department, or Other");
-            }
-            requestForm.submit();
-           
-        } catch (error) {
-            showToast("error", error.message);
-        }
+  function showToast(type, msg, ms = toastMs) {
+    Toastify({
+      text: msg,
+      duration: ms,
+      gravity: "top",
+      position: "right",
+      close: true,
+      style: { background: type === "error" ? "#dc2626" : "#16a34a" },
+    }).showToast();
+  }
+
+  $form.on("submit", function (e) {
+    e.preventDefault();
+
+    const payload = {
+      itemType: $("#itemType").val().trim(),
+      itemName: $("#itemName").val().trim(),
+      description: $("#description").val().trim(),
+    };
+    if (!payload.itemType || !payload.itemName || !payload.description) {
+      return showToast("error", "Please fill in all fields");
+    }
+
+    $submit.prop("disabled", true).addClass("opacity-60 cursor-not-allowed");
+
+    $.ajax({
+      type: "POST",
+      url: "/users/missingRequest",
+      contentType: "application/json",
+      data: JSON.stringify(payload),
+
+      success() {
+        showToast("success", "Request submitted successfully!");
+        setTimeout(() => { window.location.href = redirectAfter; }, toastMs);
+      },
+
+      error(jqXHR) {
+        const msg =
+          jqXHR.responseJSON?.message ||
+          "Server error. Please try again later.";
+        showToast("error", msg);
+
+        $submit.prop("disabled", false).removeClass("opacity-60 cursor-not-allowed");
+      },
     });
-}
-);
+  });
+});
+

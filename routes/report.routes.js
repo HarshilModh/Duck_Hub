@@ -8,6 +8,7 @@ import {
   getReportsByReviewId,
   getReportsByForumId,
   getReportsByAcademicResourceId,
+  getReportsByPollId,
 } from "../data/reportsController.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import Forum from "../models/forums.model.js";
@@ -453,7 +454,14 @@ router.route("/myreports").get(isLoggedIn, async (req, res) => {
     const loggedUserId = req.session.user?.user?._id || null;
     console.log("loggedUserId", loggedUserId);
     
-    let reports = await getAllReports();
+    let reports = await Reports.find({
+      reportedBy: loggedUserId,
+    }).populate("reportedBy", "firstName lastName email")
+      .populate("forumId", "title")
+      .populate("pollId", "title content")
+      .populate("reviewId", "review overallRating difficultyRating")
+      .populate("academicResourceId", "title content")
+      .lean();
     reports = reports.filter(
       (report) => report.reportedBy._id.toString() === loggedUserId
     );
@@ -529,6 +537,55 @@ router
     } catch (e) {
       console.error(e);
       res.status(500).send("Error loading report page");
+    }
+  });
+//load pollReportDetails.handlebars
+router
+  .route("/polls/:id")
+  .get(isLoggedIn, checkRole("admin"), async (req, res) => {
+    let pollId = req.params.id;
+    try {
+      if (!pollId || typeof pollId !== "string" || pollId.trim() === "") {
+        req.session.toast = {
+          type: "error",
+          message: "Poll ID is required and must be a non-empty string.",
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+      try {
+        pollId = isValidID(pollId, "pollId");
+      } catch (error) {
+        req.session.toast = {
+          type: "error",
+          message: error.message,
+        };
+        return res.status(400).redirect("/report/dashboard");
+      }
+     
+      let poll = await Poll.findById(pollId)
+        .populate("createdBy", "firstName lastName")
+        .lean();
+      let reportCount = await Reports.countDocuments({ pollId: poll._id });
+      let report = await getReportsByPollId(pollId);
+      if (!poll) {
+        req.session.toast = {
+          type: "error",
+          message: "Poll not found",
+        };
+        return res.status(404).redirect("/report/dashboard");
+      }
+      const loggedUserId = req.session.user?.user?._id || null;
+      console.log("poll", poll);
+      console.log("reportCount", reportCount);
+      console.log("report", report);
+      res.render("pollReportDetails", { poll, reportCount, report });
+    } catch (e) {
+      console.error(e);
+     req.session.toast = {
+        type: "error",
+        message: e.message,
+      };
+      res.status(500).redirect("/report/dashboard");
     }
   });
 export default router;

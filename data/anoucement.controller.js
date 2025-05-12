@@ -12,6 +12,7 @@ export const createAnnouncement = async (title, content) => {
     try{
         title = isValidString(title,"title");
         content = isValidString(content,"content");
+        content=content.trim();
     }
     catch (error) {
         throw new Error("Invalid input: " + error.message);
