@@ -265,9 +265,6 @@
   color: #fff;
 }
 
-/* ===================================================================
-   POLL OPTIONS
-   =================================================================== */
 .poll-options-list {
   list-style: none;
   padding: 0;
@@ -288,9 +285,6 @@
   gap: 0.5rem;
 }
 
-/* ===================================================================
-   TAGS
-   =================================================================== */
 .tag {
   display: inline-block;
   background-color: limegreen;
@@ -301,9 +295,6 @@
   font-size: 0.875rem;
 }
 
-/* ===================================================================
-   MODAL
-   =================================================================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -366,4 +357,32 @@
   .controls-form {
     justify-content: space-between;
   }
+}
+
+.post-actions.delete-action {
+  position: absolute;
+  top: 0.5rem;
+  right: 2.5rem; /* sits just left of the report button at right:0.5rem */
+  display: flex;
+  gap: 0.25rem;
+  z-index: 10;
+}
+
+/* Reset default button styles */
+.post-actions.delete-action .delete-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Match the icon size to the report icon */
+.post-actions.delete-action .action-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Optional hover feedback */
+.post-actions.delete-action .delete-button:hover .action-icon {
+  opacity: 0.7;
 }

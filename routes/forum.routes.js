@@ -130,9 +130,11 @@ router.route("/").get(isLoggedIn, async (req, res) => {
   const polls = await Poll.find()
     .populate("createdBy tags", "firstName lastName name")
     .lean();
+  const isAdmin = req.user?.user?.role === "admin";
   const loggedUserId = req.session.user?.user?._id || null;
   res.render("forumLanding", {
     forumPosts,
+    isAdmin,
     pollPosts: polls,
     loggedUserId,
     customStyles: '<link rel="stylesheet" href="/public/css/forumLanding.css">',

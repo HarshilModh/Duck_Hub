@@ -146,6 +146,10 @@ export const deleteAcacdemicResourceById = async (id) => {
       throw new Error("Academic Resource post not found");
     }
 
+    await Reports.updateMany(
+      { academicResourceId: validId },
+      { $set: { status: "resolved" } }
+    );
     const academicResourceVotes = await AcademicResourceVotes.find({
       academicResourceId: id,
     });
