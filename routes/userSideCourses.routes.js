@@ -84,9 +84,16 @@ router.route('/course/:id').get(isLoggedIn, async (req, res) => {
     // Fetch course details
     console.log('Fetching course with ID:', courseId);
     try {
-        const course = await getCourseById(courseId);
+        let course = await getCourseById(courseId);
+        if (!course) {
+            req.session.toast = {
+                type: 'error',
+                message: 'Course not found',
+            };
+            return res.redirect('/userSideCourses');
+        }
         let courseReviews = await getCourseReviewsByCourseId(courseId);
-        if (!courseReviews || courseReviews.length === 0) {
+        if ( courseReviews.length === 0) {
             courseReviews = [];
         } else {
             if(isAdmin == true) {
@@ -149,6 +156,7 @@ router.route('/course/:id').get(isLoggedIn, async (req, res) => {
             type: 'error',
             message: 'Failed to fetch course details',
         };
+        return res.redirect('/userSideCourses');
     }
 });
 // xss pending test xss testing done working fine
@@ -206,6 +214,7 @@ router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
             type: 'error',
             message: 'Failed to fetch course details',
         };
+        return res.redirect('/userSideCourses');
     }
 }).post(isLoggedIn, async (req, res) => {
     console.log("add review post request");
@@ -279,6 +288,7 @@ router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
             type: 'error',
             message: 'Failed to fetch course details',
         };
+        return res.redirect('/userSideCourses');
     }
     // Validate input
     if (!review || !difficultyRating || !overallRating) {
@@ -343,7 +353,7 @@ router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
             type: 'error',
             message: `Failed to create review: ${error.message}`,
         };
-        return res.redirect(`/userSideCourses/course/addReview/${courseId}`);
+        return res.redirect(`/userSideCourses`);
     }
 });
 router.route("/myReviews").get(isLoggedIn, async (req, res) => {
@@ -999,6 +1009,7 @@ router.route('/reviewReport/:id').get(isLoggedIn, async (req, res) => {
             type: 'error',
             message: 'Failed to fetch review details',
         };
+        return res.redirect('/userSideCourses');
     }
 });
 export default router; 

@@ -292,7 +292,7 @@ router
       } catch (error) {
         req.session.toast = {
           type: "error",
-          message: error.message,
+          message: "Internal server error:" + e.message,
         };
         return res.status(400).redirect("/report/dashboard");
       }
@@ -317,7 +317,10 @@ router
       res.render("reviewReportDetails", { review, courseDetails, reportCount });
     } catch (e) {
       console.error(e);
-      res.status(500).send("Error loading report page");
+      req.session.toast = {
+        type: "error",
+        message: "Internal server error:" + e.message      };  
+      return res.status(500).redirect("/report/dashboard");
     }
   });
 router
@@ -340,7 +343,7 @@ router
       } catch (error) {
         req.session.toast = {
           type: "error",
-          message: error.message,
+          message: "Internal server error:" + e.message,
         };
         return res.status(400).redirect("/report/dashboard");
       }
@@ -355,8 +358,7 @@ router
       console.error(e);
       req.session.toast = {
         type: "error",
-        message: e.message,
-      };
+        message: "Internal server error:" + e.message      };
       return res.status(500).redirect("/report/dashboard");
     }
   });
@@ -381,7 +383,7 @@ router
       } catch (error) {
         req.session.toast = {
           type: "error",
-          message: error.message,
+          message: "Report ID is not valid",
         };
         return res.status(400).redirect("/report/dashboard");
       }
@@ -396,7 +398,7 @@ router
       console.error(e);
       req.session.toast = {
         type: "error",
-        message: e.message,
+        message: "Internal server error:" + e.message,
       };
       return res.status(500).redirect("/report/dashboard");
     }
@@ -420,7 +422,7 @@ router
       } catch (error) {
         req.session.toast = {
           type: "error",
-          message: error.message,
+          message: "Forum ID is not valid",
         };
         return res.status(400).redirect("/report/dashboard");
       }
@@ -444,7 +446,11 @@ router
       res.render("forumReportDetails", { forum, reportCount, report });
     } catch (e) {
       console.error(e);
-      res.status(500).send("Error loading report page");
+      req.session.toast = {
+        type: "error",
+        message:"Internal server error:" + e.message,
+      };
+      return res.status(500).redirect("/report/dashboard");
     }
   });
 
@@ -473,7 +479,11 @@ router.route("/myreports").get(isLoggedIn, async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    res.status(500).send("Error loading report page");
+    req.session.toast = {
+      type: "error",
+      message: "Internal server error:" + e.message,
+    };
+    return res.status(500).redirect("/report/dashboard");
   }
 });
 //academicResources
@@ -536,7 +546,11 @@ router
       });
     } catch (e) {
       console.error(e);
-      res.status(500).send("Error loading report page");
+      req.session.toast = {
+        type: "error",
+        message: "Internal server error:" + e.message,
+      };
+      return res.status(500).redirect("/report/dashboard");
     }
   });
 //load pollReportDetails.handlebars
@@ -557,7 +571,7 @@ router
       } catch (error) {
         req.session.toast = {
           type: "error",
-          message: error.message,
+          message: "Poll ID is not valid",
         };
         return res.status(400).redirect("/report/dashboard");
       }
@@ -583,7 +597,7 @@ router
       console.error(e);
      req.session.toast = {
         type: "error",
-        message: e.message,
+        message: "Internal server error:" + e.message,
       };
       res.status(500).redirect("/report/dashboard");
     }
