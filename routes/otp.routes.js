@@ -38,7 +38,7 @@ router.post("/otp", isNotLoggedIn, async (req, res) => {
       type: "error",
       message: error.message || "Account associated with SSO",
     };
-    return res.render("/users/login");
+    return res.redirect("/users/login");
   }
   try {
     const data = await forgotPassword(email);
