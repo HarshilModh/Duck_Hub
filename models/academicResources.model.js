@@ -43,11 +43,12 @@ const academicResourcesSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
-    reportedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: User.modelName,
-      trim: true,
-    },
+  reportedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: User.modelName,
+      },
+    ],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: CategoryForAcademicResource.modelName,

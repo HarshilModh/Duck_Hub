@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 
 import seedUsers from "./users.js";
 import seedAdminTags from "./adminTags.js";
-// import seedAcademicResources from "./academicResources.js";
+import seedCategoryForAcademicResource from "./CategoryForAcademicResource.js";
+import seedAcademicResources from "./academicResources.js";
 import seedAcademicResourceVotes from "./resourceVotes.js";
 import seedTags from "./tags.js";
 import seedDepartments from "./departments.js";
@@ -38,7 +39,8 @@ async function main() {
 
     // 3. Seed academic resources
     await seedAdminTags();
-    // await seedAcademicResources();
+    await seedCategoryForAcademicResource();
+    await seedAcademicResources();
     await seedAcademicResourceVotes();
 
     // 4. Seed general tags

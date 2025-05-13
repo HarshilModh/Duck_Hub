@@ -104,15 +104,7 @@ router.route("/:contentType").post(isLoggedIn, async (req, res) => {
       return res.status(400).redirect("/forums");
     }
 
-    const existingReport = await Reports.findOne({
-      reportedBy: userId,
-      $or: [
-        { forumId: contentId },
-        { pollId: contentId },
-        { reviewId: contentId },
-        { academicResourceId: contentId },
-      ],
-    }).exec();
+
 
     const existingForumReport = await Reports.findOne({
       reportedBy: userId,
