@@ -7,7 +7,7 @@
     const titleInput = document.getElementById("title");
     const descInput = document.getElementById("description");
     const urlInput = document.getElementById("url");
-
+    const categoryInput = document.getElementById("category");
     const tagInput = document.getElementById("tagInput");
     const suggestions = document.getElementById("tagSuggestions");
     const selectedDiv = document.getElementById("selectedTags");
@@ -41,6 +41,9 @@
         errors.push("URL cannot be empty or just spaces.");
       }
 
+      if (!categoryInput.value) {
+        errors.push("Please select a category.");
+      }
       if (errors.length) {
         // show errors
         errors.forEach((msg) => {
