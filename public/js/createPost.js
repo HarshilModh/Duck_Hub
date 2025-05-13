@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errDiv) errDiv.textContent = message;
   }
 
+  // Initially hide everything
   forumFormContainer.style.display = "none";
   pollFormContainer.style.display = "none";
   addNewTagBtn.style.display = "none";
@@ -135,15 +136,23 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     clearErrors(forumForm);
 
+    const submitBtn = forumForm.querySelector(".submit-post-button");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
     const titleEl = forumForm.querySelector("#title");
     const contentEl = forumForm.querySelector("#content");
 
     if (!titleEl.value.trim()) {
       showError(titleEl, "Title is mandatory");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Forum Post";
       return;
     }
     if (!contentEl.value.trim()) {
       showError(contentEl, "Content is mandatory");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Forum Post";
       return;
     }
 
@@ -165,6 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Error submitting forum:", err);
       alert(err.message || "Failed to create forum.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Forum Post";
     }
   });
 
@@ -174,11 +185,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const row = document.createElement("div");
     row.className = "option-row flex gap-2 mb-2";
     row.innerHTML = `
-      <input name="options[]" type="text"  placeholder="Option ${idx}" />
+      <input name="options[]" type="text" placeholder="Option ${idx}" />
       <button type="button" class="remove-option">✕</button>
     `;
     wrapper.insertBefore(row, document.getElementById("add-option"));
   });
+
   document.getElementById("options-wrapper").addEventListener("click", (e) => {
     if (e.target.matches(".remove-option")) {
       const rows = document.querySelectorAll(".option-row");
@@ -190,9 +202,15 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     clearErrors(pollForm);
 
+    const submitBtn = pollForm.querySelector(".submit-post-button");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
     const questionEl = pollForm.querySelector("#question");
     if (!questionEl.value.trim()) {
       showError(questionEl, "Poll question is mandatory");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create Poll";
       return;
     }
 
@@ -201,6 +219,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!optionEls[i].value.trim()) {
         const optsWrapper = pollForm.querySelector("#options-wrapper");
         showError(optsWrapper, `Option ${i + 1} cannot be empty`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create Poll";
         return;
       }
     }
@@ -222,6 +242,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Error submitting poll:", err);
       alert(err.message || "Failed to create poll.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create Poll";
     }
   });
 });
