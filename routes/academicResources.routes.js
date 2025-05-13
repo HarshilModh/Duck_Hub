@@ -236,6 +236,7 @@ router.route("/search").get(isLoggedIn, async (req, res) => {
     if (!ALLOWED_ORDERS.includes(order.toLowerCase())) {
       order = "desc";
     }
+    let catagories = await getAllCategories();
     const academicResources = await searchAcademicResourceFilterSort(
       text,
       sort,
@@ -255,6 +256,7 @@ router.route("/search").get(isLoggedIn, async (req, res) => {
       text,
       sort,
       order,
+      categories: catagories,
       loggedInUserId: req.session.user?.user?._id ?? null,
       customStyles:
         '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
