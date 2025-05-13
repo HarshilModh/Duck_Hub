@@ -1,7 +1,4 @@
-// public/js/forumLanding.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  // ── SEARCH, FILTER & SORT/ORDER VALIDATION ─────────────────────────
   const searchForm = document.getElementById("searchForm");
   const searchInput = document.getElementById("searchInput");
   const searchError = document.getElementById("searchError");
@@ -201,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const text = reportReason.value.trim();
     if (text.length < 10) {
       e.preventDefault();
-      reportError.textContent = "Please provide a valid reason";
+      reportError.textContent = "Please provide atleast 10 characters";
       reportReason.value = "";
       reportReason.focus();
     }
