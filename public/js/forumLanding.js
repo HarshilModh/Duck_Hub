@@ -1,50 +1,69 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const searchForm = document.getElementById("searchForm");
+  const form = document.getElementById("searchForm");
   const searchInput = document.getElementById("searchInput");
-  const searchError = document.getElementById("searchError");
   const postTypeSelect = document.getElementById("postTypeSelect");
   const sortSelect = document.getElementById("sortSelect");
   const orderSelect = document.getElementById("orderSelect");
+  const errorEl = document.getElementById("formError");
 
-  searchForm.addEventListener("submit", (e) => {
-    const q = searchInput.value.trim();
+  const VALID_POST_TYPES = ["all", "forums", "polls"];
+  const VALID_SORTS = ["createdAt", "upVotes", "downVotes"];
+  const VALID_ORDERS = ["asc", "desc"];
 
-    // 1) Require at least 3 characters
-    if (q.length < 3) {
-      e.preventDefault();
-      searchError.textContent = "Please enter at least 3 characters to search.";
-      searchInput.value = "";
-      searchInput.focus();
-      return;
+  form.addEventListener("submit", (e) => {
+    const btn = e.submitter;
+
+    // ── SEARCH ───────────────────────────────────────
+    if (btn.classList.contains("search-button")) {
+      form.action = "/forums/search";
+
+      // require at least 3 characters
+      const q = searchInput.value.trim();
+      if (q.length < 3) {
+        e.preventDefault();
+        errorEl.textContent = "Please enter at least 3 characters to search.";
+        searchInput.value = "";
+        searchInput.focus();
+        return;
+      }
+
+      // clear error
+      errorEl.textContent = "";
+
+      // ── FILTER + SORT ────────────────────────────────
+    } else if (btn.classList.contains("filter-button")) {
+      form.action = "/forums/filter";
+
+      // validate postType
+      const pt = postTypeSelect.value;
+      if (!VALID_POST_TYPES.includes(pt)) {
+        e.preventDefault();
+        errorEl.textContent =
+          "Please select All, Forums, or Polls before filtering.";
+        return;
+      }
+
+      // validate sort field
+      const s = sortSelect.value;
+      if (!VALID_SORTS.includes(s)) {
+        e.preventDefault();
+        errorEl.textContent = "Invalid sort field selected.";
+        return;
+      }
+
+      // validate order direction
+      const o = orderSelect.value;
+      if (!VALID_ORDERS.includes(o)) {
+        e.preventDefault();
+        errorEl.textContent = "Invalid order direction selected.";
+        return;
+      }
+
+      // clear error
+      errorEl.textContent = "";
     }
-    searchError.textContent = "";
 
-    // 2) Validate postType (select is constrained by HTML, but shown here for pattern)
-    const validTypes = ["", "forums", "polls"];
-    if (!validTypes.includes(postTypeSelect.value)) {
-      e.preventDefault();
-      searchError.textContent = "Invalid post type selected.";
-      searchInput.value = "";
-      searchInput.focus();
-      return;
-    }
-    searchError.textContent = "";
-
-    // 3) Validate sort/order combinations
-    const sortValue = sortSelect.value;
-    const orderValue = orderSelect.value;
-    // Example rule: when sorting by date, only descending makes sense
-    if (sortValue === "createdAt" && orderValue === "asc") {
-      e.preventDefault();
-      searchError.textContent =
-        "When sorting by date, only newest-first (Desc) is allowed.";
-      searchInput.value = "";
-      searchInput.focus();
-      return;
-    }
-    searchError.textContent = "";
-
-    // (Add more combination rules here if needed)
+    // for any other button, just let the form submit
   });
 
   // ------------------------ Delete Post Logic ------------------------

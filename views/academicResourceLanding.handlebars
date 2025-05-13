@@ -79,8 +79,17 @@
     <form id="reportForm" action="/report/AcademicResource" method="post">
       <input type="hidden" name="contentId" id="reportContentId"/>
       <input type="hidden" name="userId" value="{{loggedInUserId}}"/>
+
       <label for="reportReason">Reason:</label>
-      <textarea name="reason" id="reportReason" rows="4" placeholder="Describe why you're reporting this…"></textarea>
+      <textarea
+        name="reason"
+        id="reportReason"
+        rows="4"
+        placeholder="Describe why you're reporting this…"
+      ></textarea>
+      <!-- error container: -->
+      <div id="reportError" class="text-red-600 mt-1" style="display:none;"></div>
+
       <div class="modal-buttons">
         <button type="button" id="reportCancel">Cancel</button>
         <button type="submit">Submit Report</button>

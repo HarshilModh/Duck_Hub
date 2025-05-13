@@ -1,38 +1,30 @@
 <div class="forum-header-bar">
-  <form id="searchForm" action="/forums/search" method="get" class="controls-form">
+  <form id="searchForm" action="" method="get" class="controls-form">
 
-    <div class="search-wrapper">
-      <div class="search-section">
+    <div class="controls-row">
+      <div class="search-wrapper">
         <input
           type="text"
           name="text"
           id="searchInput"
-          placeholder="Search posts..."
+          placeholder="Title, Content, Tags..."
           value="{{text}}"
-          
           minlength="3"
         />
-        <button type="submit" class="search-button">🔍</button>
+        <button type="submit" class="search-button">Search</button>
       </div>
 
-      <div id="searchError" class="error-message" style="color:red; font-size:0.9rem; margin-top:0.25rem;"></div>
-    </div>
-
-  
-    <div class="filter-wrapper">
-      <div class="filter-section">
+      <div class="filter-wrapper">
         <label for="postTypeSelect">Type:</label>
         <select name="postType" id="postTypeSelect">
-          <option value="" {{#unless postType}}selected{{/unless}}>None</option>
+          <option value="all" {{#if (eq postType "all")}}selected{{/if}}>All</option>
           <option value="forums" {{#if (eq postType "forums")}}selected{{/if}}>Forums</option>
           <option value="polls"  {{#if (eq postType "polls")}}selected{{/if}}>Polls</option>
         </select>
       </div>
-    </div>
-
-    <div class="sort-wrapper">
-      <div class="sort-section">
-        <label for="sortSelect">Sort by:</label>
+      
+      <div class="sort-wrapper">
+        <label for="sortSelect">Sort:</label>
         <select name="sort" id="sortSelect">
           <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Latest</option>
           <option value="upVotes"   {{#if (eq sort "upVotes")}}selected{{/if}}>Most UpVoted</option>
@@ -43,7 +35,15 @@
           <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
         </select>
       </div>
+
+      <!-- ── APPLY FILTER ─────────────────────────────── -->
+      <div class="apply-filters">
+        <button type="submit" class="filter-button">Apply Filter</button>
+      </div>
     </div>
+
+    <!-- Global error message appears below the controls -->
+    <div id="formError" class="error-message"></div>
   </form>
 </div>
 

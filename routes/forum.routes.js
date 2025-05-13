@@ -20,8 +20,8 @@ import {
   upvoteForumPost,
   deleteForumPostById,
   updateForumPostById,
-  filterForumPosts,
-  searchFilterSort,
+  filterAndSortPosts,
+  searchPosts,
   getReportedForumPosts,
 } from "../data/forumsController.js";
 
@@ -143,36 +143,17 @@ router.route("/").get(isLoggedIn, async (req, res) => {
   });
 });
 
-router.get("/search", isLoggedIn, async (req, res, next) => {
+router.route("/search").get(isLoggedIn, async (req, res) => {
   try {
     const isAdmin = req.session.user?.user?.role === "admin";
-    const {
-      text = "",
-      postType,
-      sort = "createdAt",
-      order = "desc",
-    } = req.query;
+    const { text = "" } = req.query;
 
-    if (!postType || (postType !== "forums" && postType !== "polls")) {
-      req.session.toast = {
-        type: "error",
-        message: "Please select a valid post type.",
-      };
-      return res.redirect("/forums");
-    }
-
-    const { forumPosts, pollPosts } = await searchFilterSort({
-      text,
-      postType,
-      sort,
-      order,
-    });
+    const { forumPosts, pollPosts } = await searchPosts({ text });
 
     if (forumPosts.length === 0 && pollPosts.length === 0) {
       req.session.toast = {
         type: "error",
-        message:
-          "The given search did not return any results. Please try again with a different keyword.",
+        message: "No results found for that keyword. Try a different term.",
       };
       return res.redirect("/forums");
     }
@@ -181,6 +162,46 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       forumPosts,
       pollPosts,
       text,
+      isAdmin,
+      postType: "",
+      sort: "",
+      order: "",
+      loggedUserId: req.session.user?.user?._id ?? null,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/forumLanding.css">',
+    });
+  } catch (err) {
+    req.session.toast = {
+      type: "error",
+      message: "Search failed. Please try again.",
+    };
+    return res.redirect("/forums");
+  }
+});
+
+router.route("/filter").get(isLoggedIn, async (req, res) => {
+  try {
+    const isAdmin = req.session.user?.user?.role === "admin";
+    const { postType, sort = "createdAt", order = "desc" } = req.query;
+
+    if (!["all", "forums", "polls"].includes(postType)) {
+      req.session.toast = {
+        type: "error",
+        message: "Please select a valid post type.",
+      };
+      return res.redirect("/forums");
+    }
+
+    const { forumPosts, pollPosts } = await filterAndSortPosts({
+      postType,
+      sort,
+      order,
+    });
+
+    return res.render("forumLanding", {
+      forumPosts,
+      pollPosts,
+      text: "",
       isAdmin,
       postType,
       sort,
@@ -192,7 +213,7 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
   } catch (err) {
     req.session.toast = {
       type: "error",
-      message: "Failed to search posts. Please try again.",
+      message: "Failed to apply filter. Please try again.",
     };
     return res.redirect("/forums");
   }
