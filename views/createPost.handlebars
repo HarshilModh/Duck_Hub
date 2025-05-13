@@ -5,8 +5,6 @@
     <button id="createForumBtn" type="button">Create Forum</button>
     <button id="createPollBtn" type="button">Create Poll</button>
   </div>
-
-  <!-- FORUM FORM -->
   <div id="forumFormContainer" style="display: none;">
     <form
       id="forumForm"
@@ -18,13 +16,13 @@
 
       <div class="form-group">
         <label for="title">Title:</label>
-        <input type="text" id="title" name="title"  />
+        <input type="text" id="title" name="title" />
         <div class="error-message"></div>
       </div>
 
       <div class="form-group">
         <label for="content">Content:</label>
-        <textarea id="content" name="content" ></textarea>
+        <textarea id="content" name="content"></textarea>
         <div class="error-message"></div>
       </div>
 
@@ -48,15 +46,14 @@
           accept="image/*"
           multiple
         />
+        <div class="error-message"></div>
       </div>
 
       <button type="submit" class="submit-post-button">
-        Submit Forum Post
+        Create Forum
       </button>
     </form>
   </div>
-
-  <!-- POLL FORM -->
   <div id="pollFormContainer" style="display: none;">
     <form
       id="pollForm"
@@ -68,7 +65,7 @@
 
       <div class="form-group">
         <label for="question">Question:</label>
-        <input id="question" name="question" type="text"  />
+        <input id="question" name="question" type="text" />
         <div class="error-message"></div>
       </div>
 
@@ -76,11 +73,11 @@
         <label>Options:</label>
         <div class="error-message"></div>
         <div class="option-row">
-          <input name="options[]" type="text"  placeholder="Option 1" />
+          <input name="options[]" type="text" placeholder="Option 1" />
           <button type="button" class="remove-option">✕</button>
         </div>
         <div class="option-row">
-          <input name="options[]" type="text"  placeholder="Option 2" />
+          <input name="options[]" type="text" placeholder="Option 2" />
           <button type="button" class="remove-option">✕</button>
         </div>
         <button type="button" id="add-option" class="add-option-button">
@@ -108,13 +105,12 @@
           accept="image/*"
           multiple
         />
+        <div class="error-message"></div>
       </div>
 
       <button type="submit" class="submit-post-button">Create Poll</button>
     </form>
   </div>
-
-  <!-- “ADD NEW TAG” -->
   <div class="form-group">
     <button type="button" id="addTagBtn">Add New Tag</button>
   </div>

@@ -34,7 +34,7 @@
 }
 
 .forum-body .forum-image {
-  width: 100px;
+  width: 200px;
   height: auto;
   border-radius: 4px;
 }
@@ -64,7 +64,7 @@
 }
 
 .forum-body .poll-image {
-  width: 100px;
+  width: 200px;
   height: auto;
   border-radius: 4px;
 }
@@ -170,7 +170,7 @@
 
 /* Each comment image thumbnail */
 .forum-body .comment-image {
-  width: 100px;
+  width: 150px;
   height: auto;
   border-radius: 4px;
 }

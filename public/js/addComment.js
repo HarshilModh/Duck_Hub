@@ -1,54 +1,68 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector(".comment-form");
   const submitBtn = form.querySelector(".submit-comment-button");
+  const contentEl = document.getElementById("content");
+  const imagesInput = document.getElementById("images");
+
+  function showError(inputEl, message) {
+    let group = inputEl.closest(".form-group");
+    let err = group.querySelector(".error-message");
+    if (!err) {
+      err = document.createElement("div");
+      err.className = "error-message";
+      err.style.color = "red";
+      err.style.marginTop = "0.25rem";
+      group.appendChild(err);
+    }
+    err.textContent = message;
+  }
+
+  function clearError(inputEl) {
+    let group = inputEl.closest(".form-group");
+    let err = group.querySelector(".error-message");
+    if (err) err.remove();
+  }
+  imagesInput.addEventListener("change", () => {
+    clearError(imagesInput);
+    if (imagesInput.files.length > 5) {
+      showError(
+        imagesInput,
+        `You can only upload up to 5 images (you selected ${imagesInput.files.length}).`
+      );
+    }
+  });
 
   form.addEventListener("submit", (e) => {
-    // clear any previous errors
-    let errorContainer = document.querySelector("#commentFormErrors");
-    if (errorContainer) {
-      errorContainer.remove();
+    clearError(contentEl);
+    clearError(imagesInput);
+
+    let hasError = false;
+
+    if (!contentEl.value.trim()) {
+      showError(contentEl, "Comment cannot be empty.");
+      hasError = true;
     }
 
-    const errors = [];
-    const contentEl = document.getElementById("content");
-    const content = contentEl.value.trim();
-    if (!content) {
-      errors.push("Comment cannot be empty.");
+    if (imagesInput.files.length > 5) {
+      showError(
+        imagesInput,
+        `You can only upload up to 5 images (you selected ${imagesInput.files.length}).`
+      );
+      hasError = true;
     }
 
-    const imagesInput = document.getElementById("images");
-    const files = imagesInput.files;
-    if (files.length > 5) {
-      errors.push("You can attach a maximum of 5 images.");
-    }
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    Array.from(imagesInput.files).forEach((file) => {
       if (!file.type.startsWith("image/")) {
-        errors.push(`"${file.name}" is not a valid image file.`);
+        showError(imagesInput, `"${file.name}" is not a valid image.`);
+        hasError = true;
       }
-    }
+    });
 
-    if (errors.length) {
+    if (hasError) {
       e.preventDefault();
-      // show errors
-      errorContainer = document.createElement("div");
-      errorContainer.id = "commentFormErrors";
-      errorContainer.style.color = "red";
-      errorContainer.style.marginBottom = "1rem";
-
-      const ul = document.createElement("ul");
-      errors.forEach((msg) => {
-        const li = document.createElement("li");
-        li.textContent = msg;
-        ul.appendChild(li);
-      });
-      errorContainer.appendChild(ul);
-      form.insertBefore(errorContainer, form.firstElementChild);
-
-      return; // don’t disable button if validation failed
+      return;
     }
 
-    // disable the button immediately to prevent double-submits
     submitBtn.disabled = true;
     submitBtn.textContent = "Posting…";
   });
