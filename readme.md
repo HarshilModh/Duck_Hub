@@ -35,3 +35,4 @@ Default Users :
 a. Username (alice@example.com) || Password (Password123!) || Role (ADMIN)
 b. Username (bob@example.com) || Password (Secret456!) || Role (USER)
 Please create an account with your own email to test the OTP email functionality.
+OTP can come in your spam or junk folder so please check that.            
