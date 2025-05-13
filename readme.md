@@ -4,9 +4,9 @@ Installation :
    https://github.com/HarshilModh/Duck_Hub.git
 
 2. Install the dependencies needed for the project
-   npm install 
+   npm install
 
-3. Load seed data 
+3. Load seed data
    npm run seed
 
 4. Start the application
@@ -14,7 +14,7 @@ Installation :
 
 Once the server is running, it listens on PORT: 3000 by default.
 
-Accessing the Application : 
+Accessing the Application :
 
 1. Project URL : http://localhost:3000/
 
@@ -31,7 +31,7 @@ Database :
 Default Users :
 
 1. On loading the seed data, two accounts are automatically created for testing.
-   a. Username (alice@example.com) || Password (Password123!) || Role (ADMIN)
-   b. Username (bob@example.com) || Password (Secret456!) || Role (USER)
-   
+
+a. Username (alice@example.com) || Password (Password123!) || Role (ADMIN)
+b. Username (bob@example.com) || Password (Secret456!) || Role (USER)
 Please create an account with your own email to test the OTP email functionality.
