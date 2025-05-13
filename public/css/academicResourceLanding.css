@@ -1,4 +1,14 @@
 /* ===================================================================
+   SEARCH CONTAINER
+   =================================================================== */
+/* Align the search bar & filter forms to the same width as resource cards */
+.flex.flex-wrap.items-center.gap-4.mb-6 {
+  max-width: 900px;
+  margin: 0 auto 1rem;
+  padding: 0 1rem;
+}
+
+/* ===================================================================
    RESET & BOX-SIZING
    =================================================================== */
 *,
@@ -10,17 +20,8 @@
 }
 
 /* ===================================================================
-   SEARCH FORM
+   FORM ELEMENTS
    =================================================================== */
-.search-form {
-  max-width: 900px;
-  margin: 1rem auto;
-  padding: 0 1rem;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
 .search-input {
   flex: 1;
   padding: 0.5rem 0.75rem;
@@ -68,7 +69,6 @@ body {
 /* ===================================================================
    LAYOUT CONTAINERS
    =================================================================== */
-/* Header bar: title + create buttons */
 .section-heading-bar {
   max-width: 900px;
   margin: 2rem auto 1rem;
@@ -78,7 +78,6 @@ body {
   align-items: center;
 }
 
-/* Container for resource cards */
 .forum-posts-list {
   max-width: 900px;
   margin: 0 auto 2rem;
@@ -175,7 +174,6 @@ body {
   z-index: 10;
 }
 
-/* Button reset */
 .post-actions.report-action .report-button,
 .post-actions.delete-action .delete-button {
   background: none;
@@ -184,7 +182,6 @@ body {
   padding: 0;
 }
 
-/* Icon sizing */
 .post-actions .action-icon {
   width: 1.25rem;
   height: 1.25rem;
@@ -224,8 +221,8 @@ body {
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* space between tags */
-  margin: 0.75rem 0; /* space above & below the tag row */
+  gap: 0.5rem;
+  margin: 0.75rem 0;
 }
 .tags .tag {
   display: inline-block;
@@ -234,7 +231,6 @@ body {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
-  margin: 0; /* reset any right-margin in child */
 }
 
 /* ===================================================================

@@ -183,7 +183,7 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
       postType,
       sort,
       order,
-      loggedInUserId: req.session.user?.user?._id ?? null,
+      loggedUserId: req.session.user?.user?._id ?? null,
       customStyles:
         '<link rel="stylesheet" href="/public/css/forumLanding.css">',
     });
@@ -196,17 +196,12 @@ router.get("/search", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// GET /forums/:id — Get a forum post by ID
-router.route("/:id").get(async (req, res) => {
-  const post = await getForumPostById(req.params.id);
-  return res.status(200).json(post);
-});
-
-router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
-  const { userId } = req.params;
+router.route("/user").get(isLoggedIn, async (req, res, next) => {
+  let userId = req.session.user.user._id || null;
   const { postType } = req.query;
 
   try {
+    userId = userId.trim();
     // Validate userId
     if (!userId) {
       req.session.toast = {
@@ -215,7 +210,6 @@ router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
       };
       return res.redirect("/forums");
     }
-    // fetch only this user's forums & polls
     const forumPosts = await getForumPostsByUserId(userId);
     const pollPosts = await Poll.find({ createdBy: userId })
       .populate("createdBy tags", "firstName lastName name")
@@ -241,6 +235,35 @@ router.route("/user/:userId").get(isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
+  let forumId = req.params.id;
+  try {
+    forumId = isValidID(forumId, "ForumID");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums/user");
+  }
+  try {
+    const forum = await getForumPostById(forumId);
+    const comments = await getCommentsByForumId(forumId);
+    const loggedUserId = req.session.user?.user?._id || null;
+
+    res.render("commentDelete", {
+      forum,
+      isForum: true,
+      comments,
+      loggedUserId,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/forumComments.css">',
+    });
+  } catch (err) {
+    return res.status(500).send("Error loading comments page.");
+  }
+});
+
 router.route("/tag/:tagId").get(async (req, res) => {
   const posts = await getForumPostsByTagId(req.params.tagId);
   return res.json(posts);
@@ -249,6 +272,15 @@ router.route("/tag/:tagId").get(async (req, res) => {
 router.route("/status/:status").get(async (req, res) => {
   const posts = await getForumPostsByStatus(req.params.status);
   return res.json(posts);
+});
+
+router.route("/reported").get(async (req, res) => {
+  try {
+    const reportedPosts = await getReportedForumPosts();
+    return res.status(200).json(reportedPosts);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
 });
 
 router.put("/upvote/:id", async (req, res) => {
@@ -317,104 +349,51 @@ router.put("/downvote/:id", async (req, res) => {
   }
 });
 
-// DELETE /forums/:id
-router.route("/:id").delete(async (req, res) => {
-  const result = await deleteForumPostById(req.params.id);
-  return res.json(result);
+router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
+  const userId = req.session.user?.user?._id;
+  const forumId = req.params.forumId;
+
+  if (!userId) {
+    req.session.toast = {
+      type: "error",
+      message: "Please login to add a comment.",
+    };
+  }
+
+  res.render("addComment", {
+    forumId,
+    userId,
+    customStyles: '<link rel="stylesheet" href="/public/css/addComment.css">',
+  });
 });
 
-router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
-  let forumId;
-  try {
-    forumId = isValidID(req.params.id, "Forum Post ID");
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-  try {
-    const previousForum = await Forum.findById(forumId);
-    if (!previousForum) {
-      return res.status(404).json({ error: "Forum post not found" });
-    }
-    let title = xss(req.body.title);
-    let content = xss(req.body.content);
-    let tags = req.body.tags;
-    let imageURLs = [];
-
-    console.log("req.files", req.files.images);
-    const filesToUpload = [
-      ...(req.files.images || []),
-      ...(req.files.newImages || []),
-    ];
-    for (const file of filesToUpload) {
-      const cloudinaryUrl = await userImage(file.path);
-      imageURLs.push(cloudinaryUrl);
-      fs.unlinkSync(file.path);
-    }
-
-    let tagsArray;
-    if (!tags) {
-      tagsArray = [];
-    } else if (!Array.isArray(tags)) {
-      tags = tags.split(",");
-      tagsArray = [tags.trim()];
-    } else {
-      tagsArray = tags.map((t) => t.trim());
-    }
-    title = isValidString(title, "Title");
-    content = isValidString(content, "Content");
-    if (tags && !Array.isArray(tags)) {
-      tags = [tags];
-    }
-    const updatedPost = await updateForumPostById(forumId, {
-      title,
-      content,
-      imageURLs,
-      tags,
-    });
-    return res.status(200).json(updatedPost);
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Failed to update forum post: " + err.message });
-  }
+router.route("/:id").get(async (req, res) => {
+  const post = await getForumPostById(req.params.id);
+  return res.status(200).json(post);
 });
 
-// router.route("/search").get(async (req, res) => {
-//   const { keyword } = req.query;
-//   try {
-//     const filteredPosts = await filterForumPosts(keyword);
-//     return res.status(200).json(filteredPosts);
-//   } catch (error) {
-//     return res.status(400).json({ error: error.message });
-//   }
-// });
-
-router.route("/reported").get(async (req, res) => {
-  try {
-    const reportedPosts = await getReportedForumPosts();
-    return res.status(200).json(reportedPosts);
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
-
-/// FORUM COMMENT RELATED ROUTES
-
-router.route("/comments/:forumId").get(async (req, res) => {
-  try {
-    const forumId = req.params.forumId;
-    const comments = await getCommentsByForumId(forumId);
-    return res.status(200).json(comments);
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
+router.get("/comments/view", (req, res) => {
+  req.session.toast = {
+    type: "error",
+    message: "Forum ID is required to view comments.",
+  };
+  return res.redirect("/forums");
 });
 
 router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
+  let forumId = req.params.forumId;
+  let forum;
+  let isPoll = false;
   try {
-    const forumId = req.params.forumId;
-    let forum;
-    let isPoll = false;
+    forumId = isValidID(forumId, "ForumId");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums");
+  }
+  try {
     const exists = await Forum.exists({ _id: forumId });
     if (!exists) {
       forum = await Poll.findById(forumId)
@@ -424,7 +403,14 @@ router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
     } else {
       forum = await getForumPostById(forumId);
     }
-
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums");
+  }
+  try {
     const comments = await getCommentsByForumId(forumId);
     const loggedUserId = req.session.user?.user?._id || null;
 
@@ -441,23 +427,13 @@ router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
   }
 });
 
-router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
+router.route("/comments/:forumId").get(async (req, res) => {
   try {
-    const forumId = req.params.id;
-    const forum = await getForumPostById(forumId);
+    const forumId = req.params.forumId;
     const comments = await getCommentsByForumId(forumId);
-    const loggedUserId = req.session.user?.user?._id || null;
-
-    res.render("commentDelete", {
-      forum,
-      isForum: true,
-      comments,
-      loggedUserId,
-      customStyles:
-        '<link rel="stylesheet" href="/public/css/forumComments.css">',
-    });
-  } catch (err) {
-    return res.status(500).send("Error loading comments page.");
+    return res.status(200).json(comments);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -480,7 +456,7 @@ router
         type: "error",
         message: error.message,
       };
-      return res.status(400).send("Error adding comment: " + error.message);
+      return res.redirect(`/forums/comments/view/${forumId}`);
     }
 
     try {
@@ -499,7 +475,7 @@ router
         type: "error",
         message: "Error uploading images: " + error.message,
       };
-      return res.status(400).send("Error adding comment: " + error.message);
+      return res.redirect(`/forums/comments/view/${forumId}`);
     }
 
     const exists = await Forum.exists({ _id: forumId });
@@ -525,27 +501,9 @@ router
         type: "error",
         message: "Failed to add comment. Please try again.",
       };
-      return res.status(400).send("Error adding comment: " + error.message);
+      return res.redirect(`/forums/comments/view/${forumId}`);
     }
   });
-
-router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
-  const userId = req.session.user?.user?._id;
-  const forumId = req.params.forumId;
-
-  if (!userId) {
-    req.session.toast = {
-      type: "error",
-      message: "Please login to add a comment.",
-    };
-  }
-
-  res.render("addComment", {
-    forumId,
-    userId,
-    customStyles: '<link rel="stylesheet" href="/public/css/addComment.css">',
-  });
-});
 
 router.route("/comments/upvote/:commentId").put(async (req, res) => {
   const userId = xss(req.body.userId);
@@ -636,4 +594,69 @@ router
     }
   });
 
+router.route("/:id").get(async (req, res) => {
+  const post = await getForumPostById(req.params.id);
+  return res.status(200).json(post);
+});
+
+router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
+  let forumId;
+  try {
+    forumId = isValidID(req.params.id, "Forum Post ID");
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+  try {
+    const previousForum = await Forum.findById(forumId);
+    if (!previousForum) {
+      return res.status(404).json({ error: "Forum post not found" });
+    }
+    let title = xss(req.body.title);
+    let content = xss(req.body.content);
+    let tags = req.body.tags;
+    let imageURLs = [];
+
+    console.log("req.files", req.files.images);
+    const filesToUpload = [
+      ...(req.files.images || []),
+      ...(req.files.newImages || []),
+    ];
+    for (const file of filesToUpload) {
+      const cloudinaryUrl = await userImage(file.path);
+      imageURLs.push(cloudinaryUrl);
+      fs.unlinkSync(file.path);
+    }
+
+    let tagsArray;
+    if (!tags) {
+      tagsArray = [];
+    } else if (!Array.isArray(tags)) {
+      tags = tags.split(",");
+      tagsArray = [tags.trim()];
+    } else {
+      tagsArray = tags.map((t) => t.trim());
+    }
+    title = isValidString(title, "Title");
+    content = isValidString(content, "Content");
+    if (tags && !Array.isArray(tags)) {
+      tags = [tags];
+    }
+    const updatedPost = await updateForumPostById(forumId, {
+      title,
+      content,
+      imageURLs,
+      tags,
+    });
+    return res.status(200).json(updatedPost);
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Failed to update forum post: " + err.message });
+  }
+});
+
+router.route("/:id").delete(async (req, res) => {
+  const result = await deleteForumPostById(req.params.id);
+  return res.json(result);
+});
 export default router;

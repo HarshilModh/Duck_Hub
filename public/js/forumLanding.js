@@ -82,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ---------------- Voting & Comment Navigation -----------------------
   const upvoteButtons = document.querySelectorAll(".upvote-button");
   const downvoteButtons = document.querySelectorAll(".downvote-button");
   const commentButtons = document.querySelectorAll(".comment-button");
@@ -142,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // -------------------- Comment Deletion ------------------------------
   document.querySelectorAll(".comment-delete").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const commentId = btn.dataset.id;
@@ -168,18 +166,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ------------------------ Report Modal Logic ------------------------
   const reportModal = document.getElementById("reportModal");
   const reportForm = document.getElementById("reportForm");
   const reportContentIdInput = document.getElementById("reportContentId");
   const reportCancelBtn = document.getElementById("reportCancel");
+  const reportReason = document.getElementById("reportReason");
+  const reportError = document.getElementById("reportError");
 
   document.querySelectorAll(".report-button").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const contentId = btn.dataset.id;
-      const type = btn.dataset.type;
-      reportForm.action = `/report/${type}`;
-      reportContentIdInput.value = contentId;
+      reportForm.action = `/report/${btn.dataset.type}`;
+      reportContentIdInput.value = btn.dataset.id;
+      reportReason.value = "";
+      reportError.textContent = "";
       reportModal.style.display = "flex";
     });
   });
@@ -187,12 +186,24 @@ document.addEventListener("DOMContentLoaded", () => {
   reportCancelBtn.addEventListener("click", () => {
     reportModal.style.display = "none";
     reportForm.reset();
+    reportError.textContent = "";
   });
 
   reportModal.addEventListener("click", (e) => {
     if (e.target === reportModal) {
       reportModal.style.display = "none";
       reportForm.reset();
+      reportError.textContent = "";
+    }
+  });
+
+  reportForm.addEventListener("submit", (e) => {
+    const text = reportReason.value.trim();
+    if (text.length < 10) {
+      e.preventDefault();
+      reportError.textContent = "Please provide a valid reason";
+      reportReason.value = "";
+      reportReason.focus();
     }
   });
 });

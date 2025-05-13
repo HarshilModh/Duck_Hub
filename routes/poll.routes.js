@@ -7,7 +7,11 @@ import { isLoggedIn } from "../middlewares/auth.middleware.js";
 import { userImage, uploadImagesGuard } from "../middlewares/cloudinary.js";
 import xss from "xss";
 import Comment from "../models/forumsComments.model.js";
-import { isValidArray, isValidString } from "../utils/validation.utils.js";
+import {
+  isValidArray,
+  isValidID,
+  isValidString,
+} from "../utils/validation.utils.js";
 
 const router = express.Router();
 
@@ -126,15 +130,24 @@ router.post("/:pollId/vote", isLoggedIn, async (req, res) => {
 });
 
 router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
+  let pollId = req.params.id;
+  const loggedUserId = req.session.user?.user?._id || null;
   try {
-    const pollId = req.params.id;
+    pollId = isValidID(pollId, "PollID");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: "Error" + error.message,
+    };
+    return res.redirect("/forums/user");
+  }
+  try {
     const poll = await Poll.findById(pollId)
       .populate("createdBy", "firstName lastName")
       .lean();
     const comments = await Comment.find({ forumId: pollId, commentFor: "poll" })
       .populate("userId", "firstName lastName")
       .lean();
-    const loggedUserId = req.session.user?.user?._id || null;
 
     res.render("commentDelete", {
       poll,
