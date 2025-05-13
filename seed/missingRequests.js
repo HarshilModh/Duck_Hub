@@ -10,25 +10,18 @@ export default async function seedMissingRequests() {
     console.warn("Need users—run seedUsers first!");
     return;
   }
+  const sampleMissingRequests = [
 
-  const sampleRequests = [
-    {
-      userId: users[0]._id,
-      itemType: "Course",
-      itemName: "Advanced Quantum Computing",
-      description: "Would love to see a course on quantum algorithms added.",
-      status: "Pending",
-    },
     {
       userId: users[1]._id,
-      itemType: "Other",
-      itemName: "Campus Shuttle Tracker App",
-      description:
-        "A real-time shuttle tracker for getting around campus would be helpful.",
-      status: "Pending",
+      itemType: "Department",
+      itemName: "Computer Science",
+      description: "The Computer Science department is not listed.",
     },
+  
   ];
-
-  await MissingRequestModel.insertMany(sampleRequests);
-  console.log(`Inserted ${sampleRequests.length} missing requests`);
+ 
+  await MissingRequestModel.insertMany(sampleMissingRequests);
+  console.log(`Inserted ${sampleMissingRequests.length} missing requests`);
+  console.log("Seeded missing requests successfully");
 }

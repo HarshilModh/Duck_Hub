@@ -5,21 +5,19 @@ import seedUsers from "./users.js";
 import seedAdminTags from "./adminTags.js";
 import seedCategoryForAcademicResource from "./CategoryForAcademicResource.js";
 import seedAcademicResources from "./academicResources.js";
-import seedAcademicResourceVotes from "./resourceVotes.js";
+
 import seedTags from "./tags.js";
 import seedDepartments from "./departments.js";
 import seedCourses from "./courses.js";
-import seedReviews from "./reviews.js";
+
 import seedPolls from "./polls.js";
 import seedForums from "./forums.js";
 import seedComments from "./forumComments.js";
-import seedForumVotes from "./forumVotes.js";
-import seedCommentVotes from "./forumCommentVotes.js";
-import seedReviewVotes from "./reviewVotes.js";
+
 import seedCampusResources from "./campusResources.js";
 import seedAnnouncements from "./announcements.js";
 import seedMissingRequests from "./missingRequests.js";
-import seedReports from "./reports.js";
+
 
 // Load env variables
 dotenv.config();
@@ -31,6 +29,8 @@ async function main() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    //empty the database
+    await mongoose.connection.db.dropDatabase();
     console.log("🔗 Connected to DuckHub database");
     console.log("🚀 Starting seed process");
 
@@ -41,7 +41,6 @@ async function main() {
     await seedAdminTags();
     await seedCategoryForAcademicResource();
     await seedAcademicResources();
-    await seedAcademicResourceVotes();
 
     // 4. Seed general tags
     await seedTags();
@@ -49,7 +48,7 @@ async function main() {
     // 5. Seed courses & reviews
     await seedDepartments();
     await seedCourses();
-    await seedReviews();
+
 
     // 6. Seed polls & forums
     await seedPolls();
@@ -57,9 +56,6 @@ async function main() {
 
     // 7. Seed comments & votes
     await seedComments();
-    await seedForumVotes();
-    await seedCommentVotes();
-    await seedReviewVotes();
 
     // 8. Seed campus resources & announcements
     await seedCampusResources();
@@ -67,9 +63,6 @@ async function main() {
 
     // 9. Seed missing requests
     await seedMissingRequests();
-
-    // 10. Seed reports (depends on various collections)
-    await seedReports();
 
     console.log("✅ Seed process completed");
   } catch (err) {

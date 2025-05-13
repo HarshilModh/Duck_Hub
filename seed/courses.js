@@ -14,34 +14,29 @@ export default async function seedCourses() {
   const sampleCourses = [
     {
       courseCode: "CS101",
-      courseName: "introduction to programming",
-      courseDescription: "Learn fundamentals of programming using JavaScript.",
-      departmentId: departments[0]._id,
-      difficultyRating: 1,
-      averageRating: 4.5,
-      reviews: [], // will be populated by seedReviews
-    },
-    {
-      courseCode: "EE202",
-      courseName: "circuit analysis",
-      courseDescription: "Study of electrical circuits and network theorems.",
-      departmentId: departments[1]._id,
-      difficultyRating: 2,
-      averageRating: 4.0,
-      reviews: [],
-    },
-    {
-      courseCode: "ME303",
-      courseName: "thermodynamics",
+      courseName: "Introduction to Computer Science",
       courseDescription:
-        "Principles of energy, heat, and work in mechanical systems.",
+        "An introduction to the fundamental concepts of computer science.",
+      departmentId: departments[0]._id,
+    },
+    {
+      courseCode: "CS102",
+      courseName: "Data Structures and Algorithms",
+      courseDescription:
+        "A study of data structures and algorithms for efficient data processing.",
+      departmentId: departments[1]._id,
+    },
+    {
+      courseCode: "CS103",
+      courseName: "Web Development",
+      courseDescription:
+        "Learn how to build dynamic websites using HTML, CSS, and JavaScript.",
       departmentId: departments[2]._id,
-      difficultyRating: 3,
-      averageRating: 3.8,
-      reviews: [],
     },
   ];
-
   await Course.insertMany(sampleCourses);
   console.log(`Inserted ${sampleCourses.length} courses`);
+  const courses = await Course.find();
+  console.log("Courses seeded successfully:", courses);
+  return courses;
 }
