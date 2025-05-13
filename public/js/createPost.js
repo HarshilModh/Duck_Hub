@@ -1,5 +1,3 @@
-// public/js/createPost.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const createForumBtn = document.getElementById("createForumBtn");
   const createPollBtn = document.getElementById("createPollBtn");
@@ -8,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const forumForm = document.getElementById("forumForm");
   const pollForm = document.getElementById("pollForm");
 
-  // Shared tag‑creation UI
   const addNewTagBtn = document.getElementById("addTagBtn");
   const newTagDiv = document.getElementById("newTagDiv");
   const newTagInput = document.getElementById("newTagName");
@@ -18,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const pollSelect = document.getElementById("pollTags");
   const userId = document.getElementById("userId").value;
 
-  // Inline‐error helpers
   function clearErrors(form) {
     form
       .querySelectorAll(".error-message")
@@ -30,48 +26,39 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errDiv) errDiv.textContent = message;
   }
 
-  // ── INITIAL STATE ──
   forumFormContainer.style.display = "none";
   pollFormContainer.style.display = "none";
   addNewTagBtn.style.display = "none";
   newTagDiv.style.display = "none";
 
-  // ── TOGGLE FORMS ──
   createForumBtn.addEventListener("click", () => {
-    // show forum form
     forumFormContainer.style.display = "block";
     pollFormContainer.style.display = "none";
 
-    // move shared tag UI under the forum's tags dropdown
     const forumTagGroup = forumForm
       .querySelector("#tags")
       .closest(".form-group");
     forumTagGroup.appendChild(addNewTagBtn);
     forumTagGroup.appendChild(newTagDiv);
 
-    // show button, hide new‑tag input
     addNewTagBtn.style.display = "inline-block";
     newTagDiv.style.display = "none";
   });
 
   createPollBtn.addEventListener("click", () => {
-    // show poll form
     forumFormContainer.style.display = "none";
     pollFormContainer.style.display = "block";
 
-    // move shared tag UI under the poll's tags dropdown
     const pollTagGroup = pollForm
       .querySelector("#pollTags")
       .closest(".form-group");
     pollTagGroup.appendChild(addNewTagBtn);
     pollTagGroup.appendChild(newTagDiv);
 
-    // show button, hide new‑tag input
     addNewTagBtn.style.display = "inline-block";
     newTagDiv.style.display = "none";
   });
 
-  // ── ADD NEW TAG FLOW ──
   addNewTagBtn.addEventListener("click", () => {
     newTagDiv.style.display = "block";
     newTagInput.value = "";
@@ -91,13 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const tagRaw = newTagInput.value.trim();
     const tagValue = tagRaw.toUpperCase();
 
-    // 1) non-empty
     if (!tagRaw) {
       showError(newTagInput, "Please enter a tag name.");
       newTagInput.focus();
       return;
     }
-    // 2) valid chars
+
     if (/[^A-Za-z0-9 ]/.test(tagRaw)) {
       showError(
         newTagInput,
@@ -106,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       newTagInput.focus();
       return;
     }
-    // 3) duplicate check (against forumSelect, but both selects share options)
+
     const existing = Array.from(forumSelect.options).map((opt) =>
       opt.textContent.toUpperCase()
     );
@@ -115,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       newTagInput.focus();
       return;
     }
-    // 4) logged in
+
     if (!userId) {
       throw new Error("Cannot create a tag without logging in");
     }
@@ -129,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const newTag = await res.json();
       if (!res.ok) throw new Error(newTag.error || "Failed to create tag");
 
-      // append to both selects
       [forumSelect, pollSelect].forEach((selectEl) => {
         const opt = document.createElement("option");
         opt.value = newTag._id;
@@ -138,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectEl.appendChild(opt);
       });
 
-      // reset UI
       newTagInput.value = "";
       newTagDiv.style.display = "none";
     } catch (err) {
@@ -147,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── FORUM SUBMIT ──
   forumForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(forumForm);
@@ -185,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── POLL OPTIONS DYNAMICS ──
   document.getElementById("add-option").addEventListener("click", () => {
     const wrapper = document.getElementById("options-wrapper");
     const idx = wrapper.querySelectorAll(".option-row").length + 1;
@@ -204,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── POLL SUBMIT ──
   pollForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(pollForm);

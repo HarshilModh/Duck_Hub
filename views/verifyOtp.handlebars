@@ -1,4 +1,3 @@
-{{! views/auth/enter-otp.hbs }}
 <div
   class="otp-container"
   style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ccc; border-radius: 4px;"
@@ -12,7 +11,6 @@
   {{/if}}
 
   <form action="/verify-otp" method="POST">
-    {{! Pass the userId along so your route knows whose OTP to check }}
     <input type="hidden" name="userId" value="{{userId}}" />
 
     <div class="form-group" style="margin-bottom: 1rem;">
