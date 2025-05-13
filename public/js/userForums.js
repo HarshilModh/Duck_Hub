@@ -1,6 +1,3 @@
-// public/js/userForums.js
-
-// ————————— DELETE LOGIC (unchanged) —————————
 document.querySelectorAll(".delete-button").forEach((button) => {
   button.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -27,7 +24,6 @@ document.querySelectorAll(".delete-button").forEach((button) => {
   });
 });
 
-// ————————— EDIT MODAL LOGIC & VALIDATION —————————
 const editModal = document.getElementById("editModal");
 const closeModalBtn = editModal.querySelector(".modal-close");
 const cancelEditBtn = document.getElementById("editCancel");
@@ -42,7 +38,6 @@ let currentEditId = null;
 let originalTitle = "";
 let originalContent = "";
 
-// 1) Open & populate modal
 document.querySelectorAll(".edit-button").forEach((btn) => {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -52,20 +47,16 @@ document.querySelectorAll(".edit-button").forEach((btn) => {
       if (!res.ok) throw new Error("Failed to load post data");
       const post = await res.json();
 
-      // store originals for reset-on-error
       originalTitle = post.title;
       originalContent = post.content;
 
-      // fill fields
       titleInput.value = originalTitle;
       contentInput.value = originalContent;
 
-      // clear previous tag selections
       Array.from(newTagsSelect.options).forEach(
         (opt) => (opt.selected = false)
       );
 
-      // clear any prior errors
       titleError.textContent = "";
       contentError.textContent = "";
 
@@ -76,8 +67,6 @@ document.querySelectorAll(".edit-button").forEach((btn) => {
     }
   });
 });
-
-// 2) Close modal
 closeModalBtn.addEventListener("click", () =>
   editModal.classList.add("hidden")
 );
@@ -85,55 +74,44 @@ cancelEditBtn.addEventListener("click", () =>
   editModal.classList.add("hidden")
 );
 
-// 3) Form submission with inline validation + reset-on-error
 editForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // clear old errors
   titleError.textContent = "";
   contentError.textContent = "";
 
-  // trim inputs
   const titleVal = titleInput.value.trim();
   const contentVal = contentInput.value.trim();
 
   let hasError = false;
 
-  // validate title
   if (!titleVal) {
     titleError.textContent = "Title cannot be empty.";
-    // reset to original
     titleInput.value = originalTitle;
     hasError = true;
   }
 
-  // validate content
   if (!contentVal) {
     contentError.textContent = "Content cannot be empty.";
-    // reset to original
     contentInput.value = originalContent;
     hasError = true;
   }
 
   if (hasError) {
-    // focus first invalid
     if (!titleVal) titleInput.focus();
     else contentInput.focus();
-    return; // abort submit
+    return;
   }
 
-  // build FormData (auto-picks up file input "newImages" too)
   const formData = new FormData(editForm);
   formData.set("title", titleVal);
   formData.set("content", contentVal);
 
-  // only send newly selected tags
   formData.delete("newTags");
   Array.from(newTagsSelect.selectedOptions).forEach((opt) => {
     formData.append("tags", opt.value);
   });
 
-  // send update
   try {
     const res = await fetch(`/forums/${currentEditId}`, {
       method: "PUT",

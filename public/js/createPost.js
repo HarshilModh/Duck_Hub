@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errDiv) errDiv.textContent = message;
   }
 
-  // Initially hide everything
   forumFormContainer.style.display = "none";
   pollFormContainer.style.display = "none";
   addNewTagBtn.style.display = "none";
@@ -84,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
       newTagInput.focus();
       return;
     }
-
     if (/[^A-Za-z0-9 ]/.test(tagRaw)) {
       showError(
         newTagInput,
@@ -102,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
       newTagInput.focus();
       return;
     }
-
     if (!userId) {
       throw new Error("Cannot create a tag without logging in");
     }
@@ -132,9 +129,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const forumImageInput = forumForm.querySelector("#images");
+  const pollImageInput = pollForm.querySelector("#pollImages");
+
+  function attachImageValidator(inputEl, formEl) {
+    inputEl.addEventListener("change", () => {
+      clearErrors(formEl);
+      if (inputEl.files.length > 5) {
+        showError(
+          inputEl,
+          `You can only upload up to 5 images (you selected ${inputEl.files.length}).`
+        );
+      }
+    });
+  }
+
+  attachImageValidator(forumImageInput, forumForm);
+  attachImageValidator(pollImageInput, pollForm);
+
   forumForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(forumForm);
+
+    if (forumImageInput.files.length > 5) {
+      showError(
+        forumImageInput,
+        `You can only upload up to 5 images (you selected ${forumImageInput.files.length}).`
+      );
+      return;
+    }
 
     const submitBtn = forumForm.querySelector(".submit-post-button");
     submitBtn.disabled = true;
@@ -201,6 +224,14 @@ document.addEventListener("DOMContentLoaded", () => {
   pollForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(pollForm);
+
+    if (pollImageInput.files.length > 5) {
+      showError(
+        pollImageInput,
+        `You can only upload up to 5 images (you selected ${pollImageInput.files.length}).`
+      );
+      return;
+    }
 
     const submitBtn = pollForm.querySelector(".submit-post-button");
     submitBtn.disabled = true;
