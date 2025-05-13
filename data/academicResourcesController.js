@@ -8,6 +8,7 @@ import {
 import Tags from "../models/tags.model.js";
 import AcademicResourceVotes from "../models/academicResourceVotes.model.js";
 import Reports from "../models/reports.model.js";
+import AdminTags from "../models/preDefinedTags.model.js";
 
 export const createAcademicResource = async (
   userId,
@@ -461,7 +462,9 @@ export const searchAcademicResourceFilterSort = async (
 
   let tagIds = [];
   if (regex) {
-    const matchingTags = await Tags.find({ name: regex }).select("_id").lean();
+    const matchingTags = await AdminTags.find({ name: regex })
+      .select("_id")
+      .lean();
     tagIds = matchingTags.map((t) => t._id);
 
     AcademicResourceFilter.$or = [

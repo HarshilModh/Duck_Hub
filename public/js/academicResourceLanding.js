@@ -1,16 +1,68 @@
-(function () {
+// public/js/academicResourceLanding.js
+
+document.addEventListener("DOMContentLoaded", () => {
+  // ── SEARCH, SORT & FILTER VALIDATION ─────────────────────────────
+  const searchForm = document.getElementById("searchForm");
+  const searchInput = searchForm.querySelector("input[name='text']");
+  const sortSelect = searchForm.querySelector("select[name='sort']");
+  const orderSelect = searchForm.querySelector("select[name='order']");
+
+  // Create inline error element for search if not present
+  let searchError = document.getElementById("searchError");
+  if (!searchError) {
+    searchError = document.createElement("div");
+    searchError.id = "searchError";
+    searchError.className = "error-message";
+    searchError.style.color = "red";
+    searchError.style.marginTop = "0.25rem";
+    searchInput.insertAdjacentElement("afterend", searchError);
+  }
+
+  searchForm.addEventListener("submit", (e) => {
+    const q = searchInput.value.trim();
+
+    // 1) Require at least 3 characters
+    if (q.length < 3) {
+      e.preventDefault();
+      searchError.textContent = "Please enter at least 3 characters to search.";
+      searchInput.value = "";
+      searchInput.focus();
+      return;
+    }
+    searchError.textContent = "";
+
+    // 2) Validate sort option
+    const validSorts = ["createdAt", "title", "url"];
+    if (!validSorts.includes(sortSelect.value)) {
+      e.preventDefault();
+      searchError.textContent = "Invalid sort option.";
+      searchInput.value = "";
+      searchInput.focus();
+      return;
+    }
+    searchError.textContent = "";
+
+    // 3) Validate order option
+    const validOrders = ["asc", "desc"];
+    if (!validOrders.includes(orderSelect.value)) {
+      e.preventDefault();
+      searchError.textContent = "Invalid order option.";
+      searchInput.value = "";
+      searchInput.focus();
+      return;
+    }
+    searchError.textContent = "";
+  });
+
+  // ---------------- Delete Resource Logic ------------------------
   const deleteButtons = document.querySelectorAll(".delete-button");
   deleteButtons.forEach((button) => {
     button.addEventListener("click", async () => {
       const id = button.dataset.id;
-      if (!id) {
-        console.error("Delete button missing data-id");
-        return;
-      }
+      if (!id) return console.error("Delete button missing data-id");
       if (!confirm("Are you sure you want to delete this resource?")) {
         return;
       }
-
       try {
         const res = await fetch(`/academicResources/${id}`, {
           method: "DELETE",
@@ -29,6 +81,7 @@
     });
   });
 
+  // ---------------- Report Modal Logic ----------------------------
   const reportButtons = document.querySelectorAll(".report-button");
   const reportModal = document.getElementById("reportModal");
   const reportForm = document.getElementById("reportForm");
@@ -54,16 +107,17 @@
     }
   });
 
+  // -------------------- Voting Logic -------------------------------
   const upvoteButtons = document.querySelectorAll(".upvote-button");
   const downvoteButtons = document.querySelectorAll(".downvote-button");
 
   upvoteButtons.forEach((button) => {
     button.addEventListener("click", async (e) => {
-      const academicResourceId = e.currentTarget.dataset.id;
+      const resourceId = e.currentTarget.dataset.id;
       if (!loggedInUserId) return alert("Please log in to vote.");
       try {
         const response = await fetch(
-          `/academicResources/upvote/${academicResourceId}`,
+          `/academicResources/upvote/${resourceId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -83,11 +137,11 @@
 
   downvoteButtons.forEach((button) => {
     button.addEventListener("click", async (e) => {
-      const academicResourceId = e.currentTarget.dataset.id;
+      const resourceId = e.currentTarget.dataset.id;
       if (!loggedInUserId) return alert("Please log in to vote.");
       try {
         const response = await fetch(
-          `/academicResources/downvote/${academicResourceId}`,
+          `/academicResources/downvote/${resourceId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -105,6 +159,7 @@
     });
   });
 
+  // ------------------ Tag Creation Modal Logic ---------------------
   const openTagModalBtn = document.getElementById("openTagModal");
   const tagModal = document.getElementById("tagModal");
   const tagCancelBtn = document.getElementById("tagCancel");
@@ -153,4 +208,4 @@
     tagError.remove();
     tagForm.submit();
   });
-})();
+});

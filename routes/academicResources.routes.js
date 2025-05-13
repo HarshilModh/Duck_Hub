@@ -290,7 +290,7 @@ router.route("/tag/create").post(isLoggedIn, async (req, res) => {
         type: "error",
         message: `Tag "${name}" already exists.`,
       };
-      return res.redirect("/tags/create");
+      return res.redirect("/academicResources");
     }
     await AdminTags.create({
       name,
@@ -307,7 +307,7 @@ router.route("/tag/create").post(isLoggedIn, async (req, res) => {
       type: "error",
       message: error.message || "Failed to create tag.",
     };
-    return res.redirect("/tags/create");
+    return res.redirect("/academicResources");
   }
 });
 //filter by category

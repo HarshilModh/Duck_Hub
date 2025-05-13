@@ -1,4 +1,55 @@
+// public/js/forumLanding.js
+
 document.addEventListener("DOMContentLoaded", () => {
+  // ── SEARCH, FILTER & SORT/ORDER VALIDATION ─────────────────────────
+  const searchForm = document.getElementById("searchForm");
+  const searchInput = document.getElementById("searchInput");
+  const searchError = document.getElementById("searchError");
+  const postTypeSelect = document.getElementById("postTypeSelect");
+  const sortSelect = document.getElementById("sortSelect");
+  const orderSelect = document.getElementById("orderSelect");
+
+  searchForm.addEventListener("submit", (e) => {
+    const q = searchInput.value.trim();
+
+    // 1) Require at least 3 characters
+    if (q.length < 3) {
+      e.preventDefault();
+      searchError.textContent = "Please enter at least 3 characters to search.";
+      searchInput.value = "";
+      searchInput.focus();
+      return;
+    }
+    searchError.textContent = "";
+
+    // 2) Validate postType (select is constrained by HTML, but shown here for pattern)
+    const validTypes = ["", "forums", "polls"];
+    if (!validTypes.includes(postTypeSelect.value)) {
+      e.preventDefault();
+      searchError.textContent = "Invalid post type selected.";
+      searchInput.value = "";
+      searchInput.focus();
+      return;
+    }
+    searchError.textContent = "";
+
+    // 3) Validate sort/order combinations
+    const sortValue = sortSelect.value;
+    const orderValue = orderSelect.value;
+    // Example rule: when sorting by date, only descending makes sense
+    if (sortValue === "createdAt" && orderValue === "asc") {
+      e.preventDefault();
+      searchError.textContent =
+        "When sorting by date, only newest-first (Desc) is allowed.";
+      searchInput.value = "";
+      searchInput.focus();
+      return;
+    }
+    searchError.textContent = "";
+
+    // (Add more combination rules here if needed)
+  });
+
   // ------------------------ Delete Post Logic ------------------------
   document.querySelectorAll(".delete-button").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -17,11 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await res.json();
         if (res.ok) {
-          // remove the card from the DOM
           const selector =
             type === "Poll" ? ".poll-post-card" : ".forum-post-card";
-          const card = btn.closest(selector);
-          if (card) card.remove();
+          btn.closest(selector)?.remove();
         } else {
           console.error(data.message || "Delete failed");
           alert(data.message || "Failed to delete post.");
@@ -33,14 +82,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Voting and comment navigation
+  // ---------------- Voting & Comment Navigation -----------------------
   const upvoteButtons = document.querySelectorAll(".upvote-button");
   const downvoteButtons = document.querySelectorAll(".downvote-button");
   const commentButtons = document.querySelectorAll(".comment-button");
 
   commentButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const forumId = e.currentTarget.dataset.id;
+    button.addEventListener("click", () => {
+      const forumId = button.dataset.id;
       if (forumId) {
         window.location.href = `/forums/comments/view/${forumId}`;
       }
@@ -48,8 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   upvoteButtons.forEach((button) => {
-    button.addEventListener("click", async (e) => {
-      const forumId = e.currentTarget.dataset.id;
+    button.addEventListener("click", async () => {
+      const forumId = button.dataset.id;
       if (!loggedInUserId) return alert("Please log in to vote.");
 
       try {
@@ -58,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: loggedInUserId }),
         });
-
         if (response.ok || response.status === 400) {
           window.location.reload();
         } else {
@@ -72,11 +120,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   downvoteButtons.forEach((button) => {
-    button.addEventListener("click", async (e) => {
-      const forumId = e.currentTarget.dataset.id;
-      if (!loggedInUserId) {
-        return alert("Please log in to vote.");
-      }
+    button.addEventListener("click", async () => {
+      const forumId = button.dataset.id;
+      if (!loggedInUserId) return alert("Please log in to vote.");
 
       try {
         const response = await fetch(`/forums/downvote/${forumId}`, {
@@ -84,7 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: loggedInUserId }),
         });
-
         if (response.ok || response.status === 400) {
           window.location.reload();
         } else {
@@ -97,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Comment deletion handlers
+  // -------------------- Comment Deletion ------------------------------
   document.querySelectorAll(".comment-delete").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const commentId = btn.dataset.id;
@@ -111,15 +156,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(`/forums/comments/${commentId}`, {
           method: "DELETE",
         });
-
         const data = await res.json();
         if (res.ok && data.success) {
-          btn.closest(".comment-card").remove();
+          btn.closest(".comment-card")?.remove();
         } else {
           console.error(data.message || "Delete failed");
         }
       } catch (err) {
-        console.error(err);
+        console.error("Error deleting comment:", err);
       }
     });
   });
@@ -131,9 +175,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const reportCancelBtn = document.getElementById("reportCancel");
 
   document.querySelectorAll(".report-button").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const contentId = e.currentTarget.dataset.id;
-      const type = e.currentTarget.dataset.type;
+    btn.addEventListener("click", () => {
+      const contentId = btn.dataset.id;
+      const type = btn.dataset.type;
       reportForm.action = `/report/${type}`;
       reportContentIdInput.value = contentId;
       reportModal.style.display = "flex";

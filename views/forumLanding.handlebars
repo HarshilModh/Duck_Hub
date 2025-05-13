@@ -1,6 +1,6 @@
 <div class="forum-header-bar">
   <form id="searchForm" action="/forums/search" method="get" class="controls-form">
-    <!-- SEARCH WRAPPER -->
+
     <div class="search-wrapper">
       <div class="search-section">
         <input
@@ -9,12 +9,16 @@
           id="searchInput"
           placeholder="Search posts..."
           value="{{text}}"
+          required
+          minlength="3"
         />
         <button type="submit" class="search-button">🔍</button>
       </div>
+
+      <div id="searchError" class="error-message" style="color:red; font-size:0.9rem; margin-top:0.25rem;"></div>
     </div>
 
-    <!-- FILTER WRAPPER (Select Forums vs Polls) -->
+  
     <div class="filter-wrapper">
       <div class="filter-section">
         <label for="postTypeSelect">Type:</label>
@@ -26,7 +30,6 @@
       </div>
     </div>
 
-    <!-- SORT WRAPPER -->
     <div class="sort-wrapper">
       <div class="sort-section">
         <label for="sortSelect">Sort by:</label>
@@ -52,7 +55,6 @@
 </div>
 
 <div class="combined-posts-list">
-  {{!-- Interleave forumPosts and their matching poll (by index) --}}
   {{#each forumPosts}}
     <div class="forum-post-card">
       <div class="post-actions report-action">
@@ -110,7 +112,6 @@
       </div>
     </div>
 
-    {{!-- If there’s a matching poll at the same index, render it: --}}
     {{#with (lookup ../pollPosts @index) as |poll|}}
       {{#if poll}}
         <div class="poll-post-card" data-poll-id="{{poll._id}}">
@@ -247,7 +248,6 @@
   {{/each}}
 </div>
 
-{{!-- REPORT MODAL --}}
 <div id="reportModal" class="modal-overlay" style="display:none;">
   <div class="modal-card">
     <h2>Reason For Reporting :</h2>
