@@ -1,3 +1,4 @@
+<!-- views/create-post.hbs -->
 <div class="create-post-page">
   <h2>Create a New Post</h2>
 
@@ -8,7 +9,12 @@
 
   <!-- ── FORUM FORM ───────────────────────────────────── -->
   <div id="forumFormContainer" style="display: none;">
-    <form id="forumForm" action="/forums" method="POST" enctype="multipart/form-data">
+    <form
+      id="forumForm"
+      action="/forums"
+      method="POST"
+      enctype="multipart/form-data"
+    >
       <input type="hidden" id="userId" name="userId" value="{{loggedUserId}}" />
 
       <div class="form-group">
@@ -31,13 +37,7 @@
             <option value="{{this._id}}">{{this.name}}</option>
           {{/each}}
         </select>
-        <button type="button" id="addTagBtn">Add New Tag</button>
-      </div>
-
-      <!-- New‑tag input, hidden until “Add New Tag” clicked -->
-      <div id="newTagDiv" style="display: none;">
-        <input type="text" id="newTagName" placeholder="Enter new tag name" />
-        <button type="button" id="saveNewTag">Save</button>
+        <div class="error-message"></div>
       </div>
 
       <div class="form-group">
@@ -97,6 +97,7 @@
             <option value="{{this._id}}">{{this.name}}</option>
           {{/each}}
         </select>
+        <div class="error-message"></div>
       </div>
 
       <div class="form-group">
@@ -112,6 +113,19 @@
 
       <button type="submit" class="submit-post-button">Create Poll</button>
     </form>
+  </div>
+
+  <!-- ── SHARED “ADD NEW TAG” UI ────────────────────────────────────── -->
+  <div class="form-group">
+    <button type="button" id="addTagBtn">Add New Tag</button>
+  </div>
+
+  <div id="newTagDiv" style="display: none;">
+    <div class="form-group">
+      <input type="text" id="newTagName" placeholder="Enter new tag name" />
+      <div class="error-message"></div>
+    </div>
+    <button type="button" id="saveNewTag">Save</button>
   </div>
 </div>
 

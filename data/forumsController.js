@@ -113,10 +113,14 @@ export const updateForumPostById = async (forumId, updatedPost) => {
     }
 
     if (updatedPost.tags && updatedPost.tags.length !== 0) {
-      updatedPost.tags = await isValidArray(updatedPost.tags, "Tags");
+      updatedPost.tags = isValidArray(updatedPost.tags, "Tags");
       existingForum.tags = updatedPost.tags.map((tag) =>
         isValidID(tag, "TagID")
       );
+    }
+    if (updatedPost.imageURLs && updatedPost.imageURLs.length !== 0) {
+      updatedPost.imageURLs = isValidArray(updatedPost.imageURLs, "Images");
+      existingForum.imageURLs = updatedPost.imageURLs;
     }
     const newPost = await existingForum.save();
     return newPost;

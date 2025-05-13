@@ -122,7 +122,7 @@ editForm.addEventListener("submit", async (e) => {
     return; // abort submit
   }
 
-  // build FormData
+  // build FormData (auto-picks up file input "newImages" too)
   const formData = new FormData(editForm);
   formData.set("title", titleVal);
   formData.set("content", contentVal);
@@ -132,12 +132,6 @@ editForm.addEventListener("submit", async (e) => {
   Array.from(newTagsSelect.selectedOptions).forEach((opt) => {
     formData.append("tags", opt.value);
   });
-
-  // append any new images
-  const newFiles = document.getElementById("new-images").files;
-  for (let file of newFiles) {
-    formData.append("newImages", file);
-  }
 
   // send update
   try {

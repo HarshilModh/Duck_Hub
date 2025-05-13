@@ -1,4 +1,5 @@
 // public/js/createPost.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const createForumBtn = document.getElementById("createForumBtn");
   const createPollBtn = document.getElementById("createPollBtn");
@@ -7,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const forumForm = document.getElementById("forumForm");
   const pollForm = document.getElementById("pollForm");
 
+  // Shared tag‑creation UI
   const addNewTagBtn = document.getElementById("addTagBtn");
   const newTagDiv = document.getElementById("newTagDiv");
   const newTagInput = document.getElementById("newTagName");
@@ -16,11 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const pollSelect = document.getElementById("pollTags");
   const userId = document.getElementById("userId").value;
 
-  // ── Utility for inline errors ─────────────────────────
+  // Inline‐error helpers
   function clearErrors(form) {
-    form.querySelectorAll(".error-message").forEach((div) => {
-      div.textContent = "";
-    });
+    form
+      .querySelectorAll(".error-message")
+      .forEach((div) => (div.textContent = ""));
   }
   function showError(el, message) {
     const container = el.closest(".form-group") || el.parentElement;
@@ -28,30 +30,96 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errDiv) errDiv.textContent = message;
   }
 
-  // ── Toggle between Forum vs Poll ───────────────────────
+  // ── INITIAL STATE ──
+  forumFormContainer.style.display = "none";
+  pollFormContainer.style.display = "none";
+  addNewTagBtn.style.display = "none";
+  newTagDiv.style.display = "none";
+
+  // ── TOGGLE FORMS ──
   createForumBtn.addEventListener("click", () => {
+    // show forum form
     forumFormContainer.style.display = "block";
     pollFormContainer.style.display = "none";
-  });
-  createPollBtn.addEventListener("click", () => {
-    forumFormContainer.style.display = "none";
-    pollFormContainer.style.display = "block";
+
+    // move shared tag UI under the forum's tags dropdown
+    const forumTagGroup = forumForm
+      .querySelector("#tags")
+      .closest(".form-group");
+    forumTagGroup.appendChild(addNewTagBtn);
+    forumTagGroup.appendChild(newTagDiv);
+
+    // show button, hide new‑tag input
+    addNewTagBtn.style.display = "inline-block";
+    newTagDiv.style.display = "none";
   });
 
-  // ── Add New Tag flow ───────────────────────────────────
+  createPollBtn.addEventListener("click", () => {
+    // show poll form
+    forumFormContainer.style.display = "none";
+    pollFormContainer.style.display = "block";
+
+    // move shared tag UI under the poll's tags dropdown
+    const pollTagGroup = pollForm
+      .querySelector("#pollTags")
+      .closest(".form-group");
+    pollTagGroup.appendChild(addNewTagBtn);
+    pollTagGroup.appendChild(newTagDiv);
+
+    // show button, hide new‑tag input
+    addNewTagBtn.style.display = "inline-block";
+    newTagDiv.style.display = "none";
+  });
+
+  // ── ADD NEW TAG FLOW ──
   addNewTagBtn.addEventListener("click", () => {
     newTagDiv.style.display = "block";
+    newTagInput.value = "";
+    newTagInput
+      .closest(".form-group")
+      .querySelector(".error-message").textContent = "";
     newTagInput.focus();
   });
 
+  newTagInput.addEventListener("input", () => {
+    newTagInput
+      .closest(".form-group")
+      .querySelector(".error-message").textContent = "";
+  });
+
   saveTagBtn.addEventListener("click", async () => {
-    const tagValue = newTagInput.value.trim().toUpperCase();
-    if (!tagValue) {
-      return showError(newTagInput, "Please enter a tag name.");
+    const tagRaw = newTagInput.value.trim();
+    const tagValue = tagRaw.toUpperCase();
+
+    // 1) non-empty
+    if (!tagRaw) {
+      showError(newTagInput, "Please enter a tag name.");
+      newTagInput.focus();
+      return;
     }
+    // 2) valid chars
+    if (/[^A-Za-z0-9 ]/.test(tagRaw)) {
+      showError(
+        newTagInput,
+        "Tags can only contain letters, numbers, and spaces."
+      );
+      newTagInput.focus();
+      return;
+    }
+    // 3) duplicate check (against forumSelect, but both selects share options)
+    const existing = Array.from(forumSelect.options).map((opt) =>
+      opt.textContent.toUpperCase()
+    );
+    if (existing.includes(tagValue)) {
+      showError(newTagInput, "This tag already exists.");
+      newTagInput.focus();
+      return;
+    }
+    // 4) logged in
     if (!userId) {
       throw new Error("Cannot create a tag without logging in");
     }
+
     try {
       const res = await fetch("/tags", {
         method: "POST",
@@ -61,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const newTag = await res.json();
       if (!res.ok) throw new Error(newTag.error || "Failed to create tag");
 
+      // append to both selects
       [forumSelect, pollSelect].forEach((selectEl) => {
         const opt = document.createElement("option");
         opt.value = newTag._id;
@@ -69,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectEl.appendChild(opt);
       });
 
+      // reset UI
       newTagInput.value = "";
       newTagDiv.style.display = "none";
     } catch (err) {
@@ -77,30 +147,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── FORUM: client‑side validation + submit ─────────────
+  // ── FORUM SUBMIT ──
   forumForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(forumForm);
 
-    // Title must not be empty
     const titleEl = forumForm.querySelector("#title");
+    const contentEl = forumForm.querySelector("#content");
+
     if (!titleEl.value.trim()) {
       showError(titleEl, "Title is mandatory");
-      titleEl.value = "";
       return;
     }
-
-    // Content must not be empty
-    const contentEl = forumForm.querySelector("#content");
     if (!contentEl.value.trim()) {
       showError(contentEl, "Content is mandatory");
-      contentEl.value = "";
       return;
     }
 
-    // All good → send
-    const formData = new FormData(forumForm);
     try {
+      const formData = new FormData(forumForm);
       const response = await fetch("/forums", {
         method: "POST",
         body: formData,
@@ -120,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── Dynamic poll options add/remove ────────────────────
+  // ── POLL OPTIONS DYNAMICS ──
   document.getElementById("add-option").addEventListener("click", () => {
     const wrapper = document.getElementById("options-wrapper");
     const idx = wrapper.querySelectorAll(".option-row").length + 1;
@@ -139,34 +204,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── POLL: client‑side validation + submit ──────────────
+  // ── POLL SUBMIT ──
   pollForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(pollForm);
 
-    // Question must not be empty
     const questionEl = pollForm.querySelector("#question");
     if (!questionEl.value.trim()) {
       showError(questionEl, "Poll question is mandatory");
-      questionEl.value = "";
       return;
     }
 
-    // Options must all be non‑empty
-    const optsWrapper = pollForm.querySelector("#options-wrapper");
     const optionEls = pollForm.querySelectorAll('input[name="options[]"]');
     for (let i = 0; i < optionEls.length; i++) {
       if (!optionEls[i].value.trim()) {
+        const optsWrapper = pollForm.querySelector("#options-wrapper");
         showError(optsWrapper, `Option ${i + 1} cannot be empty`);
-        // clear all options so user re-enters
-        optionEls.forEach((el) => (el.value = ""));
         return;
       }
     }
 
-    // All good → send
-    const formData = new FormData(pollForm);
     try {
+      const formData = new FormData(pollForm);
       const response = await fetch("/polls", {
         method: "POST",
         body: formData,
