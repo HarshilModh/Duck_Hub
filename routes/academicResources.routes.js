@@ -31,7 +31,7 @@ const router = express.Router();
 
 router.route("/").get(isLoggedIn, async (req, res) => {
   let academicResources = await getAllAcademicResources();
-  let categories= await getAllCategories();
+  let categories = await getAllCategories();
   const isAdmin = req.session.user?.user?.role === "admin";
   const loggedUserId = req.session.user?.user?._id || null;
   //change url to encodeURI(r.url),
@@ -78,7 +78,7 @@ router
     let title = xss(req.body.title);
     let description = xss(req.body.description);
     let url = xss(req.body.url);
-    let tags = xss(req.body.tags);
+    let tags = req.body.tags;
     let category = xss(req.body.category);
 
     try {
@@ -319,62 +319,58 @@ router.route("/tag/create").post(isLoggedIn, async (req, res) => {
 });
 //filter by category
 // in your routes file, e.g. routes/academicResources.js
-router.route( "/filter").post(
-  isLoggedIn,
-  async (req, res) => {
-    try {
-      const categoryId = xss(req.body.category);
-      console.log("Selected category:", categoryId);
+router.route("/filter").post(isLoggedIn, async (req, res) => {
+  try {
+    const categoryId = xss(req.body.category);
+    console.log("Selected category:", categoryId);
 
-      // if no category chosen, just redirect back
-      if (!categoryId) {
-        return res.redirect("/academicResources");
-      }
+    // if no category chosen, just redirect back
+    if (!categoryId) {
+      return res.redirect("/academicResources");
+    }
 
-      // load all resources (make sure they populate `category`)
-      const allResources = await getAllAcademicResources();
-      console.log("All resources:", allResources);
+    // load all resources (make sure they populate `category`)
+    const allResources = await getAllAcademicResources();
+    console.log("All resources:", allResources);
 
-      // filter by the nested _id field
-      const filteredResources = allResources.filter(r =>
-        r.category &&
-        r.category._id.toString() === categoryId
-      );
-      console.log("Filtered resources:", filteredResources);
+    // filter by the nested _id field
+    const filteredResources = allResources.filter(
+      (r) => r.category && r.category._id.toString() === categoryId
+    );
+    console.log("Filtered resources:", filteredResources);
 
-      if (!filteredResources.length) {
-        req.session.toast = {
-          type: "error",
-          message: "No resources found for the selected category."
-        };
-        return res.redirect("/academicResources");
-      }
-
-      // reload categories for the dropdown
-      const categories = await getAllCategories();
-
-      return res.render("academicResourceLanding", {
-        academicResources: filteredResources,
-        categories,
-        // preserve filter selection in the view
-        category: categoryId,
-        text: "",
-        sort: "createdAt",
-        order: "asc",
-        loggedInUserId: req.session.user?.user?._id || null,
-        isAdmin: req.session.user?.user?.role === "admin",
-        isfiltered: true,
-        customStyles:
-          '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">'
-      });
-    } catch (error) {
-      console.error("Error filtering resources:", error);
+    if (!filteredResources.length) {
       req.session.toast = {
         type: "error",
-        message: "Failed to filter resources. Please try again."
+        message: "No resources found for the selected category.",
       };
       return res.redirect("/academicResources");
     }
+
+    // reload categories for the dropdown
+    const categories = await getAllCategories();
+
+    return res.render("academicResourceLanding", {
+      academicResources: filteredResources,
+      categories,
+      // preserve filter selection in the view
+      category: categoryId,
+      text: "",
+      sort: "createdAt",
+      order: "asc",
+      loggedInUserId: req.session.user?.user?._id || null,
+      isAdmin: req.session.user?.user?.role === "admin",
+      isfiltered: true,
+      customStyles:
+        '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
+    });
+  } catch (error) {
+    console.error("Error filtering resources:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to filter resources. Please try again.",
+    };
+    return res.redirect("/academicResources");
   }
-);
+});
 export default router;
