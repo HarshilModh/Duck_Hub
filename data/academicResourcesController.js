@@ -13,10 +13,14 @@ export const createAcademicResource = async (
   userId,
   title,
   description,
+  category,
   url,
   tags
 ) => {
-  if (!userId || !title || !description || !url) {
+
+  
+  try {
+    if (!userId || !title || !description || !url || !category) {
     throw new Error("userId, title, description, and url are required.");
   }
 
@@ -24,7 +28,7 @@ export const createAcademicResource = async (
   description = isValidString(description, "Resource Description");
   userId = isValidID(userId, "userId");
   url = isValidString(url, "URL");
-
+  category = isValidID(category, "Category ID");
   const user = await getUserById(userId);
   if (!user) {
     throw new Error("No User Found With Given ID");
@@ -39,11 +43,11 @@ export const createAcademicResource = async (
     title,
     description,
     url,
+    category,
     uploadedBy: userId,
     tags: tags || [],
   });
 
-  try {
     const savedAcademicResource = await newAcademicResource.save();
     if (!savedAcademicResource || !savedAcademicResource._id) {
       throw new Error("Could not create a new Academic Resource");
@@ -59,8 +63,11 @@ export const getAllAcademicResources = async () => {
     const allAcademicResources = await AcademicResource.find()
       .populate("uploadedBy", "firstName lastName")
       .populate("tags", "name")
+      .populate("category", "categoryName")
       .select("-reportedBy")
       .lean();
+      console.log("All Academic Resources: ", allAcademicResources);
+      
     if (!allAcademicResources) {
       throw new Error(
         "Sorry, no Academic Resources available right now to be displayed"
@@ -473,3 +480,4 @@ export const searchAcademicResourceFilterSort = async (
 
   return AcademicResources;
 };
+

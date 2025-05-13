@@ -15,6 +15,7 @@ const app = express();
 import forgotPasswordRoutes from "./otp.routes.js";
 import adminAnouncementRoutes from "./adminAnouncement.routes.js";
 import googleLogin from './googleLogin.routes.js';
+import academicResourceCategoryRoutes from "./CategoryForAcademicResource.routes.js";
 const router = express.Router();
 const constructorMethods = (app) => {
   
@@ -32,6 +33,7 @@ const constructorMethods = (app) => {
   app.use("/userSideCampusResources", userSideCampusResourcesRoutes); // Assuming you have a userSideCampusResources.routes.js file
   app.use("/announcements", adminAnouncementRoutes);
   app.use("/forgot-password", forgotPasswordRoutes);
+  app.use("/resCategory", academicResourceCategoryRoutes);
  // Google login routes
   app.use("/auth", googleLogin); 
   app.use(/(.*)/, (req, res) => {

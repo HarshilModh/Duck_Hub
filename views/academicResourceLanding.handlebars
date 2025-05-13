@@ -1,28 +1,62 @@
-{{!-- Search form --}}
-<form
-  id="searchForm"
-  action="/academicResources/search"
-  method="get"
-  class="search-form"
->
-  <input
-    type="text"
-    name="text"
-    placeholder="Search Academic Resources…"
-    value="{{text}}"
-    class="search-input"
-  />
-  <select name="sort" class="search-select">
-    <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Date</option>
-    <option value="title" {{#if (eq sort "title")}}selected{{/if}}>Title</option>
-    <option value="url" {{#if (eq sort "url")}}selected{{/if}}>URL</option>
-  </select>
-  <select name="order" class="search-select">
-    <option value="asc" {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
-    <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
-  </select>
-  <button type="submit" class="search-button">Search</button>
-</form>
+{{!-- Search & Filter Forms --}}
+<div class="flex flex-wrap items-center gap-4 mb-6">
+  <form
+    id="searchForm"
+    action="/academicResources/search"
+    method="get"
+    class="flex items-center space-x-2 flex-1"
+  >
+    <input
+      type="text"
+      name="text"
+      placeholder="Search Academic Resources…"
+      value="{{text}}"
+      class="search-input flex-1"
+    />
+    <select name="sort" class="search-select">
+      <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Date</option>
+      <option value="title"     {{#if (eq sort "title")}}selected{{/if}}>Title</option>
+      <option value="url"       {{#if (eq sort "url")}}selected{{/if}}>URL</option>
+    </select>
+    <select name="order" class="search-select">
+      <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
+      <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
+    </select>
+    <button type="submit" class="search-button">Search</button>
+  </form>
+
+  <form
+    id="categoryFilterForm"
+    action="/academicResources/filter"
+    method="POST"
+    class="flex items-center space-x-2"
+  >
+    <label for="categorySelect" class="sr-only">Filter by Category</label>
+    <select
+      id="categorySelect"
+      name="category"
+      class="search-select"
+    >
+      <option value="">All Categories</option>
+      {{#each categories}}
+        <option value="{{this._id}}" {{#if (eq ../category this._id)}}selected{{/if}}>
+          {{this.categoryName}}
+        </option>
+      {{/each}}
+    </select>
+    <button type="submit" class="search-button">Filter</button>
+  </form>
+  {{#if isfiltered}}
+    <form
+      id="clearFilterForm"
+      action="/academicResources"
+      method="get"
+      class="flex items-center space-x-2"
+    >
+      <button type="submit" class="clear-filter-button">Clear Category Filter</button>
+    </form>
+  {{/if}}
+</div>
 
 <div class="section-heading-bar">
   <h2 id="sectionHeading">Academic Resources</h2>
@@ -34,9 +68,14 @@
       <a href="#" id="openTagModal" class="create-tag-button">
         Create Tag
       </a>
+      {{!-- resCategory/create --}}
+      <a href="/resCategory/create" class="create-tag-button">
+        Create Category
+      </a>
     {{/if}}
   </div>
 </div>
+
 
 <div class="forum-posts-list">
   {{#each academicResources}}
@@ -68,7 +107,12 @@
           </button>
         {{/if}}
       </div>
-
+    {{!-- add catagortname --}}
+      {{#if this.category}}
+        <p class="forum-category">
+          Category: {{this.category.categoryName}}
+        </p>
+      {{/if}}
       <!-- Resource info -->
       <h3 class="forum-title">{{this.title}}</h3>
       <p class="forum-posted-by">
