@@ -1,48 +1,53 @@
-{{!-- landing.hbs --}}
+{{! landing.hbs }}
 
-{{#if isForum}}
-  <div class="forum-post-card">
-    <h3 class="forum-title">{{forum.title}}</h3>
-    <p class="forum-posted-by">
-      Posted by: {{forum.userId.firstName}}_{{forum.userId.lastName}}
-    </p>
-    <p class="forum-content">{{forum.content}}</p>
+<div class="forum-body">
 
-    {{#if forum.imageURLs.length}}
-      <div class="forum-images">
-        {{#each forum.imageURLs}}
-          <img src="{{this}}" alt="Forum Image" class="forum-image" />
-        {{/each}}
-      </div>
-    {{/if}}
-  </div>
+  {{! Show either a forum post or a poll, never both }}
+  {{#if isForum}}
+    <div class="forum-post-card">
+      <h3 class="forum-title">{{forum.title}}</h3>
+      <p class="forum-posted-by">
+        Posted by:
+        {{forum.userId.firstName}}_{{forum.userId.lastName}}
+      </p>
+      <p class="forum-content">{{forum.content}}</p>
 
-{{else}}
-  <div class="forum-post-card">
-    <h3 class="forum-title">{{poll.question}}</h3>
-    <p class="forum-posted-by">
-      Created by: {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}
-    </p>
-
-    {{#if poll.imageURLs.length}}
-      <div class="forum-images">
-        {{#each poll.imageURLs}}
-          <img src="{{this}}" alt="Poll Image" class="forum-image" />
-        {{/each}}
-      </div>
-    {{/if}}
-
-    <div class="poll-options">
-      {{#each poll.options}}
-        <div class="poll-option">
-          <p>{{this.answer}} &ndash; {{this.votes}} votes</p>
+      {{#if forum.imageURLs.length}}
+        <div class="forum-images">
+          {{#each forum.imageURLs}}
+            <img src="{{this}}" alt="Forum Image" class="forum-image" />
+          {{/each}}
         </div>
-      {{/each}}
+      {{/if}}
+    </div>
+  {{else}}
+    <div class="forum-post-card">
+      <h3 class="forum-title">{{poll.question}}</h3>
+      <p class="forum-posted-by">
+        Created by:
+        {{poll.createdBy.firstName}}_{{poll.createdBy.lastName}}
+      </p>
 
-  </div>
-{{/if}}
+      {{#if poll.imageURLs.length}}
+        <div class="forum-images">
+          {{#each poll.imageURLs}}
+            <img src="{{this}}" alt="Poll Image" class="forum-image" />
+          {{/each}}
+        </div>
+      {{/if}}
 
-<div class="comments-header">
+      <div class="poll-options">
+        {{#each poll.options}}
+          <div class="poll-option">
+            <p>{{this.answer}} &ndash; {{this.votes}} votes</p>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{! Comments section always shows below whichever card we rendered above }}
+  <div class="comments-header">
     <h2 class="comments-title">Comments</h2>
   </div>
 
@@ -73,8 +78,10 @@
     {{/if}}
   </div>
 
+</div>
+
 <script>
-  const loggedInUserId = "{{loggedUserId}}";
-  const isForum = {{isForum}}; 
+  const loggedInUserId = "{{loggedUserId}}"; const isForum =
+  {{isForum}};
 </script>
 <script src="/public/js/forumLanding.js"></script>

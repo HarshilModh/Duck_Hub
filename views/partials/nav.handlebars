@@ -1,40 +1,90 @@
-{{!-- views/partials/navbar.handlebars --}}
+{{! views/partials/navbar.handlebars }}
 
 <nav class="bg-stevensWhite shadow-sm sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
 
       <!-- Brand -->
-      <a href="/forums" class="text-stevensMaroon text-2xl font-bold hover:opacity-90 transition">
+      <a
+        href="/forums"
+        class="text-stevensMaroon text-2xl font-bold hover:opacity-90 transition"
+      >
         DuckHub
       </a>
 
       <!-- Primary Links (desktop only) -->
-      <ul class="hidden md:flex space-x-4 lg:space-x-6 items-center text-stevensGray">
+      <ul
+        class="hidden md:flex space-x-4 lg:space-x-6 items-center text-stevensGray"
+      >
         {{#if user}}
           {{#if (eq user.role "admin")}}
-            <li><a href="/forums"               class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Forums</a></li>
-            <li><a href="/departments"          class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Departments</a></li>
-            <li><a href="/userSideCourses"      class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Courses</a></li>
-            <li><a href="/userSideCampusResources/categories"
-                                              class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Resources</a></li>
-            <li><a href="/academicResources"    class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Academics</a></li>
-            <li><a href="/report/dashboard"          class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Reports</a></li>
-            <li><a href="/users/missingRequestDashboard"  class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Requests</a></li>
+            <li><a
+                href="/forums"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Forums</a></li>
+            <li><a
+                href="/departments"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Departments</a></li>
+            <li><a
+                href="/userSideCourses"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Courses</a></li>
+            <li><a
+                href="/userSideCampusResources/categories"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Resources</a></li>
+            <li><a
+                href="/academicResources"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Academics</a></li>
+            <li><a
+                href="/report/dashboard"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Reports</a></li>
+            <li><a
+                href="/users/missingRequestDashboard"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Requests</a></li>
           {{else}}
-            <li><a href="/forums"                      class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Forums</a></li>
-            <li><a href="/departments/userSideDepartment"
-                                                      class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Departments</a></li>
-            <li><a href="/userSideCourses"             class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Courses</a></li>
-            <li><a href="/userSideCampusResources/categories"
-                                                      class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Resources</a></li>
-            <li><a href="/academicResources"           class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Academics</a></li>
-            <li><a href="/userSideCourses/myReviews"   class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Reviews</a></li>
-            <li><a href="/users/missingRequest"        class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Requests</a></li>
+            <li><a
+                href="/forums"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Forums</a></li>
+            <li><a
+                href="/departments/userSideDepartment"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Departments</a></li>
+            <li><a
+                href="/userSideCourses"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Courses</a></li>
+            <li><a
+                href="/userSideCampusResources/categories"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Resources</a></li>
+            <li><a
+                href="/academicResources"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Academics</a></li>
+            <li><a
+                href="/userSideCourses/myReviews"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Reviews</a></li>
+            <li><a
+                href="/users/missingRequest"
+                class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+              >Requests</a></li>
           {{/if}}
         {{else}}
-          <li><a href="/users/login"  class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Login</a></li>
-          <li><a href="/users/signup" class="px-3 py-2 hover:text-stevensMaroon hover:underline transition">Sign Up</a></li>
+          <li><a
+              href="/users/login"
+              class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+            >Login</a></li>
+          <li><a
+              href="/users/signup"
+              class="px-3 py-2 hover:text-stevensMaroon hover:underline transition"
+            >Sign Up</a></li>
         {{/if}}
       </ul>
 
@@ -42,16 +92,29 @@
       <div class="flex items-center space-x-4">
         {{#if user}}
           <!-- Announcements / Bell -->
-          <a href="/announcements" class="p-2 rounded-full hover:bg-stevensBg transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-stevensGray hover:text-stevensMaroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0
+          <a
+            href="/announcements"
+            class="p-2 rounded-full hover:bg-stevensBg transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-stevensGray hover:text-stevensMaroon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0
                        0118 14.158V11a6.002 6.002 0
                        00-4-5.659V5a2 2 0 10-4 0v.341C7.67
                        6.165 6 8.388 6 11v3.159c0
                        .538-.214 1.055-.595
                        1.436L4 17h5m6 0v1a3 3 0
-                       11-6 0v-1m6 0H9"/>
+                       11-6 0v-1m6 0H9"
+              />
             </svg>
           </a>
 
@@ -62,15 +125,31 @@
               class="flex items-center space-x-2 px-1 py-1 focus:outline-none hover:bg-stevensBg rounded transition"
             >
               {{#if user.profileImage}}
-                <img src="{{user.profileImage}}" alt="Avatar" class="h-8 w-8 rounded-full object-cover" />
+                <img
+                  src="{{user.profileImage}}"
+                  alt="Avatar"
+                  class="h-8 w-8 rounded-full object-cover"
+                />
               {{else}}
-                <span class="h-8 w-8 rounded-full bg-stevensGray flex items-center justify-center text-stevensWhite">
+                <span
+                  class="h-8 w-8 rounded-full bg-stevensGray flex items-center justify-center text-stevensWhite"
+                >
                   {{user.firstName.[0]}}{{user.lastName.[0]}}
                 </span>
               {{/if}}
               <span class="text-stevensGray">{{user.firstName}}</span>
-              <svg class="h-4 w-4 text-stevensGray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              <svg
+                class="h-4 w-4 text-stevensGray"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
@@ -78,17 +157,35 @@
               id="profile-menu"
               class="absolute right-0 mt-2 w-40 bg-stevensWhite border rounded-md shadow-lg hidden z-20"
             >
-              <li><a href="/users/userProfile" class="block px-4 py-2 hover:bg-stevensBg">Profile</a></li>
-              <li><a href="/forums/user/{{user._id}}" class="block px-4 py-2 hover:bg-stevensBg">My Forums</a></li>
-            {{!-- myRequests --}}
-              <li><a href="/users/missingRequestuser" class="block px-4 py-2 hover:bg-stevensBg">My Requests</a></li>
-              {{!-- my reports --}}
-              <li><a href="/report/myreports" class="block px-4 py-2 hover:bg-stevensBg">My Reports</a></li>
-              {{!-- my reviews --}}
+              <li><a
+                  href="/users/userProfile"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >Profile</a></li>
+              <li><a
+                  href="/forums/user"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >My Forums</a></li>
+              {{! myRequests }}
+              <li><a
+                  href="/users/missingRequestuser"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >My Requests</a></li>
+              {{! my reports }}
+              <li><a
+                  href="/report/myreports"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >My Reports</a></li>
+              {{! my reviews }}
               {{#if (eq user.role "admin")}}
-                <li><a href="/users/adminDashboard" class="block px-4 py-2 hover:bg-stevensBg">Admin</a></li>
+                <li><a
+                    href="/users/adminDashboard"
+                    class="block px-4 py-2 hover:bg-stevensBg"
+                  >Admin</a></li>
               {{/if}}
-              <li><a href="/users/logout" class="block px-4 py-2 hover:bg-stevensBg">Logout</a></li>
+              <li><a
+                  href="/users/logout"
+                  class="block px-4 py-2 hover:bg-stevensBg"
+                >Logout</a></li>
             </ul>
           </div>
         {{/if}}
@@ -100,22 +197,13 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const btn  = document.getElementById('profile-toggle');
-      const menu = document.getElementById('profile-menu');
-
-      // toggle menu on click
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        menu.classList.toggle('hidden');
-      });
-
-      // close when clicking outside
-      document.addEventListener('click', () => {
-        if (!menu.classList.contains('hidden')) {
-          menu.classList.add('hidden');
-        }
-      });
+    document.addEventListener('DOMContentLoaded', () => { const btn =
+    document.getElementById('profile-toggle'); const menu =
+    document.getElementById('profile-menu'); // toggle menu on click
+    btn.addEventListener('click', e => { e.stopPropagation();
+    menu.classList.toggle('hidden'); }); // close when clicking outside
+    document.addEventListener('click', () => { if
+    (!menu.classList.contains('hidden')) { menu.classList.add('hidden'); } });
     });
   </script>
 </nav>

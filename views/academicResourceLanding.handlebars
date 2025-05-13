@@ -1,57 +1,22 @@
 <div class="flex flex-wrap items-center gap-4 mb-6">
-  <form
-    id="searchForm"
-    action="/academicResources/search"
-    method="get"
-    class="flex items-center space-x-2 flex-1"
-  >
-    <input
-      type="text"
-      name="text"
-      placeholder="Search Academic Resources…"
-      value="{{text}}"
-      class="search-input flex-1"
-    />
-    <select name="sort" class="search-select">
-      <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Date</option>
-      <option value="title"     {{#if (eq sort "title")}}selected{{/if}}>Title</option>
-      <option value="url"       {{#if (eq sort "url")}}selected{{/if}}>URL</option>
-    </select>
-    <select name="order" class="search-select">
-      <option value="asc"  {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
-      <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
-    </select>
+  <form id="searchForm" action="/academicResources/search" method="get" class="flex items-center space-x-2 flex-1">
+    <input type="text" name="text" placeholder="Search Academic Resources…" value="{{text}}" class="search-input flex-1"/>
     <button type="submit" class="search-button">Search</button>
   </form>
 
-  <form
-    id="categoryFilterForm"
-    action="/academicResources/filter"
-    method="POST"
-    class="flex items-center space-x-2"
-  >
+  <form id="categoryFilterForm" action="/academicResources/filter" method="POST" class="flex items-center space-x-2">
     <label for="categorySelect" class="sr-only">Filter by Category</label>
-    <select
-      id="categorySelect"
-      name="category"
-      class="search-select"
-    >
+    <select id="categorySelect" name="category" class="search-select">
       <option value="">All Categories</option>
       {{#each categories}}
-        <option value="{{this._id}}" {{#if (eq ../category this._id)}}selected{{/if}}>
-          {{this.categoryName}}
-        </option>
+        <option value="{{this._id}}" {{#if (eq ../category this._id)}}selected{{/if}}>{{this.categoryName}}</option>
       {{/each}}
     </select>
     <button type="submit" class="search-button">Filter</button>
   </form>
+
   {{#if isfiltered}}
-    <form
-      id="clearFilterForm"
-      action="/academicResources"
-      method="get"
-      class="flex items-center space-x-2"
-    >
+    <form id="clearFilterForm" action="/academicResources" method="get" class="flex items-center space-x-2">
       <button type="submit" class="clear-filter-button">Clear Category Filter</button>
     </form>
   {{/if}}
@@ -60,98 +25,47 @@
 <div class="section-heading-bar">
   <h2 id="sectionHeading">Academic Resources</h2>
   <div class="section-buttons">
-    <a href="/academicResources/create" class="create-post-button">
-      Create Academic Resource
-    </a>
+    <a href="/academicResources/create" class="create-post-button">Create Academic Resource</a>
     {{#if isAdmin}}
-      <a href="#" id="openTagModal" class="create-tag-button">
-        Create Tag
-      </a>
-      {{!-- resCategory/create --}}
-      <a href="/resCategory/create" class="create-tag-button">
-        Create Category
-      </a>
+      <a href="#" id="openTagModal" class="create-tag-button">Create Tag</a>
+      <a href="/resCategory/create" class="create-tag-button">Create Category</a>
     {{/if}}
   </div>
 </div>
 
-
 <div class="forum-posts-list">
   {{#each academicResources}}
     <div class="forum-post-card">
-      <!-- Report icon -->
       <div class="post-actions report-action">
         <button class="report-button" data-id="{{this._id}}" title="Report">
-          <img
-            src="/public/images/icons/exclamation-mark.png"
-            alt="Report Icon"
-            class="action-icon"
-          />
+          <img src="/public/images/icons/exclamation-mark.png" alt="Report Icon" class="action-icon"/>
         </button>
       </div>
-
-      <!-- Delete icon (only for admins) -->
-      <div class="post-actions delete-action">
-        {{#if ../isAdmin}}
-          <button
-            class="delete-button"
-            data-id="{{this._id}}"
-            title="Delete Academic Resource"
-          >
-            <img
-              src="/public/images/icons/bin.png"
-              alt="Delete Icon"
-              class="action-icon"
-            />
+      {{#if ../isAdmin}}
+        <div class="post-actions delete-action">
+          <button class="delete-button" data-id="{{this._id}}" title="Delete Academic Resource">
+            <img src="/public/images/icons/bin.png" alt="Delete Icon" class="action-icon"/>
           </button>
-        {{/if}}
-      </div>
-    {{!-- add catagortname --}}
-      {{#if this.category}}
-        <p class="forum-category">
-          Category: {{this.category.categoryName}}
-        </p>
-      {{/if}}
-      <!-- Resource info -->
-      <h3 class="forum-title">{{this.title}}</h3>
-      <p class="forum-posted-by">
-        Posted by: {{this.uploadedBy.firstName}} {{this.uploadedBy.lastName}}
-      </p>
-
-      {{#if this.tags.length}}
-        <div class="tags">
-          {{#each this.tags}}
-            <span class="tag">{{this.name}}</span>
-          {{/each}}
         </div>
       {{/if}}
-
-      <!-- Description and link -->
+      {{#if this.category}}
+        <p class="forum-category">Category: {{this.category.categoryName}}</p>
+      {{/if}}
+      <h3 class="forum-title">{{this.title}}</h3>
+      <p class="forum-posted-by">Posted by: {{this.uploadedBy.firstName}} {{this.uploadedBy.lastName}}</p>
+      {{#if this.tags.length}}
+        <div class="tags">
+          {{#each this.tags}}<span class="tag">{{this.name}}</span>{{/each}}
+        </div>
+      {{/if}}
       <p class="forum-content">{{this.description}}</p>
-      <a
-        class="forum-content"
-        href="{{this.url}}"
-        target="_blank"
-        rel="noopener"
-      >
-        {{this.url}}
-      </a>
-
-      <!-- Upvote / Downvote -->
+      <a class="forum-content" href="{{this.url}}" target="_blank" rel="noopener">{{this.url}}</a>
       <div class="vote-container">
         <button class="upvote-button" data-id="{{this._id}}">
-          <img
-            src="/public/images/icons/upVote.png"
-            alt="Upvote"
-            class="vote-icon"
-          /><span>{{this.upVotes}}</span>
+          <img src="/public/images/icons/upVote.png" alt="Upvote" class="vote-icon"/><span>{{this.upVotes}}</span>
         </button>
         <button class="downvote-button" data-id="{{this._id}}">
-          <img
-            src="/public/images/icons/downVote.png"
-            alt="Downvote"
-            class="vote-icon"
-          /><span>{{this.downVotes}}</span>
+          <img src="/public/images/icons/downVote.png" alt="Downvote" class="vote-icon"/><span>{{this.downVotes}}</span>
         </button>
       </div>
     </div>
@@ -163,18 +77,10 @@
   <div class="modal-card">
     <h2>Report Content</h2>
     <form id="reportForm" action="/report/AcademicResource" method="post">
-      <input type="hidden" name="contentId" id="reportContentId" />
-      <input type="hidden" name="userId" value="{{loggedInUserId}}" />
-
+      <input type="hidden" name="contentId" id="reportContentId"/>
+      <input type="hidden" name="userId" value="{{loggedInUserId}}"/>
       <label for="reportReason">Reason:</label>
-      <textarea
-        name="reason"
-        id="reportReason"
-        rows="4"
-        
-        placeholder="Describe why you're reporting this…"
-      ></textarea>
-
+      <textarea name="reason" id="reportReason" rows="4" placeholder="Describe why you're reporting this…"></textarea>
       <div class="modal-buttons">
         <button type="button" id="reportCancel">Cancel</button>
         <button type="submit">Submit Report</button>
@@ -189,16 +95,7 @@
     <h2>Create New Tag</h2>
     <form id="tagForm" action="/academicResources/tag/create" method="post">
       <label for="tagName">Tag Name</label>
-      <input
-        type="text"
-        id="tagName"
-        name="name"
-        placeholder="Enter tag name"
-        
-        class="search-input"
-        style="border-radius:0.375rem; margin-bottom:1rem;"
-      />
-
+      <input type="text" id="tagName" name="name" placeholder="Enter tag name" class="search-input" style="border-radius:0.375rem; margin-bottom:1rem;"/>
       <div class="modal-buttons">
         <button type="button" id="tagCancel">Cancel</button>
         <button type="submit">Create</button>
