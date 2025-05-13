@@ -218,7 +218,7 @@ export const getAllCampusResources = async () => {
     const allResources = await CampusResource.find().lean();
 
     // check if there are any resources
-    if (!allResources || allResources.length === 0) {
+    if (!allResources) {
       throw new Error("No campus resources found");
     }
 

@@ -30,10 +30,17 @@ import { getAllCategories } from "../data/CategoryForAcademicResource.controller
 const router = express.Router();
 
 router.route("/").get(isLoggedIn, async (req, res) => {
-  const academicResources = await getAllAcademicResources();
+  let academicResources = await getAllAcademicResources();
   let categories= await getAllCategories();
   const isAdmin = req.session.user?.user?.role === "admin";
   const loggedUserId = req.session.user?.user?._id || null;
+  //change url to encodeURI(r.url),
+  // so that it can be opened in new tab
+  academicResources = academicResources.map((r) => ({
+    ...r,
+    url: encodeURI(r.url),
+  }));
+
   res.render("academicResourceLanding", {
     academicResources,
     loggedInUserId: loggedUserId,
