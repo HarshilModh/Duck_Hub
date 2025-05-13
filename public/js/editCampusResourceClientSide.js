@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
       
           //operating hours validation
-          const regexforhours = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):\s*\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/;
+          const regexforhours = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):\s*([01]?\d|2[0-4]):\d{2}\s*-\s*([01]?\d|2[0-4]):\d{2}$/;
           // Check if each operating hours string matches the regex
             for (let i = 0; i < operatingHours.length; i++) {
                 if (typeof operatingHours[i] !== "string") {

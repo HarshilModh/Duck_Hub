@@ -112,22 +112,41 @@
   {{#if courses.length}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {{#each courses}}
-        <div class="relative bg-stevensWhite rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1 duration-200">
-          <a href="/userSideCourses/course/{{this._id}}" class="block p-6 flex flex-col h-full">
-            <p class="font-heading text-stevensMaroon text-lg mb-2">{{this.courseCode}}</p>
-            <h3 class="font-semibold text-gray-800 text-xl mb-3 capitalize">{{this.courseName}}</h3>
-            <p class="text-stevensGray text-sm flex-1 line-clamp-4">{{this.courseDescription}}</p>
+        <article class="bg-stevensWhite rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1 duration-200 flex flex-col">
+          
+          <!-- Card Link -->
+          <a href="/userSideCourses/course/{{this._id}}" class="flex-1 p-6 flex flex-col">
+            
+            <!-- Course Header -->
+            <header class="mb-4">
+              <p class="font-heading text-stevensMaroon text-lg">{{this.courseCode}}</p>
+              <h3 class="font-semibold text-gray-800 text-xl capitalize">{{this.courseName}}</h3>
+            </header>
+
+            <!-- Course Description -->
+            <section class="flex-1">
+              <p class="text-stevensGray text-sm  break-words">
+                {{this.courseDescription}}
+              </p>
+            </section>
+
           </a>
+
+          <!-- Admin Actions -->
           {{#if ../user}}
             {{#if (eq ../user.role "admin")}}
-              <div class="absolute bottom-4 right-4 flex space-x-2">
+              <footer class="p-4 pt-0 flex justify-end space-x-2">
                 <a
                   href="/courses/{{this._id}}"
                   class="bg-stevensMaroon text-stevensWhite px-3 py-1 rounded-lg text-sm hover:bg-stevensMaroon/90 transition"
                 >
                   Edit
                 </a>
-                <form action="/courses/{{this._id}}" method="POST" onsubmit="return confirm('Delete “{{this.courseName}}”?');">
+                <form
+                  action="/courses/{{this._id}}"
+                  method="POST"
+                  onsubmit="return confirm('Delete “{{this.courseName}}”?');"
+                >
                   <input type="hidden" name="_method" value="DELETE" />
                   <button
                     type="submit"
@@ -136,10 +155,11 @@
                     Delete
                   </button>
                 </form>
-              </div>
+              </footer>
             {{/if}}
           {{/if}}
-        </div>
+
+        </article>
       {{/each}}
     </div>
   {{else}}
@@ -147,4 +167,5 @@
   {{/if}}
 
 </div>
+
 <script src="/js/courseSearchForm.js"></script>

@@ -70,7 +70,16 @@
             }
       
           //operating hours validation
-          const regexforhours = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):\s*\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/;
+          // const regexforhours = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):\s*\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/;
+          const regexforhours = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):\s*([01]?\d|2[0-4]):\d{2}\s*-\s*([01]?\d|2[0-4]):\d{2}$/;
+            // Check if the operating hours string is too long
+            if (operatingHours.some(hour => hour.length > 50)) {
+                throw new Error("Operating hours must not be more than 50 characters");
+            }
+            // Check if the operating hours string is too short
+            if (operatingHours.some(hour => hour.length < 5)) {
+                throw new Error("Operating hours must be at least 5 characters");
+            }
           // Check if each operating hours string matches the regex
             for (let i = 0; i < operatingHours.length; i++) {
                 if (typeof operatingHours[i] !== "string") {

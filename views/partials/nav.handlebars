@@ -4,7 +4,6 @@
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
 
-      <!-- Brand -->
       <a
         href="/forums"
         class="text-stevensMaroon text-2xl font-bold hover:opacity-90 transition"
@@ -12,7 +11,6 @@
         DuckHub
       </a>
 
-      <!-- Primary Links (desktop only) -->
       <ul
         class="hidden md:flex space-x-4 lg:space-x-6 items-center text-stevensGray"
       >
@@ -88,10 +86,8 @@
         {{/if}}
       </ul>
 
-      <!-- Right-side actions -->
       <div class="flex items-center space-x-4">
         {{#if user}}
-          <!-- Announcements / Bell -->
           <a
             href="/announcements"
             class="p-2 rounded-full hover:bg-stevensBg transition"
@@ -118,7 +114,6 @@
             </svg>
           </a>
 
-          <!-- Profile dropdown (click to open) -->
           <div class="relative" id="profile-wrapper">
             <button
               id="profile-toggle"
@@ -185,6 +180,11 @@
                     href="/userSideCourses/myReviews"
                     class="block px-4 py-2 hover:bg-stevensBg"
                   >My Reviews</a></li> 
+                  {{!-- users/missingRequest --}}
+                  <li><a
+                    href="/users/missingRequest"
+                    class="block px-4 py-2 hover:bg-stevensBg"
+                  >Make Request</a></li>
               {{/if}}
               <li><a
                   href="/users/logout"
@@ -195,7 +195,6 @@
         {{/if}}
       </div>
 
-      <!-- Mobile “hamburger” toggle could go here -->
 
     </div>
   </div>
