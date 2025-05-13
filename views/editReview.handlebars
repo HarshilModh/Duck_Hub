@@ -21,7 +21,6 @@
           <input
             type="radio"
             name="overallRating"
-            id="overallRating"
             value="1"
             class="peer sr-only"
             {{#if (eq review.overallRating 1)}}checked{{/if}}
@@ -35,7 +34,6 @@
             type="radio"
             name="overallRating"
             value="2"
-            id="overallRating"
             class="peer sr-only"
             {{#if (eq review.overallRating 2)}}checked{{/if}}
           />
@@ -46,8 +44,7 @@
         <label class="cursor-pointer">
           <input
             type="radio"
-            name="overallRating"
-            id="overallRating"
+            name="overallRating"   
             value="3"
             class="peer sr-only"
             {{#if (eq review.overallRating 3)}}checked{{/if}}
@@ -60,7 +57,6 @@
           <input
             type="radio"
             name="overallRating"
-            id="overallRating"
             value="4"
             class="peer sr-only"
             {{#if (eq review.overallRating 4)}}checked{{/if}}
@@ -73,7 +69,6 @@
           <input
             type="radio"
             name="overallRating"
-            id="overallRating"
             value="5"
             class="peer sr-only"
             {{#if (eq review.overallRating 5)}}checked{{/if}}
@@ -93,7 +88,6 @@
           <input
             type="radio"
             name="difficultyRating"
-            id="difficultyRating"
             value="1"
             class="peer sr-only"
             {{#if (eq review.difficultyRating 1)}}checked{{/if}}
@@ -106,7 +100,6 @@
           <input
             type="radio"
             name="difficultyRating"
-            id="difficultyRating"
             value="2"
             class="peer sr-only"
             {{#if (eq review.difficultyRating 2)}}checked{{/if}}
@@ -119,7 +112,6 @@
           <input
             type="radio"
             name="difficultyRating"
-            id="difficultyRating"
             value="3"
             class="peer sr-only"
             {{#if (eq review.difficultyRating 3)}}checked{{/if}}
@@ -133,7 +125,7 @@
 
     <!-- Review Text -->
     <div>
-      <label for="review" id="review" class="block text-stevensGray font-medium mb-2">Review</label>
+      <label for="review"  class="block text-stevensGray font-medium mb-2">Review</label>
       <textarea
         id="review"
         name="review"
