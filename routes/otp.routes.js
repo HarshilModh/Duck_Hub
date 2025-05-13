@@ -7,6 +7,7 @@ import Otp from "../models/otp.model.js";
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import xss from "xss";
+import { type } from "os";
 const router = express.Router();
 
 router.route("/").get(isNotLoggedIn, async (req, res) => {
@@ -25,7 +26,20 @@ router.post("/otp", isNotLoggedIn, async (req, res) => {
     };
     return res.redirect("/forgot-password");
   }
-
+  try {
+    const user = await User.findOne({ email });
+    if (user.googleId !== null) {
+      throw new Error(
+        "Can't change password: This account is associated with SSO"
+      );
+    }
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message || "Account associated with SSO",
+    };
+    return res.render("/users/login");
+  }
   try {
     const data = await forgotPassword(email);
     req.session.passwordResetEmail = email;
