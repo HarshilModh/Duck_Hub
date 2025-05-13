@@ -39,6 +39,8 @@ import {
   deleteCommentById,
 } from "../data/forumsCommentsController.js";
 import CommentVotes from "../models/forumCommentVotes.model.js";
+import { type } from "os";
+import { clear, error } from "console";
 
 //TODO: Implement Router Checks
 router.route("/").post(isLoggedIn, uploadImagesGuard, async (req, res) => {
@@ -237,6 +239,7 @@ router.route("/user").get(isLoggedIn, async (req, res, next) => {
 
 router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
   let forumId = req.params.id;
+  let forum;
   try {
     forumId = isValidID(forumId, "ForumID");
   } catch (error) {
@@ -247,7 +250,15 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
     return res.redirect("/forums/user");
   }
   try {
-    const forum = await getForumPostById(forumId);
+    forum = await getForumPostById(forumId);
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums/user");
+  }
+  try {
     const comments = await getCommentsByForumId(forumId);
     const loggedUserId = req.session.user?.user?._id || null;
 
@@ -264,100 +275,27 @@ router.route("/user/comments/view/:id").get(isLoggedIn, async (req, res) => {
   }
 });
 
-router.route("/tag/:tagId").get(async (req, res) => {
-  const posts = await getForumPostsByTagId(req.params.tagId);
-  return res.json(posts);
-});
-
-router.route("/status/:status").get(async (req, res) => {
-  const posts = await getForumPostsByStatus(req.params.status);
-  return res.json(posts);
-});
-
-router.route("/reported").get(async (req, res) => {
-  try {
-    const reportedPosts = await getReportedForumPosts();
-    return res.status(200).json(reportedPosts);
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
-
-router.put("/upvote/:id", async (req, res) => {
-  const userId = req.body.userId;
-
-  // check duplicate
-  const existing = await ForumVotes.findOne({
-    forumId: req.params.id,
-    voterId: userId,
-  });
-
-  if (existing?.voteType === "UP") {
-    req.session.toast = {
-      type: "error",
-      message: "You can't upvote a post twice.",
-    };
-    return res.status(400).json({ error: "Duplicate upvote" });
-  }
-
-  try {
-    const updated = await upvoteForumPost(req.params.id, userId);
-    req.session.toast = {
-      type: "success",
-      message: "Upvoted successfully!",
-    };
-    return res.json({ upVotes: updated.upVotes });
-  } catch (error) {
-    console.error("Upvote error:", error);
-    req.session.toast = {
-      type: "error",
-      message: "Failed to upvote the post. Please try again.",
-    };
-    return res.status(500).json({ error: "Upvote failed" });
-  }
-});
-
-router.put("/downvote/:id", async (req, res) => {
-  const userId = req.body.userId;
-
-  const existing = await ForumVotes.findOne({
-    forumId: req.params.id,
-    voterId: userId,
-  });
-  if (existing?.voteType === "DOWN") {
-    req.session.toast = {
-      type: "error",
-      message: "You can't downvote a post twice.",
-    };
-    return res.status(400).json({ error: "Duplicate downvote" });
-  }
-
-  try {
-    const updatedPost = await downvoteForumPost(req.params.id, userId);
-    req.session.toast = {
-      type: "success",
-      message: "Downvoted successfully!",
-    };
-    return res.json({ downVotes: updatedPost.downVotes });
-  } catch (error) {
-    console.error("Downvote error:", error);
-    req.session.toast = {
-      type: "error",
-      message: "Failed to downvote the post. Please try again.",
-    };
-    return res.status(500).json({ error: "Downvote failed" });
-  }
-});
-
 router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
-  const userId = req.session.user?.user?._id;
-  const forumId = req.params.forumId;
+  let userId = req.session.user?.user?._id;
+  let forumId = req.params.forumId;
+
+  try {
+    userId = isValidID(userId, "UserID");
+    forumId = isValidID(forumId, "ForumID");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums");
+  }
 
   if (!userId) {
     req.session.toast = {
       type: "error",
       message: "Please login to add a comment.",
     };
+    return res.redirect("/forums/comments/add/{forumId}");
   }
 
   res.render("addComment", {
@@ -365,11 +303,6 @@ router.route("/comments/add/:forumId").get(isLoggedIn, (req, res) => {
     userId,
     customStyles: '<link rel="stylesheet" href="/public/css/addComment.css">',
   });
-});
-
-router.route("/:id").get(async (req, res) => {
-  const post = await getForumPostById(req.params.id);
-  return res.status(200).json(post);
 });
 
 router.get("/comments/view", (req, res) => {
@@ -396,10 +329,19 @@ router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
   try {
     const exists = await Forum.exists({ _id: forumId });
     if (!exists) {
-      forum = await Poll.findById(forumId)
-        .populate("createdBy", "firstName lastName")
-        .lean();
-      isPoll = true;
+      const pollExists = await Poll.exists({ _id: forumId });
+      if (pollExists) {
+        forum = await Poll.findById(forumId)
+          .populate("createdBy", "firstName lastName")
+          .lean();
+        isPoll = true;
+      } else {
+        req.session.toast = {
+          type: "error",
+          message: "No threads found with given ID",
+        };
+        return res.redirect("/forums/");
+      }
     } else {
       forum = await getForumPostById(forumId);
     }
@@ -428,8 +370,17 @@ router.route("/comments/view/:forumId").get(isLoggedIn, async (req, res) => {
 });
 
 router.route("/comments/:forumId").get(async (req, res) => {
+  let forumId = req.params.forumId;
   try {
-    const forumId = req.params.forumId;
+    forumId = isValidID(forumId, "ForumID");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums");
+  }
+  try {
     const comments = await getCommentsByForumId(forumId);
     return res.status(200).json(comments);
   } catch (error) {
@@ -594,9 +545,113 @@ router
     }
   });
 
+router.route("/tag/:tagId").get(async (req, res) => {
+  const posts = await getForumPostsByTagId(req.params.tagId);
+  return res.json(posts);
+});
+
+router.route("/status/:status").get(async (req, res) => {
+  const posts = await getForumPostsByStatus(req.params.status);
+  return res.json(posts);
+});
+
+router.route("/reported").get(async (req, res) => {
+  try {
+    const reportedPosts = await getReportedForumPosts();
+    return res.status(200).json(reportedPosts);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+router.put("/upvote/:id", async (req, res) => {
+  const userId = req.body.userId;
+
+  // check duplicate
+  const existing = await ForumVotes.findOne({
+    forumId: req.params.id,
+    voterId: userId,
+  });
+
+  if (existing?.voteType === "UP") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't upvote a post twice.",
+    };
+    return res.status(400).json({ error: "Duplicate upvote" });
+  }
+
+  try {
+    const updated = await upvoteForumPost(req.params.id, userId);
+    req.session.toast = {
+      type: "success",
+      message: "Upvoted successfully!",
+    };
+    return res.json({ upVotes: updated.upVotes });
+  } catch (error) {
+    console.error("Upvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to upvote the post. Please try again.",
+    };
+    return res.status(500).json({ error: "Upvote failed" });
+  }
+});
+
+router.put("/downvote/:id", async (req, res) => {
+  const userId = req.body.userId;
+
+  const existing = await ForumVotes.findOne({
+    forumId: req.params.id,
+    voterId: userId,
+  });
+  if (existing?.voteType === "DOWN") {
+    req.session.toast = {
+      type: "error",
+      message: "You can't downvote a post twice.",
+    };
+    return res.status(400).json({ error: "Duplicate downvote" });
+  }
+
+  try {
+    const updatedPost = await downvoteForumPost(req.params.id, userId);
+    req.session.toast = {
+      type: "success",
+      message: "Downvoted successfully!",
+    };
+    return res.json({ downVotes: updatedPost.downVotes });
+  } catch (error) {
+    console.error("Downvote error:", error);
+    req.session.toast = {
+      type: "error",
+      message: "Failed to downvote the post. Please try again.",
+    };
+    return res.status(500).json({ error: "Downvote failed" });
+  }
+});
+
 router.route("/:id").get(async (req, res) => {
-  const post = await getForumPostById(req.params.id);
-  return res.status(200).json(post);
+  clear;
+  let forumId = req.params.id;
+  try {
+    forumId = isValidID(forumId, "ForumID");
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums");
+  }
+  try {
+    const post = await getForumPostById(req.params.id);
+    return res.status(200).json(post);
+  } catch (error) {
+    req.session.toast = {
+      type: "error",
+      message: error.message,
+    };
+    return res.redirect("/forums");
+  }
 });
 
 router.route("/:id").put(isLoggedIn, uploadImagesGuard, async (req, res) => {
