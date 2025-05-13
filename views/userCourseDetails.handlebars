@@ -1,19 +1,26 @@
 {{!-- views/courseDetails.handlebars --}}
 <div class="max-w-3xl mx-auto px-4 py-8 space-y-8">
 
-  <!-- Course Header -->
-  <header class="bg-stevensWhite border rounded-xl p-6 shadow flex flex-col md:flex-row md:items-center md:justify-between">
-    <div>
-      <h1 class="text-3xl font-heading text-stevensMaroon">{{course.courseName}}</h1>
-      <p class="text-sm text-gray-500 uppercase tracking-wide">{{course.courseCode}}</p>
-    </div>
+<header class="bg-stevensWhite border rounded-xl p-6 shadow flex flex-col md:flex-row md:items-start">
+  <div class="flex-1">
+    <h1 class="text-3xl font-heading text-stevensMaroon">{{course.courseName}}</h1>
+    <p class="text-sm text-gray-500 uppercase tracking-wide">{{course.courseCode}}</p>
+    <p class="mt-4 text-gray-700 whitespace-pre-line break-words">
+      {{course.courseDescription}}
+    </p>
+  </div>
+
+  <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0">
     <a
       href="/userSideCourses/course/addReview/{{course._id}}"
-      class="mt-4 md:mt-0 inline-block bg-stevensMaroon text-stevensWhite px-5 py-2 rounded-full hover:bg-stevensMaroon/90 transition"
-    >Add Review</a>
-  </header>
+      class="inline-block bg-stevensMaroon text-stevensWhite px-5 py-2 rounded-full hover:bg-stevensMaroon/90 transition"
+    >
+      Add Review
+    </a>
+  </div>
+</header>
+
  
-  <!-- Course Details -->
   <section class="bg-stevensWhite border rounded-xl p-6 shadow">
 
     {{#if course.reviews.length}}
@@ -51,7 +58,6 @@
 
   </section>
 
-  <!-- Reviews List -->
   <section class="space-y-6">
     <h2 class="text-2xl font-heading text-stevensMaroon">Reviews</h2>
 
@@ -60,7 +66,6 @@
         {{#each courseReviews}}
           <li class="bg-white border-l-4 border-stevensMaroon rounded-r-lg shadow-sm p-6 space-y-4">
 
-            <!-- Reviewer & Edited Badge -->
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="font-semibold">
@@ -80,10 +85,8 @@
               <p class="text-xs text-gray-500">{{formatDate this.createdAt}}</p>
             </div>
 
-            <!-- Review Text -->
             <p class="text-gray-700 leading-relaxed">{{this.review}}</p>
 
-            <!-- Ratings -->
             <div class="flex flex-wrap gap-6 text-sm">
               <div class="flex items-center gap-1">
                 <span class="text-gray-500">Overall:</span>
@@ -97,13 +100,11 @@
               </div>
             </div>
         {{#if ../isAdmin}}
-  {{!-- Delete button --}}
   <form
     action="/userSideCourses/deleteReview/{{this.reviewId}}"
     method="get"
     class="mt-4"
   >
-    <!-- Method override for Express' method‑override middleware -->
 
 
     <button
@@ -116,7 +117,6 @@
              transition"
       aria-label="Delete this review"
     >
-      <!-- Heroicons outline trash icon -->
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -140,7 +140,6 @@
 {{/if}}
 
          
-            <!-- Votes & Report -->
             <div class="flex items-center gap-4 text-sm pt-2">
               <form action="/userSideCourses/reviews/{{this.reviewId}}/vote" method="post" class="flex items-center gap-1">
                 <input type="hidden" name="vote" value="up">
@@ -158,7 +157,6 @@
 
               <span class="flex-1"></span>
 
-              {{!-- Report button using your backend route --}}
               <a href="/userSideCourses/reviewReport/{{this.reviewId}}">
                   🚩 Report
                 </a>
