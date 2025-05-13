@@ -13,35 +13,36 @@ export default async function seedPolls() {
     console.warn("Need users & tags—run seedUsers & seedTags first!");
     return;
   }
-
   const samplePolls = [
     {
-      question: "Which backend framework do you prefer?",
+      question: "What is your favorite programming language?",
       options: [
-        { answer: "Express.js", votes: 1, voterId: [users[0]._id] },
-        { answer: "Koa", votes: 1, voterId: [users[1]._id] },
-        { answer: "NestJS", votes: 0, voterId: [] },
+        { answer: "JavaScript" },
+        { answer: "Python" },
+        { answer: "Java" },
+        { answer: "C++" },
       ],
       createdBy: users[0]._id,
-      imageURLs: [],
-      status: "active",
-      tags: [tags[0]._id],
-      reportedBy: [],
+      tags: [tags[0]._id, tags[1]._id],
     },
     {
-      question: "Your favorite NoSQL database?",
+      question: "What is your favorite front-end framework?",
       options: [
-        { answer: "MongoDB", votes: 2, voterId: [users[0]._id, users[1]._id] },
-        { answer: "Cassandra", votes: 0, voterId: [] },
+        { answer: "React" },
+        { answer: "Vue" },
+        { answer: "Angular" },
+        { answer: "Svelte" },
       ],
       createdBy: users[1]._id,
-      imageURLs: [],
-      status: "active",
-      tags: [tags[1]._id],
-      reportedBy: [],
+      tags: [tags[0]._id, tags[1]._id],
     },
   ];
-
   await Poll.insertMany(samplePolls);
   console.log(`Inserted ${samplePolls.length} polls`);
+  const polls = await Poll.find()
+    .populate("createdBy", "name email")
+    .populate("tags", "name createdBy");
+  console.log("Populated polls with users and tags", polls);
+  console.log("Polls seeded successfully");
+  return polls;
 }

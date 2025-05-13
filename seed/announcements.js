@@ -15,11 +15,6 @@ export default async function seedAnnouncements() {
       content:
         "The platform will be down for maintenance on Saturday from 2am to 4am EST.",
     },
-    {
-      title: "NEW FEATURE: POLLS",
-      content:
-        "You can now create and vote in polls—give it a try on your next post!",
-    },
   ];
 
   await Announcement.insertMany(sampleAnnouncements);

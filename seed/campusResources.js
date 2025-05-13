@@ -3,63 +3,52 @@ import CampusResource from "../models/campusResources.model.js";
 export default async function seedCampusResources() {
   await CampusResource.deleteMany({});
   console.log("Cleared campus resources collection");
-
   const sampleResources = [
+    //gym
     {
-      resourceName: "Dana Library",
-      resourceType: "library",
+      resourceName: "Campus Gym",
+      resourceType: "gym",
       location: {
         type: "Point",
-        coordinates: [-74.0113, 40.743],
+        coordinates: [ -74.0060,40.7128], // Example coordinates
       },
-      description:
-        "Main campus library with quiet study areas and group rooms.",
+      description: "A well-equipped gym for students.",
       contactDetails: {
-        email: "library@stevens.edu",
-        contactNumber: "+1-201-216-5000",
+        email: "gym@stevens.edu"
       },
+      // Mon: 9:00 - 17:00,Tue: 10:00 - 18:00
       operatingHours: [
-        "Mon–Thu: 8am–10pm",
-        "Fri: 8am–8pm",
-        "Sat: 10am–6pm",
-        "Sun: 12pm–8pm",
-      ],
-      status: "active",
+        "Mon: 9:00 - 17:00",
+        "Tue: 10:00 - 18:00",
+        "Wed: 9:00 - 17:00",
+        "Thu: 10:00 - 18:00",
+        "Fri: 9:00 - 17:00",
+      ]
     },
+    // Dorms
     {
-      resourceName: "Carnival Dining Hall",
-      resourceType: "Dining Hall",
+      resourceName: "Campus Dorms",
+      resourceType: "Dorms",
       location: {
         type: "Point",
-        coordinates: [-74.0125, 40.7435],
+        coordinates: [ -74.026521,40.744612,], // Example coordinates
       },
-      description:
-        "All-you-can-eat dining hall serving breakfast, lunch, and dinner.",
+      description: "Student dormitories with all amenities.",
       contactDetails: {
-        email: "dining@stevens.edu",
-        contactNumber: "+1-201-216-5001",
+        email: "dorm@stevens.edu"
       },
-      operatingHours: ["Mon–Fri: 7am–9pm", "Sat–Sun: 8am–8pm"],
-      status: "active",
-    },
-    {
-      resourceName: "Burchard Hall Computer Lab",
-      resourceType: "Computer Lab",
-      location: {
-        type: "Point",
-        coordinates: [-74.0117, 40.7425],
-      },
-      description:
-        "24/7 computer lab equipped with Windows and Linux workstations.",
-      contactDetails: {
-        email: "itlab@stevens.edu",
-        contactNumber: "+1-201-216-5002",
-      },
-      operatingHours: ["Mon–Fri: 7am–9pm", "Sat–Sun: 8am–8pm"],
-      status: "active",
-    },
-  ];
-
+      // Mon: 9:00 - 17:00,Tue: 10:00 - 18:00
+      operatingHours: [
+        "Mon: 9:00 - 17:00",
+        "Tue: 10:00 - 18:00",
+        "Wed: 9:00 - 17:00",
+        "Thu: 10:00 - 18:00",
+        "Fri: 9:00 - 17:00",
+      ]
+    }]
   await CampusResource.insertMany(sampleResources);
   console.log(`Inserted ${sampleResources.length} campus resources`);
+  const resources = await CampusResource.find()
+   
+  return resources;
 }

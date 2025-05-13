@@ -21,13 +21,7 @@ export default async function seedUsers() {
       role: "user",
       isVerified: true,
     },
-    {
-      firstName: "carol",
-      lastName: "chen",
-      email: "carol@example.com",
-      password: "MyPass789!",
-      role: "user",
-    },
+ 
   ];
   await User.create(users);
   console.log(`Inserted ${users.length} users`);
