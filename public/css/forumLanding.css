@@ -23,6 +23,7 @@
   margin: 0 auto;
   padding: 0 1rem;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
 }
@@ -121,6 +122,33 @@
   border-radius: 4px;
   border: 1px solid #ccc;
   cursor: pointer;
+}
+
+/* ===================================================================
+   APPLY FILTER BUTTON
+   =================================================================== */
+.apply-filters {
+  margin-left: auto;
+}
+
+.apply-filters .filter-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #e4e5e6;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.apply-filters .filter-button:hover {
+  background: #ebc73b;
+  color: #363d45;
+}
+
+.apply-filters .filter-button.active {
+  background: #a32638;
+  color: #fff;
 }
 
 /* ===================================================================
@@ -236,7 +264,7 @@
 .post-actions.delete-action {
   position: absolute;
   top: 0.5rem;
-  right: 2.5rem; /* sits just left of the report button */
+  right: 2.5rem;
   display: flex;
   gap: 0.25rem;
   z-index: 10;
@@ -388,15 +416,93 @@
   display: flex;
 }
 
+/* ── CONTROLS LAYOUT ───────────────────────────────────────────────── */
+.controls-form .controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  background: none; /* remove any box or background */
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 0.25rem; /* small gap before error */
+}
+
+/* ── SEARCH INPUT ───────────────────────────────────────────────────── */
+.controls-form .search-wrapper input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #7f7f7f; /* Gray */
+  border-radius: 4px 0 0 4px;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.controls-form .search-wrapper input:focus {
+  outline: none;
+  border-color: #a32638; /* Maroon */
+}
+
+/* ── SEARCH BUTTON ──────────────────────────────────────────────────── */
+.controls-form .search-wrapper .search-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background: #a32638; /* Maroon */
+  color: #fff;
+  border: 1px solid #a32638;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* ── FILTER & SORT SELECTS ───────────────────────────────────────────── */
+.controls-form .filter-wrapper select,
+.controls-form .sort-wrapper select {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid #7f7f7f; /* Gray */
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+/* ── APPLY FILTER BUTTON ─────────────────────────────────────────────── */
+.controls-form .apply-filters .filter-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: #a32638;
+  color: #fff;
+  border: 1px solid #a32638;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ── ERROR MESSAGE ──────────────────────────────────────────────────── */
+.controls-form .error-message {
+  width: 100%;
+  margin-top: 0.25rem;
+  color: #a32638; /* Maroon for errors */
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* ── RESPONSIVE TWEAKS ────────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .search-section input {
-    width: 150px;
+  .controls-form .controls-row {
+    flex-direction: column;
+    align-items: stretch;
   }
-  .filter-wrapper,
-  .sort-wrapper {
-    display: none;
+  .controls-form .search-wrapper,
+  .controls-form .filter-wrapper,
+  .controls-form .sort-wrapper,
+  .controls-form .apply-filters {
+    width: 100%;
   }
-  .controls-form {
-    justify-content: space-between;
+  .controls-form .apply-filters {
+    text-align: right;
   }
 }

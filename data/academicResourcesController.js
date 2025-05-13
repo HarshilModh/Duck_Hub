@@ -18,36 +18,34 @@ export const createAcademicResource = async (
   url,
   tags
 ) => {
-
-  
   try {
     if (!userId || !title || !description || !url || !category) {
-    throw new Error("userId, title, description, and url are required.");
-  }
+      throw new Error("userId, title, description, and url are required.");
+    }
 
-  title = isValidString(title, "Resource Title");
-  description = isValidString(description, "Resource Description");
-  userId = isValidID(userId, "userId");
-  url = isValidString(url, "URL");
-  category = isValidID(category, "Category ID");
-  const user = await getUserById(userId);
-  if (!user) {
-    throw new Error("No User Found With Given ID");
-  }
+    title = isValidString(title, "Resource Title");
+    description = isValidString(description, "Resource Description");
+    userId = isValidID(userId, "userId");
+    url = isValidString(url, "URL");
+    category = isValidID(category, "Category ID");
+    const user = await getUserById(userId);
+    if (!user) {
+      throw new Error("No User Found With Given ID");
+    }
 
-  if (tags && tags.length !== 0) {
-    tags = await isValidArray(tags, "Tags");
-    tags = tags.map((tag) => isValidID(tag, "TagID"));
-  }
+    if (tags && tags.length !== 0) {
+      tags = await isValidArray(tags, "Tags");
+      tags = tags.map((tag) => isValidID(tag, "TagID"));
+    }
 
-  const newAcademicResource = new AcademicResource({
-    title,
-    description,
-    url,
-    category,
-    uploadedBy: userId,
-    tags: tags || [],
-  });
+    const newAcademicResource = new AcademicResource({
+      title,
+      description,
+      url,
+      category,
+      uploadedBy: userId,
+      tags: tags || [],
+    });
 
     const savedAcademicResource = await newAcademicResource.save();
     if (!savedAcademicResource || !savedAcademicResource._id) {
@@ -67,8 +65,8 @@ export const getAllAcademicResources = async () => {
       .populate("category", "categoryName")
       .select("-reportedBy")
       .lean();
-      console.log("All Academic Resources: ", allAcademicResources);
-      
+    console.log("All Academic Resources: ", allAcademicResources);
+
     if (!allAcademicResources) {
       throw new Error(
         "Sorry, no Academic Resources available right now to be displayed"
@@ -478,9 +476,11 @@ export const searchAcademicResourceFilterSort = async (
 
   AcademicResources = await AcademicResource.find(AcademicResourceFilter)
     .sort(sortOption)
-    .populate("uploadedBy tags", "firstName lastName name -_id")
+    .populate(
+      "uploadedBy tags category",
+      "firstName lastName name -_id categoryName"
+    )
     .lean();
 
   return AcademicResources;
 };
-

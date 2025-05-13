@@ -4,8 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── SEARCH, SORT & FILTER VALIDATION ─────────────────────────────
   const searchForm = document.getElementById("searchForm");
   const searchInput = searchForm.querySelector("input[name='text']");
-  const sortSelect = searchForm.querySelector("select[name='sort']");
-  const orderSelect = searchForm.querySelector("select[name='order']");
 
   // Create inline error element for search if not present
   let searchError = document.getElementById("searchError");
@@ -30,30 +28,34 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     searchError.textContent = "";
-
-    // 2) Validate sort option
-    const validSorts = ["createdAt", "title", "url"];
-    if (!validSorts.includes(sortSelect.value)) {
-      e.preventDefault();
-      searchError.textContent = "Invalid sort option.";
-      searchInput.value = "";
-      searchInput.focus();
-      return;
-    }
-    searchError.textContent = "";
-
-    // 3) Validate order option
-    const validOrders = ["asc", "desc"];
-    if (!validOrders.includes(orderSelect.value)) {
-      e.preventDefault();
-      searchError.textContent = "Invalid order option.";
-      searchInput.value = "";
-      searchInput.focus();
-      return;
-    }
-    searchError.textContent = "";
   });
 
+  // —— FILTER VALIDATION ——
+  const filterForm = document.getElementById("categoryFilterForm");
+  const categorySelect = filterForm.querySelector("select[name='category']");
+
+  // Create inline error element if it doesn't exist
+  let filterError = document.getElementById("filterError");
+  if (!filterError) {
+    filterError = document.createElement("div");
+    filterError.id = "filterError";
+    filterError.className = "error-message";
+    filterError.style.color = "red";
+    filterError.style.marginTop = "0.25rem";
+    categorySelect.insertAdjacentElement("afterend", filterError);
+  }
+
+  filterForm.addEventListener("submit", (e) => {
+    const val = categorySelect.value.trim();
+
+    if (val !== "" && !/^[0-9a-fA-F]{24}$/.test(val)) {
+      e.preventDefault();
+      filterError.textContent = "Invalid category selected.";
+      categorySelect.focus();
+    } else {
+      filterError.textContent = "";
+    }
+  });
   // ---------------- Delete Resource Logic ------------------------
   const deleteButtons = document.querySelectorAll(".delete-button");
   deleteButtons.forEach((button) => {
@@ -81,29 +83,57 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ---------------- Report Modal Logic ----------------------------
+  // ----- REPORT MODAL LOGIC -----
   const reportButtons = document.querySelectorAll(".report-button");
   const reportModal = document.getElementById("reportModal");
   const reportForm = document.getElementById("reportForm");
   const reportContentIdInput = document.getElementById("reportContentId");
+  const reportReason = document.getElementById("reportReason");
+  const reportError = document.getElementById("reportError");
   const reportCancelBtn = document.getElementById("reportCancel");
 
+  // Open modal
   reportButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       reportContentIdInput.value = e.currentTarget.dataset.id;
+      reportError.style.display = "none";
+      reportError.textContent = "";
+      reportReason.value = "";
       reportModal.style.display = "flex";
     });
   });
 
+  // Close on Cancel
   reportCancelBtn.addEventListener("click", () => {
     reportModal.style.display = "none";
     reportForm.reset();
+    reportError.style.display = "none";
   });
 
+  // Close when clicking outside the modal-card
   reportModal.addEventListener("click", (e) => {
     if (e.target === reportModal) {
       reportModal.style.display = "none";
       reportForm.reset();
+      reportError.style.display = "none";
+    }
+  });
+
+  // Client‑side validation on submit
+  reportForm.addEventListener("submit", (e) => {
+    const reasonText = reportReason.value.trim();
+
+    // Check empty or too short
+    if (!reasonText) {
+      e.preventDefault();
+      reportError.textContent = "Please enter a reason for reporting.";
+      reportError.style.display = "block";
+      reportReason.value = "";
+    } else if (reasonText.length < 10) {
+      e.preventDefault();
+      reportError.textContent = "Reason must be at least 10 characters long.";
+      reportError.style.display = "block";
+      reportReason.value = "";
     }
   });
 

@@ -413,23 +413,16 @@ export const changeForumPostStatus = async (req, res) => {};
 // Delete a forum post image
 // export const deleteForumPostImage = async (req, res) => {};
 
-export async function searchFilterSort({
-  text = "",
-  postType,
-  sort = "createdAt",
-  order = "desc",
-}) {
-  const sortOption = { [sort]: order === "asc" ? 1 : -1 };
+export async function searchPosts({ text = "" }) {
   const trimmed = text.trim();
   const regex = trimmed ? new RegExp(trimmed, "i") : null;
 
   const forumFilter = {};
   const pollFilter = {};
 
-  let tagIds = [];
   if (regex) {
     const matchingTags = await Tag.find({ name: regex }).select("_id").lean();
-    tagIds = matchingTags.map((t) => t._id);
+    const tagIds = matchingTags.map((t) => t._id);
 
     forumFilter.$or = [
       { title: regex },
@@ -443,17 +436,36 @@ export async function searchFilterSort({
     ];
   }
 
-  let [forumPosts, pollPosts] = [[], []];
+  const forumPosts = await Forum.find(forumFilter)
+    .populate("userId tags", "firstName lastName name -_id")
+    .sort({ createdAt: -1 })
+    .lean();
 
-  if (!postType || postType === "forums") {
-    forumPosts = await Forum.find(forumFilter)
+  const pollPosts = await Poll.find(pollFilter)
+    .populate("createdBy tags", "firstName lastName name -_id")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return { forumPosts, pollPosts };
+}
+
+export async function filterAndSortPosts({
+  postType,
+  sort = "createdAt",
+  order = "desc",
+}) {
+  const sortOption = { [sort]: order === "asc" ? 1 : -1 };
+  let forumPosts = [];
+  let pollPosts = [];
+  if (postType === "forums" || postType === "all") {
+    forumPosts = await Forum.find({})
       .sort(sortOption)
       .populate("userId tags", "firstName lastName name -_id")
       .lean();
   }
 
-  if (!postType || postType === "polls") {
-    pollPosts = await Poll.find(pollFilter)
+  if (postType === "polls" || postType === "all") {
+    pollPosts = await Poll.find({})
       .sort(sortOption)
       .populate("createdBy tags", "firstName lastName name -_id")
       .lean();
