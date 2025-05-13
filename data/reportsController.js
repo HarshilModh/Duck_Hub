@@ -26,14 +26,15 @@ export const createReport = async (
   if (!type || !userId || !reason) {
     throw new Error("userId, type, reason are required");
   }
-  type = reportTypeValidation(type);
-  userId = isValidID(userId);
-  reason = isValidString(reason);
-  console.log("reportTypeValidation", type);
-  console.log("userId", userId);
-  console.log("reason", reason);
+  
 
   try {
+    type = reportTypeValidation(type);
+    userId = isValidID(userId);
+    reason = isValidString(reason);
+    console.log("reportTypeValidation", type);
+    console.log("userId", userId);
+    console.log("reason", reason);
     let forumUpdate;
     let academicResourceUpdate;
 
@@ -77,6 +78,7 @@ export const createReport = async (
         throw new Error("You can't report a resource more than once !");
       }
       //add userId to academicResource reportedBy
+       userId = new mongoose.Types.ObjectId(userId);
       let academicResource = await AcademicResource.findByIdAndUpdate(
         academicResourceId,
         { $addToSet: { reportedBy: userId } },
@@ -106,6 +108,8 @@ export const createReport = async (
     }
     return savedReport;
   } catch (error) {
+    console.log("error", error);
+    
     throw new Error(error.message);
   }
 };

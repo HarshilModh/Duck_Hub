@@ -1,40 +1,102 @@
 import AcademicResource from "../models/academicResources.model.js";
 import User from "../models/user.model.js";
 import AdminTags from "../models/preDefinedTags.model.js";
+import CategoryForAcademicResource from "../models/categoryForAcedmicResource.model.js";
+
+// const academicResourcesSchema = new mongoose.Schema(
+//   {
+//     title: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//       uppercase: true,
+//       maxLength: 50,
+//     },
+//     description: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//     url: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//     uploadedBy: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: User.modelName,
+//       required: true,
+//       trim: true,
+//     },
+//     tags: [
+//       {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: AdminTags.modelName,
+//       },
+//     ],
+//     upVotes: {
+//       type: Number,
+//       min: 0,
+//       default: 0,
+//     },
+//     downVotes: {
+//       type: Number,
+//       min: 0,
+//       default: 0,
+//     },
+//   reportedBy: [
+//       {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: User.modelName,
+//       },
+//     ],
+//     category: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: CategoryForAcademicResource.modelName,
+//       required: true,
+//     },
+//     status: {
+//       type: String,
+//       enum: ["active", "reported", "removed"],
+//       default: "active",
+//     },
+//   },
+//   { timestamps: true }
+// );
 
 export default async function seedAcademicResources() {
-  await AcademicResource.deleteMany({});
-  console.log("Cleared academic resources collection");
-  const users = await User.find().limit(2);
-  const adminTags = await AdminTags.find().limit(2);
-
-  if (users.length < 1 || adminTags.length < 1) {
-    console.warn(
-      "Need users & admin tags—run seedUsers & seedAdminTags first!"
-    );
-    return;
-  }
-
-  const sampleResources = [
+  let users = await User.find().limit(2);
+  let tags = await AdminTags.find().limit(5);
+  let categories = await CategoryForAcademicResource.find().limit(5);
+  let academicResources = [
     {
-      title: "NODE.JS OFFICIAL DOCS",
-      description: "The official Node.js documentation and API reference.",
-      url: "https://nodejs.org/dist/latest-v18.x/docs/api/",
+      title: "Introduction to Algorithms",
+      description: "A comprehensive guide to algorithms.",
+      url: "https://example.com/algorithms",
       uploadedBy: users[0]._id,
-      tags: [adminTags[0]._id],
-      status: "active",
+      tags: [tags[0]._id, tags[1]._id],
+      upVotes: 10,
+      downVotes: 2,
+      reportedBy: [],
+      category: categories[0]._id,
     },
     {
-      title: "MONGODB UNIVERSITY COURSE",
-      description:
-        "Free, online courses on MongoDB basics and advanced topics.",
-      url: "https://university.mongodb.com/",
+      title: "Data Structures in Java",
+      description: "Learn data structures using Java.",
+      url: "https://example.com/data-structures-java",
       uploadedBy: users[1]._id,
-      tags: [adminTags[1]._id],
-      status: "active",
+      tags: [tags[2]._id, tags[3]._id],
+      upVotes: 5,
+      downVotes: 1,
+      reportedBy: [],
+      category: categories[1]._id,
     },
   ];
-
-  await AcademicResource.insertMany(sampleResources);
-  console.log(`Inserted ${sampleResources.length} academic resources`);
+  try {
+    await AcademicResource.deleteMany({});
+    await AcademicResource.insertMany(academicResources);
+    console.log("Academic resources seeded successfully.");
+  } catch (error) {
+    console.error("Error seeding academic resources:", error);
+  }
 }
