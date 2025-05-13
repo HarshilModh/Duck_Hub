@@ -31,9 +31,7 @@ Database :
 Default Users :
 
 1. On loading the seed data, two accounts are automatically created for testing.
-
-ROLE            Email               Password
-Admin           alice@example.com   Password123!
-User            bob@example.com     Secret456!
-
+   a. Username (alice@example.com) || Password (Password123!) || Role (ADMIN)
+   b. Username (bob@example.com) || Password (Secret456!) || Role (USER)
+   
 Please create an account with your own email to test the OTP email functionality.
