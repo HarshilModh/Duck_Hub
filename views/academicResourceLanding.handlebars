@@ -1,28 +1,3 @@
-<form
-  id="searchForm"
-  action="/academicResources/search"
-  method="get"
-  class="search-form"
->
-  <input
-    type="text"
-    name="text"
-    placeholder="Search Academic Resources…"
-    value="{{text}}"
-    class="search-input"
-  />
-  <select name="sort" class="search-select">
-    <option value="createdAt" {{#if (eq sort "createdAt")}}selected{{/if}}>Date</option>
-    <option value="title" {{#if (eq sort "title")}}selected{{/if}}>Title</option>
-    <option value="url" {{#if (eq sort "url")}}selected{{/if}}>URL</option>
-  </select>
-  <select name="order" class="search-select">
-    <option value="asc" {{#if (eq order "asc")}}selected{{/if}}>Asc</option>
-    <option value="desc" {{#if (eq order "desc")}}selected{{/if}}>Desc</option>
-  </select>
-  <button type="submit" class="search-button">Search</button>
-</form>
-
 <div class="section-heading-bar">
   <h2 id="sectionHeading">Academic Resources</h2>
   <div class="section-buttons">
@@ -33,9 +8,14 @@
       <a href="#" id="openTagModal" class="create-tag-button">
         Create Tag
       </a>
+      {{!-- resCategory/create --}}
+      <a href="/resCategory/create" class="create-tag-button">
+        Create Category
+      </a>
     {{/if}}
   </div>
 </div>
+
 
 <div class="forum-posts-list">
   {{#each academicResources}}
@@ -67,7 +47,12 @@
           </button>
         {{/if}}
       </div>
-
+    {{!-- add catagortname --}}
+      {{#if this.category}}
+        <p class="forum-category">
+          Category: {{this.category.categoryName}}
+        </p>
+      {{/if}}
       <!-- Resource info -->
       <h3 class="forum-title">{{this.title}}</h3>
       <p class="forum-posted-by">

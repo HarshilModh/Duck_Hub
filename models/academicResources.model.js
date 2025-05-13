@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "./user.model.js";
 import AdminTags from "./preDefinedTags.model.js";
+import CategoryForAcademicResource from "./categoryForAcedmicResource.model.js";
 const academicResourcesSchema = new mongoose.Schema(
   {
     title: {
@@ -46,6 +47,11 @@ const academicResourcesSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: User.modelName,
       trim: true,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: CategoryForAcademicResource.modelName,
+      required: true,
     },
     status: {
       type: String,

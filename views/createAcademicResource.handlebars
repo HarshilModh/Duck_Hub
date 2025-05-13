@@ -28,6 +28,17 @@
         <textarea id="description" name="description" ></textarea>
       </div>
 
+{{!-- categories --}}
+      <div class="form-group">
+        <label for="category">Select Category:</label>
+        <select id="category" name="category">
+           <option value="" disabled selected>Select a category</option>
+
+          {{#each categories}}
+            <option value="{{this._id}}">{{this.categoryName}}</option>
+          {{/each}}
+        </select>
+      </div>
       <div class="form-group">
         <label for="url">URL:</label>
         <textarea id="url" name="url" ></textarea>
