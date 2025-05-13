@@ -16,10 +16,19 @@
 
             <p class="text-stevensGray mb-2"><strong>Reason:</strong> {{report.reason}}</p>
 
-            <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-500">
-              <span>Submitted: <time datetime="{{report.createdAt}}">{{report.createdAt}}</time></span>
-              {{#if report.resolvedAt}}<span>Resolved: <time datetime="{{report.resolvedAt}}">{{report.resolvedAt}}</time></span>{{/if}}
-            </div>
+<div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-500">
+  <span>
+    Submitted:
+    <span>{{report.createdAt}}</span>
+  </span>
+  {{#if report.resolvedAt}}
+    <span>
+      Resolved:
+      <span>{{report.resolvedAt}}</span>
+    </span>
+  {{/if}}
+</div>
+
 
             {{!-- Review Details --}}
             {{#if (eq report.reportedContentType "Review")}}

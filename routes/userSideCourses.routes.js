@@ -351,7 +351,7 @@ router.route("/myReviews").get(isLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user.user._id;
         let courseReviews = await getCourseReviewsByUserId(userId);
-        if (!courseReviews || courseReviews.length === 0) {
+        if (!courseReviews ) {
             req.session.toast = {
                 type: 'error',
                 message: 'No reviews found',
@@ -387,7 +387,7 @@ router.route("/myReviews").get(isLoggedIn, async (req, res) => {
             };
         });
 
-        if (!courseReviews || courseReviews.length === 0) {
+        if (!courseReviews) {
             req.session.toast = {
                 type: 'error',
                 message: 'No reviews found',
