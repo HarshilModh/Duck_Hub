@@ -1,4 +1,3 @@
-{{!-- Search form --}}
 <form
   id="searchForm"
   action="/academicResources/search"
@@ -75,7 +74,6 @@
         Posted by: {{this.uploadedBy.firstName}} {{this.uploadedBy.lastName}}
       </p>
 
-      {{!-- Tags list: moved here, right after “Posted by” --}}
       {{#if this.tags.length}}
         <div class="tags">
           {{#each this.tags}}

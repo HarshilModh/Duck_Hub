@@ -1,4 +1,3 @@
-// public/js/createPost.js
 document.addEventListener("DOMContentLoaded", () => {
   const createForumBtn = document.getElementById("createForumBtn");
   const createPollBtn = document.getElementById("createPollBtn");
@@ -16,11 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const pollSelect = document.getElementById("pollTags");
   const userId = document.getElementById("userId").value;
 
-  // ── Utility for inline errors ─────────────────────────
   function clearErrors(form) {
-    form.querySelectorAll(".error-message").forEach((div) => {
-      div.textContent = "";
-    });
+    form
+      .querySelectorAll(".error-message")
+      .forEach((div) => (div.textContent = ""));
   }
   function showError(el, message) {
     const container = el.closest(".form-group") || el.parentElement;
@@ -28,30 +26,86 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errDiv) errDiv.textContent = message;
   }
 
-  // ── Toggle between Forum vs Poll ───────────────────────
+  forumFormContainer.style.display = "none";
+  pollFormContainer.style.display = "none";
+  addNewTagBtn.style.display = "none";
+  newTagDiv.style.display = "none";
+
   createForumBtn.addEventListener("click", () => {
     forumFormContainer.style.display = "block";
     pollFormContainer.style.display = "none";
+
+    const forumTagGroup = forumForm
+      .querySelector("#tags")
+      .closest(".form-group");
+    forumTagGroup.appendChild(addNewTagBtn);
+    forumTagGroup.appendChild(newTagDiv);
+
+    addNewTagBtn.style.display = "inline-block";
+    newTagDiv.style.display = "none";
   });
+
   createPollBtn.addEventListener("click", () => {
     forumFormContainer.style.display = "none";
     pollFormContainer.style.display = "block";
+
+    const pollTagGroup = pollForm
+      .querySelector("#pollTags")
+      .closest(".form-group");
+    pollTagGroup.appendChild(addNewTagBtn);
+    pollTagGroup.appendChild(newTagDiv);
+
+    addNewTagBtn.style.display = "inline-block";
+    newTagDiv.style.display = "none";
   });
 
-  // ── Add New Tag flow ───────────────────────────────────
   addNewTagBtn.addEventListener("click", () => {
     newTagDiv.style.display = "block";
+    newTagInput.value = "";
+    newTagInput
+      .closest(".form-group")
+      .querySelector(".error-message").textContent = "";
     newTagInput.focus();
   });
 
+  newTagInput.addEventListener("input", () => {
+    newTagInput
+      .closest(".form-group")
+      .querySelector(".error-message").textContent = "";
+  });
+
   saveTagBtn.addEventListener("click", async () => {
-    const tagValue = newTagInput.value.trim().toUpperCase();
-    if (!tagValue) {
-      return showError(newTagInput, "Please enter a tag name.");
+    const tagRaw = newTagInput.value.trim();
+    const tagValue = tagRaw.toUpperCase();
+
+    if (!tagRaw) {
+      showError(newTagInput, "Please enter a tag name.");
+      newTagInput.focus();
+      return;
     }
+
+    if (/[^A-Za-z0-9 ]/.test(tagRaw)) {
+      showError(
+        newTagInput,
+        "Tags can only contain letters, numbers, and spaces."
+      );
+      newTagInput.focus();
+      return;
+    }
+
+    const existing = Array.from(forumSelect.options).map((opt) =>
+      opt.textContent.toUpperCase()
+    );
+    if (existing.includes(tagValue)) {
+      showError(newTagInput, "This tag already exists.");
+      newTagInput.focus();
+      return;
+    }
+
     if (!userId) {
       throw new Error("Cannot create a tag without logging in");
     }
+
     try {
       const res = await fetch("/tags", {
         method: "POST",
@@ -77,30 +131,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── FORUM: client‑side validation + submit ─────────────
   forumForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(forumForm);
 
-    // Title must not be empty
     const titleEl = forumForm.querySelector("#title");
+    const contentEl = forumForm.querySelector("#content");
+
     if (!titleEl.value.trim()) {
       showError(titleEl, "Title is mandatory");
-      titleEl.value = "";
       return;
     }
-
-    // Content must not be empty
-    const contentEl = forumForm.querySelector("#content");
     if (!contentEl.value.trim()) {
       showError(contentEl, "Content is mandatory");
-      contentEl.value = "";
       return;
     }
 
-    // All good → send
-    const formData = new FormData(forumForm);
     try {
+      const formData = new FormData(forumForm);
       const response = await fetch("/forums", {
         method: "POST",
         body: formData,
@@ -120,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── Dynamic poll options add/remove ────────────────────
   document.getElementById("add-option").addEventListener("click", () => {
     const wrapper = document.getElementById("options-wrapper");
     const idx = wrapper.querySelectorAll(".option-row").length + 1;
@@ -139,34 +186,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── POLL: client‑side validation + submit ──────────────
   pollForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearErrors(pollForm);
 
-    // Question must not be empty
     const questionEl = pollForm.querySelector("#question");
     if (!questionEl.value.trim()) {
       showError(questionEl, "Poll question is mandatory");
-      questionEl.value = "";
       return;
     }
 
-    // Options must all be non‑empty
-    const optsWrapper = pollForm.querySelector("#options-wrapper");
     const optionEls = pollForm.querySelectorAll('input[name="options[]"]');
     for (let i = 0; i < optionEls.length; i++) {
       if (!optionEls[i].value.trim()) {
+        const optsWrapper = pollForm.querySelector("#options-wrapper");
         showError(optsWrapper, `Option ${i + 1} cannot be empty`);
-        // clear all options so user re-enters
-        optionEls.forEach((el) => (el.value = ""));
         return;
       }
     }
 
-    // All good → send
-    const formData = new FormData(pollForm);
     try {
+      const formData = new FormData(pollForm);
       const response = await fetch("/polls", {
         method: "POST",
         body: formData,

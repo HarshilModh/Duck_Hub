@@ -1,4 +1,4 @@
-.forum-body .create-post-page {
+.create-post-page {
   max-width: 800px;
   margin: 100px auto;
   padding: 30px;
@@ -7,21 +7,20 @@
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.forum-body .create-post-page h2 {
+.create-post-page h2 {
   text-align: center;
   margin-bottom: 30px;
   font-size: 28px;
   color: #333;
 }
 
-.forum-body .post-type-selection {
+.create-post-page .post-type-selection {
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
   gap: 15px;
 }
-
-.forum-body .post-type-selection button {
+.create-post-page .post-type-selection button {
   padding: 10px 20px;
   font-size: 16px;
   background-color: #a32638;
@@ -31,25 +30,22 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
-.forum-body .post-type-selection button:hover {
+.create-post-page .post-type-selection button:hover {
   background-color: #7a1b2b;
 }
 
-.forum-body .form-group {
+.create-post-page .form-group {
   margin-bottom: 20px;
 }
-
-.forum-body .form-group label {
+.create-post-page .form-group label {
   display: block;
   font-weight: bold;
   margin-bottom: 8px;
   color: #555;
 }
-
-.forum-body .form-group input,
-.forum-body .form-group textarea,
-.forum-body .form-group select {
+.create-post-page .form-group input,
+.create-post-page .form-group textarea,
+.create-post-page .form-group select {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -57,12 +53,11 @@
   font-size: 16px;
   box-sizing: border-box;
 }
-
-.forum-body .form-group select[multiple] {
+.create-post-page .form-group select[multiple] {
   height: 150px;
 }
 
-.forum-body .submit-post-button {
+.create-post-page .submit-post-button {
   width: 100%;
   padding: 12px;
   background-color: #004380;
@@ -73,45 +68,37 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
-.forum-body .submit-post-button:hover {
+.create-post-page .submit-post-button:hover {
   background-color: #002f5b;
 }
 
-/* Poll Form Container override */
-.forum-body .create-post-page #pollFormContainer {
+.create-post-page #pollFormContainer {
   background-color: #e7f2fb;
   padding: 20px;
   border-radius: 8px;
   margin-top: 20px;
 }
-
-/* Poll form elements spacing */
-.forum-body .create-post-page #pollFormContainer .form-group {
+.create-post-page #pollFormContainer .form-group {
   margin-bottom: 20px;
 }
 
-/* Poll Options Styling */
-.forum-body .create-post-page #options-wrapper {
+.create-post-page #options-wrapper {
   margin-bottom: 20px;
 }
-
-.forum-body .create-post-page .option-row {
+.create-post-page .option-row {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
   align-items: center;
 }
-
-.forum-body .create-post-page .option-row input {
+.create-post-page .option-row input {
   flex: 1;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 16px;
 }
-
-.forum-body .create-post-page .option-row .remove-option {
+.create-post-page .option-row .remove-option {
   background: transparent;
   border: none;
   font-size: 20px;
@@ -120,12 +107,10 @@
   cursor: pointer;
   transition: color 0.3s ease;
 }
-
-.forum-body .create-post-page .option-row .remove-option:hover {
+.create-post-page .option-row .remove-option:hover {
   color: #7a1b2b;
 }
-
-.forum-body .create-post-page #add-option {
+.create-post-page #add-option {
   background: none;
   border: none;
   font-size: 16px;
@@ -134,19 +119,21 @@
   cursor: pointer;
   transition: color 0.3s ease;
 }
-
-.forum-body .create-post-page #add-option:hover {
+.create-post-page #add-option:hover {
   color: #002f5b;
 }
 
-/* Poll submit button override */
-.forum-body .create-post-page #pollFormContainer .submit-post-button {
-  background-color: #004380;
+.create-post-page #pollFormContainer .submit-post-button {
 }
 
 .error-message {
   color: #c00;
   font-size: 0.875rem;
   margin-top: 0.25rem;
-  min-height: 1em;  /* reserve the line even when empty */
+  min-height: 1em;
+}
+
+.create-post-page #addTagBtn,
+.create-post-page #newTagDiv {
+  display: none;
 }
