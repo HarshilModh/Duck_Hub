@@ -2,7 +2,6 @@
 <div class="min-h-screen bg-stevensBg font-body text-stevensGray">
   <div class="max-w-3xl mx-auto px-6 py-10 space-y-8">
 
-    <!-- Header: Back link + dynamic report count -->
     <div class="flex items-center justify-between mb-6">
       <a href="/report/dashboard" class="text-stevensMaroon hover:underline">
         ← Back to Dashboard
@@ -18,11 +17,10 @@
       </div>
     </div>
 
-    {{!-- Loop through each report in the `review` array --}}
+    
     {{#each review as |report|}}
       <div class="bg-stevensWhite rounded-2xl shadow-md p-8 space-y-6">
 
-        <!-- Course & Department (from courseDetails object) -->
         <div>
           <h1 class="text-2xl font-heading text-stevensMaroon">
             {{../courseDetails.courseCode}} – {{../courseDetails.courseName}}
@@ -82,7 +80,6 @@
           </div>
         </div>
 
-        <!-- Timestamps -->
         <div class="text-xs text-stevensGray space-y-1">
           <p>Posted: {{formatDate report.reviewId.createdAt}}</p>
           {{#if report.reviewId.updatedAt}}
@@ -90,8 +87,6 @@
           {{/if}}
         </div>
 
-        <!-- Report Reason & Status -->
-        <!-- Report Reason & Status -->
 <div class="grid grid-cols-2 gap-4 text-sm text-stevensGray">
   <div>
     <p class="font-medium">Reason</p>
