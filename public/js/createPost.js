@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const row = document.createElement("div");
     row.className = "option-row flex gap-2 mb-2";
     row.innerHTML = `
-      <input name="options[]" type="text" required placeholder="Option ${idx}" />
+      <input name="options[]" type="text"  placeholder="Option ${idx}" />
       <button type="button" class="remove-option">✕</button>
     `;
     wrapper.insertBefore(row, document.getElementById("add-option"));
