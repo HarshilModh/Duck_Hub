@@ -85,6 +85,8 @@ export const getCourseById = async (courseId) => {
   try {
     const course = await Course.findById(courseId).lean();
     if (!course) {
+      console.log("Course not found");
+      
         throw new Error("Course not found");
     }
     return course;

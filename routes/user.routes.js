@@ -234,7 +234,7 @@ router
     }
   });
 //Missing request Dashboard
-router.route("/missingRequestDashboard").get(async (req, res) => {
+router.route("/missingRequestDashboard").get(isLoggedIn,checkRole("admin"),async (req, res) => {
   // Check if user is logged in
   if (!req.session.user) {
     req.session.toast = {
@@ -278,7 +278,7 @@ router.route("/missingRequestDashboard").get(async (req, res) => {
 // Middleware to check if user is logged in
 router.use(isLoggedIn);
 // Get all users
-router.route("/getAllUsers").get(async (req, res) => {
+router.route("/getAllUsers").get(isLoggedIn,checkRole("admin"),async (req, res) => {
   try {
     const users = await getUsers();
     if (users) {
@@ -432,6 +432,8 @@ router.get("/search/:name", searchUserByName);
 router.get("/role/:role", getUsersByRole);
 
 //Update user profile
+//test xss
+
 router
   .route("/editProfile")
   .get(async (req, res) => {

@@ -326,6 +326,8 @@ export const getCourseReviewsByCourseId = async (courseId) => {
     }
     return reviews;
   } catch (error) {
+    console.log("Error in getCourseReviewsByCourseId: ", error);
+    
     throw new Error(error.message);
   }
 };
