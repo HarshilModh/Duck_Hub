@@ -46,4 +46,7 @@ The following features have been excluded after discussing with the professor.
 - Admin can create accounts for users if needed. (Excluded)
 2. Changed a little 
 - When a user attempts to create a new tag on the Academic Resources page, display an alert explaining that tag creation isn’t allowed there.
+
+what he have changed:
+
 - Do not render the “Create Tag” button at all on the Academic Resources page, so users never have the option to initiate tag creation.
