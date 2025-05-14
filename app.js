@@ -13,11 +13,11 @@ import authRoutes from './routes/googleLogin.routes.js';
 
 
 
-// 1️⃣ Create your app
+//  Create your app
 const app = express();
 dotenv.config();
 
-// 2️⃣ Standard middleware
+// Standard middleware
 
 app.use(cors());
 app.use(express.json());
@@ -25,7 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use("/public", express.static("public"));
 
-// 3️⃣ Method-override helper (if you still need it)
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
   if (req.body && req.body._method) {
     req.method = req.body._method;
@@ -35,7 +34,7 @@ const rewriteUnsupportedBrowserMethods = (req, res, next) => {
 };
 app.use(rewriteUnsupportedBrowserMethods);
 
-// 4️⃣ Session (must come before toast-middleware)
+//  Session (must come before toast-middleware)
 app.use(
   session({
     name: "AuthenticationState",
@@ -45,7 +44,7 @@ app.use(
   })
 );
 
-// 5️⃣ Toast-middleware: expose once, then clear
+//  Toast-middleware: expose once, then clear
 app.use((req, res, next) => {
   res.locals.toast = req.session.toast || null;
   delete req.session.toast;
@@ -61,7 +60,7 @@ app.use((req, res, next) => {
   
   next();
 });
-// 6️⃣ Register Handlebars + `json` helper
+//  Register Handlebars + `json` helper
 app.engine(
   "handlebars",
   exphbs.engine({ 
@@ -80,7 +79,7 @@ app.engine(
 );
 app.set("view engine", "handlebars");
 
-// 7️⃣ Your routes
+// Your routes
 //google login routes
 app.use('/auth', authRoutes); // Google login routes
 // app.use("/", indexRoutes)
@@ -88,7 +87,7 @@ indexRoutes(app);
 
 
 
-// 8️⃣ Connect DB & start server
+//  Connect DB & start server
 connectDB()
   .then(() =>
     app.listen(process.env.PORT, () =>
