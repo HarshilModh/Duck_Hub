@@ -462,7 +462,41 @@ router
   })
   .put(async (req, res) => {
     const userId = req.session.user.user._id;
-    const { firstName, lastName, email } = req.body;
+    let firstName = xss(req.body.firstName);
+    let lastName = xss(req.body.lastName);
+    let email = xss(req.body.email);
+    if (!firstName || !lastName || !email) {
+      req.session.toast = {
+        type: "error",
+        message: "Please fill all the fields",
+      };
+      return res.redirect("/users/editProfile");
+    }
+    // Trimmed validations
+    firstName = firstName.trim();
+    lastName = lastName.trim();
+    email = email.trim();
+    if (firstName.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "First name cannot be empty",
+      };
+      return res.redirect("/users/editProfile");
+    }
+    if (lastName.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "Last name cannot be empty",
+      };
+      return res.redirect("/users/editProfile");
+    }
+    if (email.length == 0) {
+      req.session.toast = {
+        type: "error",
+        message: "Email cannot be empty",
+      };
+      return res.redirect("/users/editProfile");
+    }
     try {
       const updatedUser = await updateUser(userId, firstName, lastName, email);
       console.log(updatedUser);

@@ -201,6 +201,17 @@ export const updateUser = async (userId, firstName, lastName, email) => {
     if (!user) {
       throw new Error("User not found");
     }
+    let isEmailAlreadyExists = await User.findOne({ email: email });
+    if (isEmailAlreadyExists && isEmailAlreadyExists._id.toString() !== userId) {
+      throw new Error("Email already exists");
+    }
+    if (isEmailAlreadyExists && isEmailAlreadyExists._id.toString() === userId) {
+      console.log("Email already exists but same user");
+    }
+    if (user.email === email) {
+      console.log("Email already exists but same user");
+    }
+    
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { firstName, lastName, email },
