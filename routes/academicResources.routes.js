@@ -262,6 +262,8 @@ router.route("/search").get(isLoggedIn, async (req, res) => {
         '<link rel="stylesheet" href="/public/css/academicResourceLanding.css">',
     });
   } catch (error) {
+    console.log("Error searching academic resources:", error);
+    
     req.session.toast = {
       type: "error",
       message: "Failed to search Academic Resources. Please try again.",

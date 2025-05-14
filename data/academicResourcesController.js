@@ -462,7 +462,6 @@ export const searchAcademicResourceFilterSort = async (
   if (regex) {
     const matchingTags = await AdminTags.find({ name: regex })
       .select("_id")
-      .populate("category", "categoryName")
       .lean();
     tagIds = matchingTags.map((t) => t._id);
 
