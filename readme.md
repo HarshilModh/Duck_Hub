@@ -42,6 +42,8 @@ b. Username (bob@example.com) || Password (Secret456!) || Role (USER)
 Missing Features :
 
 The following features have been excluded after discussing with the professor.
-
+1. Excluded
 - Admin can create accounts for users if needed. (Excluded)
-- Users will be prompted with an alert message if they tried to create new tags for Academic Resources. (Only admin can see the create tag button)
+2. Changed a little 
+- When a user attempts to create a new tag on the Academic Resources page, display an alert explaining that tag creation isn’t allowed there.
+- Do not render the “Create Tag” button at all on the Academic Resources page, so users never have the option to initiate tag creation.
