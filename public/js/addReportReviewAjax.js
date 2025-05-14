@@ -1,32 +1,4 @@
-{/* <div class="mt-4">
-  <form
-    action="/report/Review"
-    method="POST"
-    class="flex items-center space-x-2"
-    id="reportReviewForm"
-  >
-    <input type="hidden" name="contentId" value="{{this.review._id}}" />
-    <input type="hidden" name="userId" value="{{userId}}" />
-  
-    <input
-      type="text"
-      name="reason"
-      placeholder="Reason for reporting…"
-      id="reason"
-      class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stevensMaroon focus:border-stevensMaroon"
-    />
 
-    <button
-      type="submit"
-      id="reportReviewButton"
-      class="bg-red-600 text-stevensWhite px-4 py-2 rounded-lg hover:bg-red-700 transition"
-    >
-      Report
-    </button>
-  </form>
-</div> */}
-
-    //add toast message to the top of the page
 
 
 document.addEventListener("DOMContentLoaded", function () { 
