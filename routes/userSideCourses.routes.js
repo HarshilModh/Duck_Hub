@@ -406,7 +406,7 @@ router.route("/myReviews").get(isLoggedIn, async (req, res) => {
         }
         console.log("rendering my reviews page");
 
-        res.render('MyReviews', { title: 'My Reviews', courseReviews });
+        res.render('myReviews', { title: 'My Reviews', courseReviews });
     } catch (error) {
         console.error(error);
         req.session.toast = {
