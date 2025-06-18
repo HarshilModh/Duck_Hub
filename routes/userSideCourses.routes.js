@@ -359,7 +359,7 @@ router.route('/course/addReview/:id').get(isLoggedIn, async (req, res) => {
 router.route("/myReviews").get(isLoggedIn, async (req, res) => {
     console.log("Fetching all reviews");
     try {
-        const userId = req.session.user.user._id;
+        const userId = await req.session.user.user._id;
         let courseReviews = await getCourseReviewsByUserId(userId);
         if (!courseReviews ) {
             req.session.toast = {
