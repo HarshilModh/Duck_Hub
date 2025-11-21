@@ -2,7 +2,7 @@
 
 Duck Hub is a comprehensive campus community platform designed to connect students and streamline access to university resources. It serves as a central hub for academic materials, course reviews, campus discussions, and real-time polling.
 
-![Duck Hub Preview](https://placehold.co/1200x600/FFD700/000000?text=Duck+Hub+Dashboard)
+https://duck-hub.onrender.com/forums
 
 ## ✨ Features
 
