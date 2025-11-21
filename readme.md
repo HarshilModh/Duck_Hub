@@ -1,96 +1,122 @@
-# Duck Hub 🦆
+# Code With Vibe ⚡
 
-Duck Hub is a comprehensive campus community platform designed to connect students and streamline access to university resources. It serves as a central hub for academic materials, course reviews, campus discussions, and real-time polling.
+> **Build, run, and ship full-stack applications directly in your browser.**
 
-https://duck-hub.onrender.com/forums
+Code With Vibe is an advanced online development environment powered by **WebContainers** and **AI**. It allows developers to spin up instant dev environments for popular frameworks, write code with AI assistance, and run Node.js commands entirely within the browser—no local setup required.
 
-## ✨ Features
+![Code With Vibe Preview](https://placehold.co/1200x600/0f172a/ffffff?text=Code+With+Vibe+IDE)
 
-* **💬 Community Forums**: Engage in discussions with rich text, image uploads, and tagging.
-* **📚 Academic Resources**: Shared repository for study materials.
-* **🏫 Campus Guide**: Directory of campus locations with operating hours and maps.
-* **⭐ Course Reviews**: Peer-driven review system for university courses.
-* **📊 Polls**: Interactive student opinion polls.
-* **🔐 Secure Authentication**: Local and Google OAuth 2.0 login with OTP verification.
+## 🌟 Features
+
+* **💻 Browser-Native Runtime**: Powered by [WebContainers](https://webcontainers.io/), enabling Node.js servers, scripts, and package managers to run entirely inside your browser tab.
+* **🤖 AI Copilot**: Integrated AI chat and code completion to help you generate code, debug errors, and scaffold projects faster.
+* **🚀 Instant Templates**: Start coding immediately with pre-configured starters for:
+    * ⚛️ **React** (Vite, Next.js)
+    * 🟢 **Vue** (Vite, Nuxt)
+    * 🔥 **Svelte** (Vite, SvelteKit)
+    * 🅰️ **Angular**
+    * 🚀 **Astro**
+    * 🛡️ **Hono**, **Express**, **Koa**, and more.
+* **🖥️ Integrated Terminal**: Full-featured terminal to run commands like `npm install`, `npm run dev`, and execute scripts.
+* **📂 File Explorer**: VS Code-like file management with create, rename, and delete capabilities.
+* **👀 Live Preview**: Instant hot-reloading preview of your application.
+* **🔐 Secure Authentication**: User accounts and project persistence managed via **Auth.js** (NextAuth).
 
 ## 🛠️ Tech Stack
 
-* **Backend**: Node.js, Express.js
-* **Database**: MongoDB (Mongoose)
-* **Templating**: Handlebars
-* **Auth**: Passport.js (Google Strategy), BCrypt
-* **Storage**: Cloudinary
+* **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+* **Language**: [TypeScript](https://www.typescriptlang.org/)
+* **Runtime**: [WebContainers API](https://webcontainers.io/)
+* **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
+* **Database**: [PostgreSQL](https://www.postgresql.org/) (managed via [Prisma](https://www.prisma.io/))
+* **Authentication**: [Auth.js](https://authjs.dev/) (NextAuth v5)
+* **State Management**: React Hooks & Context
 
----
+## 🚀 Getting Started
 
-## 🚀 Installation
+Follow these steps to set up the project locally.
 
-1.  Clone the repository to your local machine using the command:
+### Prerequisites
+
+* Node.js (v18+)
+* npm or pnpm
+* A PostgreSQL database (Local or Cloud like Neon/Supabase)
+
+### Installation
+
+1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/HarshilModh/Duck_Hub.git](https://github.com/HarshilModh/Duck_Hub.git)
+    git clone [https://github.com/HarshilModh/code_with_vibe.git](https://github.com/HarshilModh/code_with_vibe.git)
+    cd code_with_vibe
     ```
 
-2.  Install the dependencies needed for the project:
+2.  **Install dependencies**
     ```bash
     npm install
+    # or
+    pnpm install
     ```
 
-3.  Load seed data:
+3.  **Environment Setup**
+    Create a `.env` file in the root directory and add the following variables:
+
+    ```env
+    # Database Connection
+    DATABASE_URL="postgresql://user:password@localhost:5432/vibecode?schema=public"
+
+    # Authentication (Generate a secret with `openssl rand -base64 32`)
+    AUTH_SECRET="your-secret-key"
+    
+    # OAuth Providers (Optional - for GitHub login)
+    GITHUB_CLIENT_ID="your-github-client-id"
+    GITHUB_CLIENT_SECRET="your-github-client-secret"
+
+    # AI Configuration (If using OpenAI/Anthropic)
+    OPENAI_API_KEY="your-openai-key"
+    ```
+
+4.  **Database Setup**
+    Push the Prisma schema to your database:
     ```bash
-    npm run seed
+    npx prisma db push
     ```
 
-4.  Start the application:
+5.  **Start the Development Server**
     ```bash
-    npm start
+    npm run dev
     ```
 
-Once the server is running, it listens on **PORT: 3000** by default.
+    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 🌐 Accessing the Application
+## 📂 Project Structure
 
-1.  **Project URL**: [http://localhost:3000/](http://localhost:3000/)
-2.  Navigate to `http://localhost:3000/users/signup` to create a new account.
-3.  Navigate to `http://localhost:3000/users/login` to login to an existing account.
+* `app/`: Next.js App Router pages and API routes.
+    * `api/`: Backend endpoints for auth, chat, and template handling.
+    * `playground/`: The core IDE interface logic.
+* `components/`: Reusable UI components (Buttons, Dialogs, etc.).
+* `lib/`: Utility functions and database clients.
+* `modules/`: Feature-specific logic:
+    * `ai-chat`: AI assistant implementation.
+    * `webcontainers`: Logic for the in-browser Node.js runtime.
+    * `dashboard`: User project management.
+* `vibecode-starters/`: Source code for the starter templates available in the IDE.
 
-## 🗄️ Database
+## 🤝 Contributing
 
-1.  A MongoDB database named `duck_Hub` is created automatically (on `localhost:27017`) when you run the seed script.
-2.  Open MongoDB Compass and connect to:
-    ```
-    mongodb://localhost:27017/duck_Hub
-    ```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 🧪 Default Users
+1.  Fork the repository
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-On loading the seed data, two accounts are automatically created for testing:
+## 📄 License
 
-| Role | Username (Email) | Password |
-| :--- | :--- | :--- |
-| **ADMIN** | `alice@example.com` | `Password123!` |
-| **USER** | `bob@example.com` | `Secret456!` |
-
-> **Note:** Please create an account with your own email to test the OTP email functionality. OTP can sometimes land in your spam or junk folder, so please check that.
-
-## ⚠️ Missing / Changed Features
-
-The following features have been excluded or modified after discussing with the professor:
-
-1.  **Excluded**:
-    * Admin can create accounts for users if needed.
-
-2.  **Changed**:
-    * *Original Requirement*: When a user attempts to create a new tag on the Academic Resources page, display an alert explaining that tag creation isn’t allowed there.
-    * *Current Implementation*: Do not render the “Create Tag” button at all on the Academic Resources page, so users never have the option to initiate tag creation.
-
-## 🔑 Environment Variables
-
-If you want access to the `.env` file, please mail us at:
-* `vkovvuri@stevens.edu`
-* `hmodh@stevens.edu`
+This project is open-source and available under the [MIT License](LICENSE).
 
 ---
 
 <p align="center">
-  Built with 🦆 for the Campus Community
+  Made with ❤️ by <a href="https://github.com/HarshilModh">Harshil Modh</a>
 </p>
