@@ -1,58 +1,96 @@
-Installation :
+# Duck Hub 🦆
 
-1. Clone the repository to tout local machine using the command
-   https://github.com/HarshilModh/Duck_Hub.git
+Duck Hub is a comprehensive campus community platform designed to connect students and streamline access to university resources. It serves as a central hub for academic materials, course reviews, campus discussions, and real-time polling.
 
-2. Install the dependencies needed for the project
-   npm install
+![Duck Hub Preview](https://placehold.co/1200x600/FFD700/000000?text=Duck+Hub+Dashboard)
 
-3. Load seed data
-   npm run seed
+## ✨ Features
 
-4. Start the application
-   npm start
+* **💬 Community Forums**: Engage in discussions with rich text, image uploads, and tagging.
+* **📚 Academic Resources**: Shared repository for study materials.
+* **🏫 Campus Guide**: Directory of campus locations with operating hours and maps.
+* **⭐ Course Reviews**: Peer-driven review system for university courses.
+* **📊 Polls**: Interactive student opinion polls.
+* **🔐 Secure Authentication**: Local and Google OAuth 2.0 login with OTP verification.
 
-Once the server is running, it listens on PORT: 3000 by default.
+## 🛠️ Tech Stack
 
-Accessing the Application :
+* **Backend**: Node.js, Express.js
+* **Database**: MongoDB (Mongoose)
+* **Templating**: Handlebars
+* **Auth**: Passport.js (Google Strategy), BCrypt
+* **Storage**: Cloudinary
 
-1. Project URL : http://localhost:3000/
+---
 
-2. Navigate to http://localhost:3000/users/signup to create a new account.
+## 🚀 Installation
 
-3. Navigate to http://localhost:3000/users/login to login to an existing account.
+1.  Clone the repository to your local machine using the command:
+    ```bash
+    git clone [https://github.com/HarshilModh/Duck_Hub.git](https://github.com/HarshilModh/Duck_Hub.git)
+    ```
 
-Database :
+2.  Install the dependencies needed for the project:
+    ```bash
+    npm install
+    ```
 
-1. A MongoDB database named duck_Hub is created automatically (on localhost:27017) when you run the seed script.
+3.  Load seed data:
+    ```bash
+    npm run seed
+    ```
 
-2. Open MongoDB Compass and connect to mongodb://localhost:27017/duck_Hub
+4.  Start the application:
+    ```bash
+    npm start
+    ```
 
-Default Users :
+Once the server is running, it listens on **PORT: 3000** by default.
 
-1. On loading the seed data, two accounts are automatically created for testing.
+## 🌐 Accessing the Application
 
-a. Username (alice@example.com) || Password (Password123!) || Role (ADMIN)
-b. Username (bob@example.com) || Password (Secret456!) || Role (USER)
+1.  **Project URL**: [http://localhost:3000/](http://localhost:3000/)
+2.  Navigate to `http://localhost:3000/users/signup` to create a new account.
+3.  Navigate to `http://localhost:3000/users/login` to login to an existing account.
 
-- Please create an account with your own email to test the OTP email functionality.
+## 🗄️ Database
 
-- OTP can come sometimes land in your spam or junk folder so please check that.
+1.  A MongoDB database named `duck_Hub` is created automatically (on `localhost:27017`) when you run the seed script.
+2.  Open MongoDB Compass and connect to:
+    ```
+    mongodb://localhost:27017/duck_Hub
+    ```
 
-Missing Features :
+## 🧪 Default Users
 
-The following features have been excluded after discussing with the professor.
+On loading the seed data, two accounts are automatically created for testing:
 
-1. Excluded
+| Role | Username (Email) | Password |
+| :--- | :--- | :--- |
+| **ADMIN** | `alice@example.com` | `Password123!` |
+| **USER** | `bob@example.com` | `Secret456!` |
 
-- Admin can create accounts for users if needed. (Excluded)
+> **Note:** Please create an account with your own email to test the OTP email functionality. OTP can sometimes land in your spam or junk folder, so please check that.
 
-2. Changed a little
+## ⚠️ Missing / Changed Features
 
-- When a user attempts to create a new tag on the Academic Resources page, display an alert explaining that tag creation isn’t allowed there.
+The following features have been excluded or modified after discussing with the professor:
 
-what he have changed:
+1.  **Excluded**:
+    * Admin can create accounts for users if needed.
 
-- Do not render the “Create Tag” button at all on the Academic Resources page, so users never have the option to initiate tag creation.
+2.  **Changed**:
+    * *Original Requirement*: When a user attempts to create a new tag on the Academic Resources page, display an alert explaining that tag creation isn’t allowed there.
+    * *Current Implementation*: Do not render the “Create Tag” button at all on the Academic Resources page, so users never have the option to initiate tag creation.
 
-- If you want access to the env file, please mail us at vkovvuri@stevens.edu (or) hmodh@stevens.edu
+## 🔑 Environment Variables
+
+If you want access to the `.env` file, please mail us at:
+* `vkovvuri@stevens.edu`
+* `hmodh@stevens.edu`
+
+---
+
+<p align="center">
+  Built with 🦆 for the Campus Community
+</p>
